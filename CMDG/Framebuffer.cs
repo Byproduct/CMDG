@@ -15,6 +15,9 @@ namespace CMDG
 
         public static void SetPixel(int x, int y, Color32 color)
         {
+            x = Math.Clamp(x, 0, Config.ScreenWidth - 1);
+            y = Math.Clamp(y, 0, Config.ScreenHeight - 1);
+
             Backbuffer[y * Config.ScreenWidth + x] = color;
         }
         public static void SetDebugLine(string s)
