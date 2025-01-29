@@ -1,0 +1,51 @@
+﻿ANSI reference - for dev purposes only, not needed for using iFramebuffer
+
+CMDG integer - Foreground / Background / COLOR equivalent
+0	-	Black			-	Esc[30m	- Esc[40m - 0
+1	-	Dark red		-	Esc[31m - Esc[41m - 4
+2	-	Dark green		-	Esc[32m - Esc[42m - 2
+3	-	Dark yellow		-	Esc[33m - Esc[43m - 6
+4	-	Dark blue		-	Esc[34m - Esc[44m - 1
+5	-	Dark magenta	-	Esc[35m - Esc[45m - 5
+6	-	Dark cyan		-	Esc[36m - Esc[46m - 3
+7	-	Dark white		-	Esc[37m - Esc[47m - 7
+8	-	Dark grey		-	Esc[90m - Esc[100m - 8
+9	-	Light red		-	Esc[91m - Esc[101m - C
+10	-	Light green		-	Esc[92m - Esc[102m - A
+11	-	Light yellow	-	Esc[93m - Esc[103m - E
+12	-	Light blue		-	Esc[94m - Esc[104m - 9
+13	-	Light magenta	-	Esc[95m - Esc[105m - D
+14	-	Light cyan		-	Esc[96m - Esc[106m - B
+15	-	White			-	Esc[97m - Esc[107m - F
+
+
+Bold - Esc[1m 	  	 
+Underline - Esc[4m 	  	 
+No underline - Esc[24m 	  	 
+Reverse text -Esc[7m 	  	 
+Positive text (not reversed) - Esc[27m 	  	 
+Default - Esc[0m
+
+https://en.wikipedia.org/wiki/List_of_Unicode_characters
+
+
+
+Print reference on console:
+Console.WriteLine(Util.ANSI_reset_code);
+Console.WriteLine(Util.ansi_foreground_colour_codes[7] + "ANSI color number and approximate RGB");
+Console.WriteLine(Util.ansi_foreground_colour_codes[0] + "███  " + Util.ansi_foreground_colour_codes[7] + "0 (0, 0, 0)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[1] + "███  1 (197, 15, 31)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[2] + "███  2 (19, 161, 14");
+Console.WriteLine(Util.ansi_foreground_colour_codes[3] + "███  3 (193, 156, 0)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[4] + "███  4 (0, 55, 218)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[5] + "███  5 (136, 23, 152)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[6] + "███  6 (58, 150, 221)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[7] + "███  7 (204, 204, 204");
+Console.WriteLine(Util.ansi_foreground_colour_codes[8] + "███  8 (118, 118, 118");
+Console.WriteLine(Util.ansi_foreground_colour_codes[9] + "███  9 (231, 72, 86)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[10] + "███  10 (22, 198, 12)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[11] + "███  11 (249, 241, 165)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[12] + "███  12 (59, 120, 255)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[13] + "███  13 (180, 0, 158)");
+Console.WriteLine(Util.ansi_foreground_colour_codes[14] + "███  14 (97, 214, 214");
+Console.WriteLine(Util.ansi_foreground_colour_codes[15] + "███  15 (242, 242, 242");
