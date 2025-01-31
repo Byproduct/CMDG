@@ -28,10 +28,6 @@ namespace CMDG
 
         public static void Initialize()
         {
-            if (Config.DoubleWidth)
-            {
-                Framebuffer.pixelCharacter = "  ";
-            }
             ansi_foreground_colour_codes.Add(0, ANSI_escape_character + "[30m");
             ansi_foreground_colour_codes.Add(1, ANSI_escape_character + "[31m");
             ansi_foreground_colour_codes.Add(2, ANSI_escape_character + "[32m");

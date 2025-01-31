@@ -24,7 +24,7 @@ namespace CMDG
                 }
             }
 
-            // If spent less time calculating this frame than max fps, wait to steady the framerate.
+            // If calculating this frame needed less time than specified max framerate, wait to steady the framerate to max.
             int waitTime = maxMs - frameCalcTime;
             if (waitTime > 0)
             {
@@ -35,7 +35,7 @@ namespace CMDG
                 waitTime = 0;
             }
             Framebuffer.SetDebugLine($"Calc frame: {frameCalcTime} ms      \nIdle      : {waitTime} ms   (max {Config.MaxFrameRate} fps)      ");
-            Framebuffer.DrawScreen();  // to-do: frame drawing on separate thread
+            Framebuffer.DrawScreen();  // to-do: frame drawing in separate thread - drawing time is added to total time until implemented.
         }
     }
 }
