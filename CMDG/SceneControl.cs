@@ -5,7 +5,7 @@ namespace CMDG
     internal class SceneControl
     {
         public static Stopwatch FrameCalcStopwatch = new();
-        static int maxMs = (int)(1000 / Config.MaxFrameRate);
+        public static int maxMs = (int)(1000 / Config.MaxFrameRate);
 
         public static void StartFrame()
         {
@@ -14,7 +14,8 @@ namespace CMDG
         }
         public static void EndFrame()
         {
-            int frameCalcTime = (int)(FrameCalcStopwatch.ElapsedMilliseconds);
+            Framebuffer.BackbufferToSwapbuffer();
+
             if (Console.KeyAvailable)
             {
                 var key = Console.ReadKey(intercept: true);
@@ -24,18 +25,21 @@ namespace CMDG
                 }
             }
 
+            FrameCalcStopwatch.Stop();
+            int calcFrameTime = (int)(FrameCalcStopwatch.ElapsedMilliseconds);
+            Framebuffer.CalcFrameTime = calcFrameTime;
+
             // If calculating this frame needed less time than specified max framerate, wait to steady the framerate to max.
-            int waitTime = maxMs - frameCalcTime;
-            if (waitTime > 0)
+            int calcWaitTime = maxMs - calcFrameTime;
+            if (calcWaitTime > 0)
             {
-                Thread.Sleep(waitTime);
+                Thread.Sleep(calcWaitTime);
             }
             else
             {
-                waitTime = 0;
+                calcWaitTime = 0;
             }
-            Framebuffer.SetDebugLine($"Calc frame: {frameCalcTime} ms      \nIdle      : {waitTime} ms   (max {Config.MaxFrameRate} fps)      ");
-            Framebuffer.DrawScreen();  // to-do: frame drawing in separate thread - drawing time is added to total time until implemented.
+            Framebuffer.CalcFrameWaitTime = calcWaitTime;
         }
     }
 }

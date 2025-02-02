@@ -22,7 +22,7 @@
             // Create 1000 "pixels" of random color and position
             Random random = new Random();
             List<movingPixel> movingPixels = new();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 500; i++)
             {
                 Color32 randomColor = new Color32((byte)random.Next(0, 256), (byte)random.Next(0, 256), (byte)random.Next(0, 256));
                 movingPixel pxl = new movingPixel(randomColor, random.Next(0, Config.ScreenWidth), random.Next(0, Config.ScreenHeight));
