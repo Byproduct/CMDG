@@ -87,8 +87,26 @@ namespace CMDG
                 // Draw the line only if it has changed
                 if (!line.AsSpan().SequenceEqual(previousLine.AsSpan()))
                 {
-                    // Move cursor to the start of the line. X-coordinate is offset by 2: one unit for border, and another for 1-based ANSI coordinates.
-                    outputBuffer.Append($"\x1b[{y + 2};2H");
+                    // Find the first changed position within the line, scanning from left to right
+                    int firstChangedX = 0;
+                    for (int x = 0; x < Config.ScreenWidth; x++)
+                    {
+                        if (!line[x].Equals(previousLine[x]))
+                        {
+                            firstChangedX = x;
+                            break;
+                        }
+                    }
+                    
+                    // Set the cursor based on the first changed x-position within the line:
+                    // Offset one unit for 1-based ANSI coordinates and one unit for picture border, then moved based on the first x-position and the optional double width characters.
+                    int xCursorPosition = 2 + firstChangedX;
+                    if (Config.DoubleWidth)
+                    {
+                        xCursorPosition += firstChangedX;
+                    }
+                    outputBuffer.Append($"\x1b[{y + 2};{xCursorPosition}H");
+
 
                     // Find the last changed position within the line, scanning from right to left
                     int lastChangedX = -1;
@@ -101,22 +119,19 @@ namespace CMDG
                         }
                     }
 
-                    if (lastChangedX >= 0)  // Should not be strictly necessary because we already checked for identical lines earlier, but doesn't hurt to be sure.
+                    int previousColorCode = -1;
+                    // Iterate character by character, but only from and up to the last changed positions
+                    for (int x = firstChangedX; x < lastChangedX; x++)
                     {
-                        int previousColorCode = -1;
-                        // Iterate character by character, but only up to the last changed x-position 
-                        for (int x = 0; x < lastChangedX; x++)
+                        int colorCode = ColorConverter.GetClosestAnsiColorIndexFromMap(line[x]);
+                        // Add ANSI color command only if the color changed from the previous character.
+                        if (colorCode != previousColorCode)
                         {
-                            int colorCode = ColorConverter.GetClosestAnsiColorIndexFromMap(line[x]);
-                            // Add ANSI color command only if the color changed from the previous character.
-                            if (colorCode != previousColorCode)
-                            {
-                                outputBuffer.Append(Util.ansi_background_colour_codes[colorCode]);
-                                previousColorCode = colorCode;
-                            }
-                            outputBuffer.Append(pixelCharacter);
-                            if (Config.DoubleWidth) outputBuffer.Append(pixelCharacter);  // Add another character if double width is used.
+                            outputBuffer.Append(Util.ansi_background_colour_codes[colorCode]);
+                            previousColorCode = colorCode;
                         }
+                        outputBuffer.Append(pixelCharacter);
+                        if (Config.DoubleWidth) outputBuffer.Append(pixelCharacter);  // Add another character if double width is used.
                     }
                 }
             }
