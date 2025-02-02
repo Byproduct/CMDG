@@ -8,6 +8,6 @@ namespace CMDG
         public const int ScreenWidth = 200;
         public const int ScreenHeight = 100;
         public const bool ShowTime = true;                  // Display draw/calc/wait milliseconds below screen
-        public const bool DoubleWidth = true;               // Use two character blocks to display one "pixel". (Looks more square, but requires more space and processing time.)
+        public const bool DoubleWidth = false;               // Use two character blocks to display one "pixel". (Looks more square, but requires more space and processing time.)
     }
 }
