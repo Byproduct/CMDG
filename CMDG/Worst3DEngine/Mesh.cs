@@ -63,29 +63,29 @@ namespace CMDG.Worst3DEngine
                     switch (parts.Length)
                     {
                         case 4:
-                        {
-                            var x = float.Parse(parts[1], CultureInfo.InvariantCulture);
-                            var y = float.Parse(parts[2], CultureInfo.InvariantCulture);
-                            var z = float.Parse(parts[3], CultureInfo.InvariantCulture);
+                            {
+                                var x = float.Parse(parts[1], CultureInfo.InvariantCulture);
+                                var y = float.Parse(parts[2], CultureInfo.InvariantCulture);
+                                var z = float.Parse(parts[3], CultureInfo.InvariantCulture);
 
-                            vertices.Add(new Vec3(x, y, z));
-                            colors.Add(new Vec3(1, 1, 1)); //white
-                            break;
-                        }
+                                vertices.Add(new Vec3(x, y, z));
+                                colors.Add(new Vec3(1, 1, 1)); //white
+                                break;
+                            }
                         case 7:
-                        {
-                            var x = float.Parse(parts[1], CultureInfo.InvariantCulture);
-                            var y = float.Parse(parts[2], CultureInfo.InvariantCulture);
-                            var z = float.Parse(parts[3], CultureInfo.InvariantCulture);
+                            {
+                                var x = float.Parse(parts[1], CultureInfo.InvariantCulture);
+                                var y = float.Parse(parts[2], CultureInfo.InvariantCulture);
+                                var z = float.Parse(parts[3], CultureInfo.InvariantCulture);
 
-                            var r = float.Parse(parts[4], CultureInfo.InvariantCulture);
-                            var g = float.Parse(parts[5], CultureInfo.InvariantCulture);
-                            var b = float.Parse(parts[6], CultureInfo.InvariantCulture);
+                                var r = float.Parse(parts[4], CultureInfo.InvariantCulture);
+                                var g = float.Parse(parts[5], CultureInfo.InvariantCulture);
+                                var b = float.Parse(parts[6], CultureInfo.InvariantCulture);
 
-                            vertices.Add(new Vec3(x, y, z));
-                            colors.Add(new Vec3(r, g, b)); //found color!
-                            break;
-                        }
+                                vertices.Add(new Vec3(x, y, z));
+                                colors.Add(new Vec3(r, g, b)); //found color!
+                                break;
+                            }
                     }
                 }
                 else if (line.StartsWith($"f"))
@@ -112,22 +112,14 @@ namespace CMDG.Worst3DEngine
                     //calculate the average color by summing the vertex colors.
                     var finalColor = ConsoleColor.Magenta;
                     var colorSum = new Vec3(0, 0, 0);
-                    
+
                     colorSum = Vec3.Add(colorSum, colors[f[0] - 1]);
                     colorSum = Vec3.Add(colorSum, colors[f[1] - 1]);
                     colorSum = Vec3.Add(colorSum, colors[f[2] - 1]);
-                    
-                   colorSum = Vec3.Div(colorSum, 3);
-                   
-                    if (colorSum is { X: < 0.7f, Y: > 0.7f, Z: < 0.7f })
-                    {
-                        finalColor = ConsoleColor.Green;
-                    }
-                    else
-                    {
-                        finalColor = ConsoleColor.White;
-                    }
 
+                    colorSum = Vec3.Div(colorSum, 3);
+
+                    finalColor = ConsoleColors.GetClosestConsoleColor(colorSum);
                     AddTriangle(vertices[f[0] - 1], vertices[f[1] - 1], vertices[f[2] - 1], finalColor);
                 }
             }

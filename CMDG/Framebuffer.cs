@@ -40,6 +40,7 @@ namespace CMDG
         {
             drawThread = new Thread(DrawLoop);
             drawThread.Start();
+            isRunning = true;
         }
 
         public static void StopDrawThread()

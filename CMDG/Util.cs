@@ -3,7 +3,7 @@ using System.Text;
 
 namespace CMDG
 {
-    // Miscellaneous utilities
+    // Bootup things and miscellaneous utilities
     public class Util
     {
         public static string ANSI_escape_character = "\u001b";

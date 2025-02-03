@@ -9,7 +9,7 @@ bool isSceneRunning = true;
 // Independent thread to draw the scene into the framebuffer. Choosing from various scenes is for dev purposes and not required in the final version. Feel free to add more scene files.
 Thread sceneThread = new Thread(() =>
 {
-    int sceneChoice = 3;
+    int sceneChoice = 4;
     while (isSceneRunning)
     {
         switch (sceneChoice)
@@ -22,6 +22,9 @@ Thread sceneThread = new Thread(() =>
                 break;
             case 3:
                 Scene3.Run();
+                break;
+            case 4:
+                Scene4.Run();
                 break;
             default:
                 SceneTemplate.Run();
@@ -36,10 +39,19 @@ Framebuffer.StartDrawThread(); // Another independent thread that draws the fram
 
 while (true)
 {
-    // If ESC is pressed, stop threads before quitting.
     if (Console.KeyAvailable)
     {
         var key = Console.ReadKey(intercept: true);
+        // C = clear and redraw console.
+        if (key.Key == ConsoleKey.C)
+        {
+            Framebuffer.StopDrawThread();
+            Console.Clear();
+            Util.DrawBorder();
+            Thread.Sleep(100);
+            Framebuffer.StartDrawThread();
+        }
+        // ESC = stop threads and quit.
         if (key.Key == ConsoleKey.Escape)
         {
             isSceneRunning = false;
@@ -49,5 +61,5 @@ while (true)
         }
     }
 
-    Thread.Sleep(100);
+    Thread.Sleep(10);
 }
