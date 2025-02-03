@@ -39,8 +39,12 @@ public class Scene3
 
         //how to create new Gameobjects from a file
         //The first object is placed at (0, 0, 1) and the second one at (10, 10, 0).
-        GameObjects.Add(new GameObject("test.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0)));
-        GameObjects.Add(new GameObject("test.obj", new Vec3(10, 10, 0), new Vec3(0, 0, 0)));
+        
+        //GameObjects.Add(new GameObject("test.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0)));
+        //var gnaa = GameObjects.Add(new GameObject("test.obj", new Vec3(10, 10, 0), new Vec3(0, 0, 0)));
+        var gob = GameObjects.Add(new GameObject());
+        gob.CreateCube(new Vec3(1, 1, 1));
+        _mRaster.UseLight(true);
 
         float deltaTime = 0;
         float rotateObject = 0;
@@ -111,7 +115,7 @@ public class Scene3
             
             //You can also update object positions instantly.
             GameObjects.GameObjectsList[0].SetPosition(new Vec3(0, 0, 1));
-            GameObjects.GameObjectsList[1].SetPosition(new Vec3(0, 0, -1));
+            //GameObjects.GameObjectsList[1].SetPosition(new Vec3(0, 0, -1));
 
             rotateObject += speed;
 

@@ -12,6 +12,13 @@
         private Mat4X4 _matTrans;
         public Mat4X4 MatWorld;
 
+        public GameObject()
+        {
+            _mPosition = new Vec3(0, 0, 0);
+            _mRotation = new Vec3(0, 0, 0);
+            Update();
+        }
+        
         public GameObject(string filename, Vec3 position, Vec3 rotation)
         {
             _mPosition = position;
@@ -19,6 +26,8 @@
             MeshId = MeshManager.LoadMesh(filename);
             Update();
         }
+
+        
 
         private void Update()
         {
@@ -49,6 +58,11 @@
         public Vec3 GetPosition()
         {
             return _mPosition;
+        }
+
+        public void CreateCube(Vec3 size)
+        {
+            MeshManager.CreateCube(size);
         }
     }
 }

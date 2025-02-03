@@ -34,5 +34,15 @@
 
             return Meshes[meshId];
         }
+
+        public static void CreateCube(Vec3 size)
+        {
+            var mesh = new Mesh
+            {
+                MeshFileName = $"size:({size.X}, {size.Y}, {size.Z})"
+            };
+            mesh.CreateCube(size);
+            Meshes.Add(mesh);
+        }
     }
 }

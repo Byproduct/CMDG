@@ -9,9 +9,10 @@
             GameObjectsList = [];
         }
 
-        public static void Add(GameObject gameObject)
+        public static GameObject Add(GameObject gameObject)
         {
             GameObjectsList.Add(gameObject);
+            return GameObjectsList.Last();
         }
     }
 }

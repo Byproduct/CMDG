@@ -35,6 +35,44 @@ namespace CMDG.Worst3DEngine
                 P3 = c,
             });
         }
+        
+        public void CreateCube(Vec3 size)
+        {
+            var p0 = new Vec3(-size.X / 2, -size.Y / 2, -size.Z / 2);
+            var p1 = new Vec3(size.X / 2, -size.Y / 2, -size.Z / 2);
+            var p2 = new Vec3(size.X / 2, size.Y / 2, -size.Z / 2);
+            var p3 = new Vec3(-size.X / 2, size.Y / 2, -size.Z / 2);
+
+            var p4 = new Vec3(-size.X / 2, -size.Y / 2, size.Z / 2);
+            var p5 = new Vec3(size.X / 2, -size.Y / 2, size.Z / 2);
+            var p6 = new Vec3(size.X / 2, size.Y / 2, size.Z / 2);
+            var p7 = new Vec3(-size.X / 2, size.Y / 2, size.Z / 2);
+
+
+            // Front
+            AddTriangle(p0, p2, p1, ConsoleColor.White); 
+            AddTriangle(p0, p3, p2, ConsoleColor.White); 
+
+            // Back
+            AddTriangle(p4, p5, p6, ConsoleColor.White); 
+            AddTriangle(p4, p6, p7, ConsoleColor.White); 
+
+            // Left
+            AddTriangle(p0, p7, p3, ConsoleColor.White); 
+            AddTriangle(p0, p4, p7, ConsoleColor.White); 
+
+            // Right
+            AddTriangle(p1, p2, p6, ConsoleColor.White); 
+            AddTriangle(p1, p6, p5, ConsoleColor.White); 
+
+            // Top
+            AddTriangle(p2, p3, p7, ConsoleColor.White); 
+            AddTriangle(p2, p7, p6, ConsoleColor.White); 
+
+            // Bottom
+            AddTriangle(p0, p1, p5, ConsoleColor.White); 
+            AddTriangle(p0, p5, p4, ConsoleColor.White); 
+        }
 
         private void AddTriangle(Vec3 a, Vec3 b, Vec3 c, ConsoleColor color)
         {
