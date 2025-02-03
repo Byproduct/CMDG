@@ -16,13 +16,15 @@
 
         private readonly List<Triangle>? _renderTriangles;
         private static Camera? camera;
+        private static Vec3 LightDirection;
+        private bool useLight;
 
         public Rasterer(int mWidth, int mHeight, int fontX = 9, int fontY = 19, float fov = 70.0f, float near = 0.1f,
             float far = 100.0f)
         {
             Console.Write($"size: {mWidth}x{mHeight}\n");
-            this._mWidth = mWidth;
-            this._mHeight = mHeight;
+            _mWidth = mWidth;
+            _mHeight = mHeight;
             _numOfTriangles = 0;
 
             _buffer = new Tile[mWidth, mHeight];
@@ -31,9 +33,12 @@
             camera = new Camera(fov, mWidth * fontX, mHeight * fontY, near, far);
             camera.SetPosition(new Vec3(0, 0, 0));
             camera.SetRotation(new Vec3(0, 0, 0));
+
+            SetLightDirection(new Vec3(0, 1, -1));
+            UseLight(true);
         }
 
-        public void Clear()
+        private void Clear()
         {
             _numOfTriangles = 0;
 
@@ -51,7 +56,7 @@
         {
             if (x < 0 || x >= _mWidth || y < 0 || y >= _mHeight)
                 return;
-            
+
             Color32 col;
             //just adhoc
             //TODO: FIXME
@@ -70,13 +75,6 @@
 
             Framebuffer.SetPixel(x, y, col);
         }
-
-        /*
-        private static void Swap(ref Vec3 a, ref Vec3 b)
-        {
-            (a, b) = (b, a);
-        }
-        */
 
         private static void Swap(ref int a, ref int b)
         {
@@ -112,7 +110,6 @@
                 Swap(ref x2, ref x3);
                 Swap(ref w2, ref w3);
             }
-
 
             var dy1 = y2 - y1;
             var dx1 = x2 - x1;
@@ -225,7 +222,7 @@
             return _buffer[x, y].Z;
         }
 
-        public void ProcessTriangle(Triangle tri, ConsoleColor triangleColor)
+        private void ProcessTriangle(Triangle tri, ConsoleColor triangleColor)
         {
             var clipped = new Triangle[2];
             var listTriangles = new Queue<Triangle>();
@@ -370,35 +367,13 @@
                             triProjected.P1 = Vec3.ScaleXY(triProjected.P1, 0.5f * _mWidth, 0.5f * _mHeight);
                             triProjected.P2 = Vec3.ScaleXY(triProjected.P2, 0.5f * _mWidth, 0.5f * _mHeight);
                             triProjected.P3 = Vec3.ScaleXY(triProjected.P3, 0.5f * _mWidth, 0.5f * _mHeight);
+                            
+                            var color = triProjected.Color;
 
                             //calculate light
-                            var lightDirection = new Vec3(0, 1, -1);
-                            lightDirection = Vec3.Normalize(lightDirection);
-                            var dp = Vec3.Dot(lightDirection, normal);
-
-                            if (dp < 0) dp = 0;
-                            if (dp > 1) dp = 1;
-
-                            var color = triProjected.Color;
-                            if (color == ConsoleColor.Green)
-                            {
-                                color = dp switch
-                                {
-                                    < 0.5f => ConsoleColor.DarkGreen,
-                                    _ => ConsoleColor.Green
-                                };
-                            }
-                            else
-                            {
-                                color = dp switch
-                                {
-                                    <= 0.0f => ConsoleColor.Black,
-                                    < 0.33f => ConsoleColor.DarkGray,
-                                    < 0.66f => ConsoleColor.Gray,
-                                    _ => ConsoleColor.White
-                                };
-                            }
-
+                            if (useLight)
+                                color = CalculateLight(color, normal);
+                            
                             //add triangle to the renderlist
                             _renderTriangles!.Add(
                                 new Triangle(triProjected.P1, triProjected.P2, triProjected.P3, color));
@@ -417,6 +392,50 @@
         public static Camera? GetCamera()
         {
             return camera;
+        }
+
+        public void UseLight(bool v)
+        {
+            useLight = v;
+        }
+
+        public static void SetLightDirection(Vec3 direction)
+        {
+            LightDirection = direction;
+            LightDirection = Vec3.Normalize(LightDirection);
+        }
+
+
+        private static ConsoleColor CalculateLight(ConsoleColor inColor, Vec3 normal)
+        {
+            var dp = Vec3.Dot(LightDirection, normal);
+
+            if (dp < 0) dp = 0;
+            if (dp > 1) dp = 1;
+
+            ConsoleColor result = ConsoleColor.Black;
+
+            if (inColor == ConsoleColor.Green)
+            {
+                result = dp switch
+                {
+                    < 0.5f => ConsoleColor.DarkGreen,
+                    _ => ConsoleColor.Green
+                };
+            }
+            else
+            {
+                result = dp switch
+                {
+                    <= 0.0f => ConsoleColor.Black,
+                    < 0.33f => ConsoleColor.DarkGray,
+                    < 0.66f => ConsoleColor.Gray,
+                    _ => ConsoleColor.White
+                };
+            }
+
+            return result;
+            ;
         }
     }
 }
