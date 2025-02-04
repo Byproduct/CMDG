@@ -4,15 +4,15 @@
     {
         private Vec3 _mPosition;
         private Vec3 _mRotation;
-        public readonly int MeshId;
-        public  Color32 Color { get; set; }
+        public int MeshId { get; private set; }
+        public Color32 Color { get; set; }
 
         private Mat4X4 _matRotY;
         private Mat4X4 _matRotX;
         private Mat4X4 _matRotZ;
         private Mat4X4 _matTrans;
         public Mat4X4 MatWorld;
-        
+
 
         public GameObject()
         {
@@ -21,7 +21,7 @@
             Color = new Color32(255, 0, 255);
             Update();
         }
-        
+
         public GameObject(string filename, Vec3 position, Vec3 rotation, Color32 objectColor)
         {
             _mPosition = position;
@@ -30,8 +30,6 @@
             Color = objectColor;
             Update();
         }
-
-        
 
         private void Update()
         {
@@ -67,8 +65,7 @@
         public void CreateCube(Vec3 size, Color32 objectColor)
         {
             Color = objectColor;
-            MeshManager.CreateCube(size);
+            MeshId = MeshManager.CreateCube(size);
         }
-
     }
 }

@@ -41,10 +41,14 @@ public class Scene3
         //The first object is placed at (0, 0, 1) and the second one at (10, 10, 0).
         
         GameObjects.Add(new GameObject("test.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0),  new Color32(255, 255, 255)));
-        var gnaa = GameObjects.Add(new GameObject("test.obj", new Vec3(10, 10, 0), new Vec3(0, 0, 0),  new Color32(0, 255, 0)));
+        var gnaa = GameObjects.Add(new GameObject("test.obj", new Vec3(10, 0, 0), new Vec3(0, 0, 0),  new Color32(255, 255, 255)));
         var gob = GameObjects.Add(new GameObject());
-        gob.CreateCube(new Vec3(1, 1, 1), new Color32(255, 0, 0));
+        gob.CreateCube(new Vec3(1, 1, 1), new Color32(255, 255, 255));
+        gob.SetPosition(new Vec3(3, 0, 3));
         _mRaster.UseLight(true);
+        _mRaster.SetAmbientColor(new Vec3(0.1f, 0.3f, 0.3f));
+        _mRaster.SetLightColor(new Vec3(1.0f, 1.0f, 1.0f));
+        
 
         float deltaTime = 0;
         float rotateObject = 0;

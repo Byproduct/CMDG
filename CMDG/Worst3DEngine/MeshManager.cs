@@ -9,18 +9,26 @@
             Meshes = [];
         }
 
-        public static int LoadMesh(string filename)
+        private static int FindMeshID(string meshName)
         {
-            //check if its already loaded
-            //dict would be better than list with for loops
             for (var i = 0; i < Meshes.Count; i++)
             {
-                if (Meshes[i]?.MeshFileName == filename)
+                if (Meshes[i]?.MeshFileName == meshName)
                 {
                     return i;
                 }
             }
 
+            return -1;
+        }
+        public static int LoadMesh(string filename)
+        {
+            //check if its already loaded
+            //dict would be better than list with for loops
+            var id = FindMeshID(filename);
+            if (id != -1)
+                return id;
+            
             var mesh = new Mesh();
             mesh.LoadMesh(filename);
             Meshes.Add(mesh);
@@ -35,14 +43,20 @@
             return Meshes[meshId];
         }
 
-        public static void CreateCube(Vec3 size)
+        public static int CreateCube(Vec3 size)
         {
+            var filename = $"size:({size.X}, {size.Y}, {size.Z})";
+            var id = FindMeshID(filename);
+            if (id != -1)
+                return id;
+            
             var mesh = new Mesh
             {
-                MeshFileName = $"size:({size.X}, {size.Y}, {size.Z})"
+                MeshFileName = filename
             };
             mesh.CreateCube(size);
             Meshes.Add(mesh);
+            return Meshes.Count - 1;
         }
     }
 }

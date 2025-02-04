@@ -17,6 +17,9 @@
         private readonly List<Triangle>? _renderTriangles;
         private static Camera? camera;
         private static Vec3 LightDirection;
+        private static Vec3 LightColor;
+        private static Vec3 AmbientColor;
+
         private bool useLight;
 
         public Rasterer(int mWidth, int mHeight, int fontX = 9, int fontY = 19, float fov = 70.0f, float near = 0.1f,
@@ -35,6 +38,8 @@
             camera.SetRotation(new Vec3(0, 0, 0));
 
             SetLightDirection(new Vec3(0, 1, -1));
+            SetAmbientColor(new Vec3(0.1f, 0.1f, 0.1f));
+            SetLightColor(new Vec3(1, 1, 1));
             UseLight(true);
         }
 
@@ -279,7 +284,7 @@
                 var meshId = gameObject.MeshId;
                 var meshCube = MeshManager.GetMesh(meshId);
                 var meshColor = gameObject.Color;
-                
+
                 if (meshCube == null)
                     continue;
 
@@ -348,13 +353,13 @@
                             triProjected.P1 = Vec3.ScaleXY(triProjected.P1, 0.5f * _mWidth, 0.5f * _mHeight);
                             triProjected.P2 = Vec3.ScaleXY(triProjected.P2, 0.5f * _mWidth, 0.5f * _mHeight);
                             triProjected.P3 = Vec3.ScaleXY(triProjected.P3, 0.5f * _mWidth, 0.5f * _mHeight);
-                            
+
                             //var color = triProjected.Color;
                             var color = meshColor;
                             //calculate light
                             if (useLight)
                                 color = CalculateLight(meshColor, normal);
-                            
+
                             //add triangle to the renderlist
                             _renderTriangles!.Add(
                                 new Triangle(triProjected.P1, triProjected.P2, triProjected.P3, color));
@@ -386,6 +391,15 @@
             LightDirection = Vec3.Normalize(LightDirection);
         }
 
+        public void SetAmbientColor(Vec3 color)
+        {
+            AmbientColor = color;
+        }
+
+        public void SetLightColor(Vec3 color)
+        {
+            LightColor = color;
+        }
 
         private static Color32 CalculateLight(Color32 inColor, Vec3 normal)
         {
@@ -394,13 +408,23 @@
             if (dp < 0) dp = 0;
             if (dp > 1) dp = 1;
 
+            var color = new Vec3(inColor.R / 255.0f, inColor.G / 255.0f, inColor.B / 255.0f);
+            color.X *= LightColor.X * dp;
+            color.Y *= LightColor.Y * dp;
+            color.Z *= LightColor.Z * dp;
+            color = Vec3.Add(AmbientColor, color);
+
+            color.X = Util.Clamp(color.X, 0, 1);
+            color.Y = Util.Clamp(color.Y, 0, 1);
+            color.Z = Util.Clamp(color.Z, 0, 1);
+
             var result = inColor;
-            result.r = (byte)(inColor.r * dp);
-            result.g = (byte)(inColor.g * dp);
-            result.b = (byte)(inColor.b * dp);
-            
+
+            result.r = (byte)(color.X * 255);
+            result.g = (byte)(color.Y * 255);
+            result.b = (byte)(color.Z * 255);
+
             return result;
-            
         }
     }
 }

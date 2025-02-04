@@ -95,5 +95,17 @@ namespace CMDG
             }
             Console.WriteLine(bottomBorder);
         }
+        
+        public static float Clamp(float v, float min, float max)
+        {
+            if (v < min)
+                v = min;
+            if (v > max)
+                v = max;
+
+            return v;
+        }
+
+        
     }
 }
