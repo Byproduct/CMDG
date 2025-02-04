@@ -9,7 +9,7 @@ bool isSceneRunning = true;
 // Independent thread to draw the scene into the framebuffer. Choosing from various scenes is for dev purposes and not required in the final version. Feel free to add more scene files.
 Thread sceneThread = new Thread(() =>
 {
-    int sceneChoice = 4;
+    int sceneChoice = 3;
     while (isSceneRunning)
     {
         switch (sceneChoice)

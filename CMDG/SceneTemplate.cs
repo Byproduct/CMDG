@@ -22,6 +22,8 @@
                 y: 0 to Config.ScreenHeight, default 0-100
                 color = RGB bytes in a Color32 struct, e.g. New Color32(255,255,255). Alpha channel is not used and does not exist.
                 color will be converted to nearest ANSI color, see palette.png for reference
+                
+                SceneControl.DeltaTime and SceneControl.TotalTime can be used for timing. These are full seconds as the double type. 
                 */
 
                 SceneControl.EndFrame();          // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.

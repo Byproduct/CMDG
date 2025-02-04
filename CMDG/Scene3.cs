@@ -9,7 +9,6 @@ public class Scene3
     static extern short GetAsyncKeyState(int vKey);
 
     private static Rasterer? _mRaster;
-    private static Stopwatch? _mStopwatch;
 
     //Placeholder
     private struct Input
@@ -32,7 +31,6 @@ public class Scene3
     {
         _mInput = new Input();
         _mRaster = new Rasterer(Config.ScreenWidth, Config.ScreenHeight);
-        _mStopwatch = new Stopwatch();
 
         var camera = Rasterer.GetCamera();
         camera!.SetPosition(new Vec3(0, 1, -3));
@@ -50,14 +48,13 @@ public class Scene3
         _mRaster.SetLightColor(new Vec3(1.0f, 1.0f, 1.0f));
         
 
-        float deltaTime = 0;
         float rotateObject = 0;
 
 
         while (true)
         {
             SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
-            _mStopwatch.Restart();
+            float deltaTime = (float)(SceneControl.DeltaTime);
             GetInputs();
             
             //update camera position using WASD for movement and RF for vertical movement
@@ -134,9 +131,7 @@ public class Scene3
             
             SceneControl
                 .EndFrame(); // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
-            
-            //measure the frame time to calculate deltatime.
-            deltaTime = (float)_mStopwatch.Elapsed.TotalSeconds;
+           
         }
     }
 

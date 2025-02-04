@@ -4,12 +4,14 @@ namespace CMDG
 {
     internal class SceneControl
     {
-        public static Stopwatch FrameCalcStopwatch = new();
-        public static int maxMs = (int)(1000 / Config.MaxFrameRate);
+        private static Stopwatch deltaTimeStopwatch = new();
+        public static int maxMs = (int)(1000 / Config.MaxFrameRate);  // milliseconds per frame of the set maximum frame rate
+        public static double DeltaTime { get; private set; }
+        public static double ElapsedTime = 0f;
 
         public static void StartFrame()
         {
-            FrameCalcStopwatch.Restart();
+            deltaTimeStopwatch.Restart();
             Framebuffer.Backbuffer.AsSpan().Clear();
         }
         public static void EndFrame()
@@ -25,8 +27,7 @@ namespace CMDG
                 }
             }
 
-            FrameCalcStopwatch.Stop();
-            int calcFrameTime = (int)(FrameCalcStopwatch.ElapsedMilliseconds);
+            int calcFrameTime = (int)(deltaTimeStopwatch.ElapsedMilliseconds);
             Framebuffer.CalcFrameTime = calcFrameTime;
 
             // If calculating this frame needed less time than specified max framerate, wait to steady the framerate to max.
@@ -40,6 +41,8 @@ namespace CMDG
                 calcWaitTime = 0;
             }
             Framebuffer.CalcFrameWaitTime = calcWaitTime;
+            DeltaTime = deltaTimeStopwatch.Elapsed.TotalSeconds;
+            ElapsedTime += DeltaTime;
         }
     }
 }
