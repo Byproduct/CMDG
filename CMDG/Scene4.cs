@@ -40,8 +40,8 @@ public class Scene4
 
         //how to create new Gameobjects from a file
         //The first object is placed at (0, 0, 1) and the second one at (10, 10, 0).
-        GameObjects.Add(new GameObject("car-van-blue.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0)));
-        GameObjects.Add(new GameObject("car-coupe-red.obj", new Vec3(10, 10, 0), new Vec3(0, 0, 0)));
+        GameObjects.Add(new GameObject("car-van-blue.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0),  new Color32(255, 0, 0)));
+        GameObjects.Add(new GameObject("car-coupe-red.obj", new Vec3(10, 10, 0), new Vec3(0, 0, 0),  new Color32(0, 0, 255)));
 
         float deltaTime = 0;
         float rotateObject = 0;

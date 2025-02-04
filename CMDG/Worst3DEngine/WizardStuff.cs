@@ -105,10 +105,10 @@ namespace CMDG.Worst3DEngine
     };
     
 //todo: Use unsafe fixed array for performance boost
-    public struct Triangle(Vec3 a, Vec3 b, Vec3 c, ConsoleColor c1)
+    public struct Triangle(Vec3 a, Vec3 b, Vec3 c, Color32 c1)
     {
         public Vec3 P1 = a, P2 = b, P3 = c;
-        public ConsoleColor Color = c1;
+        public Color32 Color = c1;
 
         public static int ClipAgainstPlane(Vec3 planeP, Vec3 planeN, Triangle inTri, out Triangle outTri1,
             out Triangle outTri2)

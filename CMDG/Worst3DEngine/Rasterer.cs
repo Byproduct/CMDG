@@ -52,28 +52,11 @@
         }
 
 
-        private void PutPixel(int x, int y, char ch, ConsoleColor color = ConsoleColor.White)
+        private void PutPixel(int x, int y, char ch, Color32 color)
         {
             if (x < 0 || x >= _mWidth || y < 0 || y >= _mHeight)
                 return;
-
-            Color32 col;
-            //just adhoc
-            //TODO: FIXME
-            if (color == ConsoleColor.White)
-                col = new Color32(255, 255, 255);
-            else if (color == ConsoleColor.Gray)
-                col = new Color32(128, 128, 128);
-            else if (color == ConsoleColor.DarkGray)
-                col = new Color32(64, 64, 64);
-            else if (color == ConsoleColor.Green)
-                col = new Color32(0, 255, 0);
-            else if (color == ConsoleColor.DarkGreen)
-                col = new Color32(0, 128, 0);
-            else
-                col = new Color32(0, 0, 0);
-
-            Framebuffer.SetPixel(x, y, col);
+            Framebuffer.SetPixel(x, y, color);
         }
 
         private static void Swap(ref int a, ref int b)
@@ -88,7 +71,7 @@
 
         private void DrawTriangle(int x1, int y1, float w1,
             int x2, int y2, float w2,
-            int x3, int y3, float w3, ConsoleColor color)
+            int x3, int y3, float w3, Color32 color)
         {
             if (y2 < y1)
             {
@@ -222,7 +205,7 @@
             return _buffer[x, y].Z;
         }
 
-        private void ProcessTriangle(Triangle tri, ConsoleColor triangleColor)
+        private void ProcessTriangle(Triangle tri, Color32 triangleColor)
         {
             var clipped = new Triangle[2];
             var listTriangles = new Queue<Triangle>();
@@ -295,7 +278,8 @@
             {
                 var meshId = gameObject.MeshId;
                 var meshCube = MeshManager.GetMesh(meshId);
-
+                var meshColor = gameObject.Color;
+                
                 if (meshCube == null)
                     continue;
 
@@ -308,7 +292,6 @@
                     triTransformed.P1 = Mat4X4.MultiplyVector(gameObject.MatWorld, tri.P1);
                     triTransformed.P2 = Mat4X4.MultiplyVector(gameObject.MatWorld, tri.P2);
                     triTransformed.P3 = Mat4X4.MultiplyVector(gameObject.MatWorld, tri.P3);
-                    triTransformed.Color = tri.Color;
 
                     //get the surface normal:
                     var line1 = Vec3.Sub(triTransformed.P2, triTransformed.P1);
@@ -324,7 +307,6 @@
                         triViewed.P1 = Mat4X4.MultiplyVector(camera.MatView, triTransformed.P1);
                         triViewed.P2 = Mat4X4.MultiplyVector(camera.MatView, triTransformed.P2);
                         triViewed.P3 = Mat4X4.MultiplyVector(camera.MatView, triTransformed.P3);
-                        triViewed.Color = triTransformed.Color;
 
                         var nClippedTriangles = 0;
                         var clipped = new Triangle[2];
@@ -338,7 +320,6 @@
                             triProjected.P1 = Mat4X4.MultiplyVector(camera.GetProjectionMatrix(), clipped[n].P1);
                             triProjected.P2 = Mat4X4.MultiplyVector(camera.GetProjectionMatrix(), clipped[n].P2);
                             triProjected.P3 = Mat4X4.MultiplyVector(camera.GetProjectionMatrix(), clipped[n].P3);
-                            triProjected.Color = triViewed.Color;
 
                             var w1 = triProjected.P1.W;
                             var w2 = triProjected.P2.W;
@@ -368,11 +349,11 @@
                             triProjected.P2 = Vec3.ScaleXY(triProjected.P2, 0.5f * _mWidth, 0.5f * _mHeight);
                             triProjected.P3 = Vec3.ScaleXY(triProjected.P3, 0.5f * _mWidth, 0.5f * _mHeight);
                             
-                            var color = triProjected.Color;
-
+                            //var color = triProjected.Color;
+                            var color = meshColor;
                             //calculate light
                             if (useLight)
-                                color = CalculateLight(color, normal);
+                                color = CalculateLight(meshColor, normal);
                             
                             //add triangle to the renderlist
                             _renderTriangles!.Add(
@@ -406,36 +387,20 @@
         }
 
 
-        private static ConsoleColor CalculateLight(ConsoleColor inColor, Vec3 normal)
+        private static Color32 CalculateLight(Color32 inColor, Vec3 normal)
         {
             var dp = Vec3.Dot(LightDirection, normal);
 
             if (dp < 0) dp = 0;
             if (dp > 1) dp = 1;
 
-            ConsoleColor result = ConsoleColor.Black;
-
-            if (inColor == ConsoleColor.Green)
-            {
-                result = dp switch
-                {
-                    < 0.5f => ConsoleColor.DarkGreen,
-                    _ => ConsoleColor.Green
-                };
-            }
-            else
-            {
-                result = dp switch
-                {
-                    <= 0.0f => ConsoleColor.Black,
-                    < 0.33f => ConsoleColor.DarkGray,
-                    < 0.66f => ConsoleColor.Gray,
-                    _ => ConsoleColor.White
-                };
-            }
-
+            var result = inColor;
+            result.r = (byte)(inColor.r * dp);
+            result.g = (byte)(inColor.g * dp);
+            result.b = (byte)(inColor.b * dp);
+            
             return result;
-            ;
+            
         }
     }
 }

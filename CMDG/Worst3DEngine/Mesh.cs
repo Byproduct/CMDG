@@ -47,34 +47,33 @@ namespace CMDG.Worst3DEngine
             var p5 = new Vec3(size.X / 2, -size.Y / 2, size.Z / 2);
             var p6 = new Vec3(size.X / 2, size.Y / 2, size.Z / 2);
             var p7 = new Vec3(-size.X / 2, size.Y / 2, size.Z / 2);
-
-
+            
             // Front
-            AddTriangle(p0, p2, p1, ConsoleColor.White); 
-            AddTriangle(p0, p3, p2, ConsoleColor.White); 
+            AddTriangle(p0, p2, p1); 
+            AddTriangle(p0, p3, p2); 
 
             // Back
-            AddTriangle(p4, p5, p6, ConsoleColor.White); 
-            AddTriangle(p4, p6, p7, ConsoleColor.White); 
+            AddTriangle(p4, p5, p6); 
+            AddTriangle(p4, p6, p7); 
 
             // Left
-            AddTriangle(p0, p7, p3, ConsoleColor.White); 
-            AddTriangle(p0, p4, p7, ConsoleColor.White); 
+            AddTriangle(p0, p7, p3); 
+            AddTriangle(p0, p4, p7); 
 
             // Right
-            AddTriangle(p1, p2, p6, ConsoleColor.White); 
-            AddTriangle(p1, p6, p5, ConsoleColor.White); 
+            AddTriangle(p1, p2, p6); 
+            AddTriangle(p1, p6, p5); 
 
             // Top
-            AddTriangle(p2, p3, p7, ConsoleColor.White); 
-            AddTriangle(p2, p7, p6, ConsoleColor.White); 
+            AddTriangle(p2, p3, p7); 
+            AddTriangle(p2, p7, p6); 
 
             // Bottom
-            AddTriangle(p0, p1, p5, ConsoleColor.White); 
-            AddTriangle(p0, p5, p4, ConsoleColor.White); 
+            AddTriangle(p0, p1, p5); 
+            AddTriangle(p0, p5, p4); 
         }
 
-        private void AddTriangle(Vec3 a, Vec3 b, Vec3 c, ConsoleColor color)
+        private void AddTriangle(Vec3 a, Vec3 b, Vec3 c, Color32 color)
         {
             Triangles.Add(new Triangle
             {
@@ -156,9 +155,10 @@ namespace CMDG.Worst3DEngine
                     colorSum = Vec3.Add(colorSum, colors[f[2] - 1]);
 
                     colorSum = Vec3.Div(colorSum, 3);
+                    var c = new Color32((byte)(colorSum.X * 255), (byte)(colorSum.Y * 255), (byte)(colorSum.Z * 255));
 
-                    finalColor = ConsoleColors.GetClosestConsoleColor(colorSum);
-                    AddTriangle(vertices[f[0] - 1], vertices[f[1] - 1], vertices[f[2] - 1], finalColor);
+                    //finalColor = ConsoleColors.GetClosestConsoleColor(colorSum);
+                    AddTriangle(vertices[f[0] - 1], vertices[f[1] - 1], vertices[f[2] - 1], c);
                 }
             }
         }

@@ -40,10 +40,10 @@ public class Scene3
         //how to create new Gameobjects from a file
         //The first object is placed at (0, 0, 1) and the second one at (10, 10, 0).
         
-        //GameObjects.Add(new GameObject("test.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0)));
-        //var gnaa = GameObjects.Add(new GameObject("test.obj", new Vec3(10, 10, 0), new Vec3(0, 0, 0)));
+        GameObjects.Add(new GameObject("test.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0),  new Color32(255, 255, 255)));
+        var gnaa = GameObjects.Add(new GameObject("test.obj", new Vec3(10, 10, 0), new Vec3(0, 0, 0),  new Color32(0, 255, 0)));
         var gob = GameObjects.Add(new GameObject());
-        gob.CreateCube(new Vec3(1, 1, 1));
+        gob.CreateCube(new Vec3(1, 1, 1), new Color32(255, 0, 0));
         _mRaster.UseLight(true);
 
         float deltaTime = 0;
