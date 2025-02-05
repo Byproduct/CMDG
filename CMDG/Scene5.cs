@@ -86,7 +86,7 @@ public class Scene5
                 //gob.CreateCube(size, color, true);
                 gob.SetPosition(new Vec3((float)(random.NextDouble() * 10 - 5), (float)(random.NextDouble() * 10 - 5),
                     (float)(random.NextDouble() * 10 - 5)));
-                gob.SetOffset(new Vec3(2, 0, 0));
+                gob.SetOffset(new Vec3(1, 0, 0));
 
                 var gobList = GameObjects.GameObjectsList.Count;
                 var meshList = MeshManager.GetMeshes().Count;
@@ -136,9 +136,16 @@ public class Scene5
 
             rotateObject += speed;
 
-            foreach (var foo in GameObjects.GameObjectsList)
+            for (int i = 0; i < GameObjects.GameObjectsList.Count; i++)
             {
+                var foo = GameObjects.GameObjectsList[i];
+                var s = MathF.Abs(MathF.Sin(rotateObject + i));
+                var scale = new Vec3(s, s, s);
+                foo.SetScale(scale);
+                
                 foo.SetRotation(new Vec3(rotateObject * 0.3f, rotateObject * 0.8f, rotateObject));
+                
+                //foo.Update();
             }
 
             _mRaster.Process3D();

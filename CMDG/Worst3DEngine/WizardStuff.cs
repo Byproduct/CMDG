@@ -298,6 +298,17 @@ namespace CMDG.Worst3DEngine
                 [3, 2] = z,
             };
         }
+        
+        public static Mat4X4 MakeScale(float sx, float sy, float sz)
+        {
+            return new Mat4X4
+            {
+                [0, 0] = sx,
+                [1, 1] = sy,
+                [2, 2] = sz,
+                [3, 3] = 1,
+            };
+        }
 
         public static Mat4X4 MakeProjection(float fov, float aspectRatio, float near, float far)
         {
