@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using CMDG.Worst3DEngine;
 
 namespace CMDG
 {
@@ -155,6 +156,8 @@ namespace CMDG
                 outputBuffer.Append($"\x1b[{Config.ScreenHeight + 4};1H");
                 outputBuffer.Append($"Draw frame: {drawFrameTime.ToString("D").PadLeft(4, ' ')} ms, wait {drawFrameWaitTime.ToString("D").PadLeft(4, ' ')} ms, avg {avgDrawTime.ToString("D").PadLeft(4, ' ')} ms    ");
             }
+            
+            DebugConsole.PrintMessages(1, 2);
 
             // Finally write the entire buffer as bytes
             var outputStream = Console.OpenStandardOutput();
@@ -165,6 +168,8 @@ namespace CMDG
             stopwatch.Stop();
             drawFrameTime = (int)(stopwatch.ElapsedMilliseconds);  // Frame time display lags one frame behind calculation, but who cares.
 
+            
+            
             // If drawing this frame needed less time than specified max framerate, wait to steady the framerate to max.
             drawFrameWaitTime = SceneControl.maxMs - drawFrameTime;
             if (drawFrameWaitTime > 0)
@@ -175,6 +180,8 @@ namespace CMDG
             {
                 drawFrameWaitTime = 0;
             }
+            
+           
 
         }
     }

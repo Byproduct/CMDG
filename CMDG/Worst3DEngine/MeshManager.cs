@@ -2,7 +2,7 @@
 {
     public static class MeshManager
     {
-        private static readonly List<Mesh?> Meshes;
+        private static readonly List<Mesh> Meshes;
 
         static MeshManager()
         {
@@ -43,7 +43,12 @@
             return Meshes[meshId];
         }
 
-        public static int CreateCube(Vec3 size)
+        public static List<Mesh> GetMeshes()
+        {
+            return Meshes;
+        }
+
+        public static int CreateCube(Vec3 size, bool flipFace)
         {
             var filename = $"size:({size.X}, {size.Y}, {size.Z})";
             var id = FindMeshID(filename);
@@ -54,7 +59,7 @@
             {
                 MeshFileName = filename
             };
-            mesh.CreateCube(size);
+            mesh.CreateCube(size, flipFace);
             Meshes.Add(mesh);
             return Meshes.Count - 1;
         }

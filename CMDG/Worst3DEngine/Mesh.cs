@@ -5,6 +5,7 @@ namespace CMDG.Worst3DEngine
     public class Mesh
     {
         public readonly List<Triangle> Triangles;
+
         //public ConsoleColor Color;
         public string MeshFileName;
 
@@ -35,9 +36,20 @@ namespace CMDG.Worst3DEngine
                 P3 = c,
             });
         }
-        
-        public void CreateCube(Vec3 size)
+
+        public void CreateCube(Vec3 size, bool flipFace = false)
         {
+            size.X = MathF.Abs(size.X);
+            size.Y = MathF.Abs(size.Y);
+            size.Z = MathF.Abs(size.Z);
+
+            if (flipFace)
+            {
+                size.X = -size.X;
+                size.Y = -size.Y;
+                size.Z = -size.Z;
+            }
+
             var p0 = new Vec3(-size.X / 2, -size.Y / 2, -size.Z / 2);
             var p1 = new Vec3(size.X / 2, -size.Y / 2, -size.Z / 2);
             var p2 = new Vec3(size.X / 2, size.Y / 2, -size.Z / 2);
@@ -47,30 +59,30 @@ namespace CMDG.Worst3DEngine
             var p5 = new Vec3(size.X / 2, -size.Y / 2, size.Z / 2);
             var p6 = new Vec3(size.X / 2, size.Y / 2, size.Z / 2);
             var p7 = new Vec3(-size.X / 2, size.Y / 2, size.Z / 2);
-            
+
             // Front
-            AddTriangle(p0, p2, p1); 
-            AddTriangle(p0, p3, p2); 
+            AddTriangle(p0, p2, p1);
+            AddTriangle(p0, p3, p2);
 
             // Back
-            AddTriangle(p4, p5, p6); 
-            AddTriangle(p4, p6, p7); 
+            AddTriangle(p4, p5, p6);
+            AddTriangle(p4, p6, p7);
 
             // Left
-            AddTriangle(p0, p7, p3); 
-            AddTriangle(p0, p4, p7); 
+            AddTriangle(p0, p7, p3);
+            AddTriangle(p0, p4, p7);
 
             // Right
-            AddTriangle(p1, p2, p6); 
-            AddTriangle(p1, p6, p5); 
+            AddTriangle(p1, p2, p6);
+            AddTriangle(p1, p6, p5);
 
             // Top
-            AddTriangle(p2, p3, p7); 
-            AddTriangle(p2, p7, p6); 
+            AddTriangle(p2, p3, p7);
+            AddTriangle(p2, p7, p6);
 
             // Bottom
-            AddTriangle(p0, p1, p5); 
-            AddTriangle(p0, p5, p4); 
+            AddTriangle(p0, p1, p5);
+            AddTriangle(p0, p5, p4);
         }
 
         private void AddTriangle(Vec3 a, Vec3 b, Vec3 c, Color32 color)
@@ -100,29 +112,29 @@ namespace CMDG.Worst3DEngine
                     switch (parts.Length)
                     {
                         case 4:
-                            {
-                                var x = float.Parse(parts[1], CultureInfo.InvariantCulture);
-                                var y = float.Parse(parts[2], CultureInfo.InvariantCulture);
-                                var z = float.Parse(parts[3], CultureInfo.InvariantCulture);
+                        {
+                            var x = float.Parse(parts[1], CultureInfo.InvariantCulture);
+                            var y = float.Parse(parts[2], CultureInfo.InvariantCulture);
+                            var z = float.Parse(parts[3], CultureInfo.InvariantCulture);
 
-                                vertices.Add(new Vec3(x, y, z));
-                                colors.Add(new Vec3(1, 1, 1)); //white
-                                break;
-                            }
+                            vertices.Add(new Vec3(x, y, z));
+                            colors.Add(new Vec3(1, 1, 1)); //white
+                            break;
+                        }
                         case 7:
-                            {
-                                var x = float.Parse(parts[1], CultureInfo.InvariantCulture);
-                                var y = float.Parse(parts[2], CultureInfo.InvariantCulture);
-                                var z = float.Parse(parts[3], CultureInfo.InvariantCulture);
+                        {
+                            var x = float.Parse(parts[1], CultureInfo.InvariantCulture);
+                            var y = float.Parse(parts[2], CultureInfo.InvariantCulture);
+                            var z = float.Parse(parts[3], CultureInfo.InvariantCulture);
 
-                                var r = float.Parse(parts[4], CultureInfo.InvariantCulture);
-                                var g = float.Parse(parts[5], CultureInfo.InvariantCulture);
-                                var b = float.Parse(parts[6], CultureInfo.InvariantCulture);
+                            var r = float.Parse(parts[4], CultureInfo.InvariantCulture);
+                            var g = float.Parse(parts[5], CultureInfo.InvariantCulture);
+                            var b = float.Parse(parts[6], CultureInfo.InvariantCulture);
 
-                                vertices.Add(new Vec3(x, y, z));
-                                colors.Add(new Vec3(r, g, b)); //found color!
-                                break;
-                            }
+                            vertices.Add(new Vec3(x, y, z));
+                            colors.Add(new Vec3(r, g, b)); //found color!
+                            break;
+                        }
                     }
                 }
                 else if (line.StartsWith($"f"))

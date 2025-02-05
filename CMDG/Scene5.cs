@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace CMDG.Worst3DEngine;
@@ -27,6 +28,7 @@ public class Scene5
     };
 
     private static Input _mInput;
+
     public static void Run()
     {
         _mInput = new Input();
@@ -39,7 +41,7 @@ public class Scene5
         //The first object is placed at (0, 0, 1) and the second one at (10, 10, 0).
 
         _mRaster.UseLight(true);
-        _mRaster.SetAmbientColor(new Vec3(0.1f, 0.3f, 0.3f));
+        _mRaster.SetAmbientColor(new Vec3(0.0f, 0.0f, 0.2f));
         _mRaster.SetLightColor(new Vec3(1.0f, 1.0f, 1.0f));
 
 
@@ -47,18 +49,53 @@ public class Scene5
 
         Random random = new();
 
+        DebugConsole.SetMessageLimit(10);
+
         while (true)
         {
             SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
-            float deltaTime = (float)(SceneControl.DeltaTime);
+            var deltaTime = (float)(SceneControl.DeltaTime);
             GetInputs();
 
             if (GameObjects.GameObjectsList.Count < 100)
             {
                 var gob = GameObjects.Add(new GameObject());
-                gob.CreateCube(new Vec3((float)(random.NextDouble() * 2 - 1), (float)(random.NextDouble() * 2 - 1), (float)(random.NextDouble() * 2 - 1)), new Color32((byte)random.Next(0, 256), (byte)random.Next(0, 256), (byte)random.Next(0, 256)));
-                gob.SetPosition(new Vec3((float)(random.NextDouble() * 10 - 5), (float)(random.NextDouble() * 10 - 5), (float)(random.NextDouble() * 10 - 5)));
+                
+                 // test 1
+                var size = new Vec3(
+                    (float)(random.NextDouble() * 2.0f - 1),
+                    (float)(random.NextDouble() * 2.0f - 1),
+                    (float)(random.NextDouble() * 2.0f - 1)
+                    );
+                
+                /*
+                // test 2
+                var size = new Vec3(
+                    (float)(1.0f),
+                    (float)(-1.0f),
+                    (float)(-1.0f)
+                );
+                */
+
+                var color = new Color32((byte)random.Next(0, 256), (byte)random.Next(0, 256),
+                    (byte)random.Next(0, 256));
+
+                //flip or not
+                gob.CreateCube(size, color);
+                //gob.CreateCube(size, color, false);
+                //gob.CreateCube(size, color, true);
+                gob.SetPosition(new Vec3((float)(random.NextDouble() * 10 - 5), (float)(random.NextDouble() * 10 - 5),
+                    (float)(random.NextDouble() * 10 - 5)));
+                gob.SetOffset(new Vec3(2, 0, 0));
+
+                var gobList = GameObjects.GameObjectsList.Count;
+                var meshList = MeshManager.GetMeshes().Count;
+
+                DebugConsole.Add(
+                    $"Meshes: {meshList}, Objects: {gobList}, Size: {size.X.ToString("F", CultureInfo.InvariantCulture)}, {size.Y.ToString("F", CultureInfo.InvariantCulture)}, {size.Z.ToString("F", CultureInfo.InvariantCulture)}");
             }
+
+
             //update camera position using WASD for movement and RF for vertical movement
             var vc = camera.GetPosition();
             float speed = 1.0f * deltaTime;
@@ -103,11 +140,11 @@ public class Scene5
             {
                 foo.SetRotation(new Vec3(rotateObject * 0.3f, rotateObject * 0.8f, rotateObject));
             }
+
             _mRaster.Process3D();
 
             SceneControl
                 .EndFrame(); // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
-
         }
     }
 
