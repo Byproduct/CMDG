@@ -294,9 +294,9 @@
                     Triangle triTransformed;
                     var triViewed = new Triangle();
 
-                    triTransformed.P1 = Mat4X4.MultiplyVector(gameObject.MatWorld, tri.P1);
-                    triTransformed.P2 = Mat4X4.MultiplyVector(gameObject.MatWorld, tri.P2);
-                    triTransformed.P3 = Mat4X4.MultiplyVector(gameObject.MatWorld, tri.P3);
+                    triTransformed.P1 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P1);
+                    triTransformed.P2 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P2);
+                    triTransformed.P3 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P3);
 
                     //get the surface normal:
                     var line1 = Vec3.Sub(triTransformed.P2, triTransformed.P1);
@@ -309,9 +309,9 @@
                     if (Vec3.Dot(normal, vCameraRay) < 0.0f)
                     {
                         //project triangles from 3d to 2d
-                        triViewed.P1 = Mat4X4.MultiplyVector(camera.MatView, triTransformed.P1);
-                        triViewed.P2 = Mat4X4.MultiplyVector(camera.MatView, triTransformed.P2);
-                        triViewed.P3 = Mat4X4.MultiplyVector(camera.MatView, triTransformed.P3);
+                        triViewed.P1 = Mat4X4.MultiplyVector(camera.Matrix, triTransformed.P1);
+                        triViewed.P2 = Mat4X4.MultiplyVector(camera.Matrix, triTransformed.P2);
+                        triViewed.P3 = Mat4X4.MultiplyVector(camera.Matrix, triTransformed.P3);
 
                         var nClippedTriangles = 0;
                         var clipped = new Triangle[2];

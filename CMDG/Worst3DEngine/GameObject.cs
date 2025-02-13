@@ -1,42 +1,36 @@
 ﻿namespace CMDG.Worst3DEngine
 {
-    public class GameObject
+    public class GameObject : Transform
     {
-        private Vec3 _mPosition;
-        private Vec3 _mOffset;
-        private Vec3 _mRotation;
-        private Vec3 _mScale;
+       
         public int MeshId { get; private set; }
         public Color32 Color { get; set; }
-
-        private Mat4X4 _matRotY;
-        private Mat4X4 _matRotX;
-        private Mat4X4 _matRotZ;
-        private Mat4X4 _matTrans;
-        public Mat4X4 MatWorld;
+        
+        public new void Update() => base.Update();
 
 
         public GameObject()
         {
-            _mPosition = new Vec3(0, 0, 0);
-            _mRotation = new Vec3(0, 0, 0);
-            _mOffset = new Vec3(0, 0, 0);
-            _mScale = new Vec3(1, 1, 1);
+            Position = new Vec3(0, 0, 0);
+            Rotation = new Vec3(0, 0, 0);
+            Offset = new Vec3(0, 0, 0);
+            Scale = new Vec3(1, 1, 1);
             Color = new Color32(255, 0, 255);
             Update();
         }
 
         public GameObject(string filename, Vec3 position, Vec3 rotation, Color32 objectColor)
         {
-            _mPosition = position;
-            _mRotation = rotation;
-            _mOffset = new Vec3(0, 0, 0);
-            _mScale = new Vec3(1, 1, 1);
+            Position = position;
+            Rotation = rotation;
+            Offset = new Vec3(0, 0, 0);
+            Scale = new Vec3(1, 1, 1);
             MeshId = MeshManager.LoadMesh(filename);
             Color = objectColor;
             Update();
         }
 
+        /*
         public void Update()
         {
             _matRotY = Mat4X4.MakeRotationY(_mRotation.Y);
@@ -47,7 +41,7 @@
             var matOffsetNeg = Mat4X4.MakeTranslation(-_mOffset.X, -_mOffset.Y, -_mOffset.Z);
 
             var matScale = Mat4X4.MakeScale(_mScale.X, _mScale.Y, _mScale.Z);
-            
+
             // rotation
             var matRotation = Mat4X4.Multiply(_matRotZ, _matRotX);
             matRotation = Mat4X4.Multiply(matRotation, _matRotY);
@@ -66,32 +60,33 @@
             MatWorld = Mat4X4.Multiply(MatWorld, matScale);
             MatWorld = Mat4X4.Multiply(MatWorld, _matTrans);
         }
+        */
 
         public void SetRotation(Vec3 rotation)
         {
-            _mRotation = rotation;
+            Rotation = rotation;
             Update();
         }
 
         public void SetPosition(Vec3 position)
         {
-            _mPosition = position;
+            Position = position;
             Update();
         }
 
         public Vec3 GetPosition()
         {
-            return _mPosition;
+            return Position;
         }
 
         public void SetOffset(Vec3 offset)
         {
-            _mOffset = offset;
+            Offset = offset;
         }
 
         public void SetScale(Vec3 scale)
         {
-            _mScale = scale;
+            Scale = scale;
         }
 
         public void CreateCube(Vec3 size, Color32 objectColor, bool flipFace = false)
