@@ -39,7 +39,6 @@ sceneThread.Start();
 
 Framebuffer.StartDrawThread(); // Another independent thread that draws the framebuffer into the screen once per frame.
 
-
 while (true)
 {
     if (Console.KeyAvailable)
@@ -62,6 +61,7 @@ while (true)
             Framebuffer.StopDrawThread();
             Environment.Exit(0);
         }
+
     }
 
     Thread.Sleep(10);

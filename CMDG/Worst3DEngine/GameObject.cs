@@ -29,65 +29,7 @@
             Color = objectColor;
             Update();
         }
-
-        /*
-        public void Update()
-        {
-            _matRotY = Mat4X4.MakeRotationY(_mRotation.Y);
-            _matRotX = Mat4X4.MakeRotationX(_mRotation.X);
-            _matRotZ = Mat4X4.MakeRotationZ(_mRotation.Z);
-
-            // move to the offset
-            var matOffsetNeg = Mat4X4.MakeTranslation(-_mOffset.X, -_mOffset.Y, -_mOffset.Z);
-
-            var matScale = Mat4X4.MakeScale(_mScale.X, _mScale.Y, _mScale.Z);
-
-            // rotation
-            var matRotation = Mat4X4.Multiply(_matRotZ, _matRotX);
-            matRotation = Mat4X4.Multiply(matRotation, _matRotY);
-
-            // move back from the offset
-            var matOffsetPos = Mat4X4.MakeTranslation(_mOffset.X, _mOffset.Y, _mOffset.Z);
-
-            // move to the global position
-            _matTrans = Mat4X4.MakeTranslation(_mPosition.X, _mPosition.Y, _mPosition.Z);
-
-            // the final matrix
-            MatWorld = Mat4X4.MakeIdentity();
-            MatWorld = Mat4X4.Multiply(MatWorld, matOffsetNeg);
-            MatWorld = Mat4X4.Multiply(MatWorld, matRotation);
-            MatWorld = Mat4X4.Multiply(MatWorld, matOffsetPos);
-            MatWorld = Mat4X4.Multiply(MatWorld, matScale);
-            MatWorld = Mat4X4.Multiply(MatWorld, _matTrans);
-        }
-        */
-
-        public void SetRotation(Vec3 rotation)
-        {
-            Rotation = rotation;
-            Update();
-        }
-
-        public void SetPosition(Vec3 position)
-        {
-            Position = position;
-            Update();
-        }
-
-        public Vec3 GetPosition()
-        {
-            return Position;
-        }
-
-        public void SetOffset(Vec3 offset)
-        {
-            Offset = offset;
-        }
-
-        public void SetScale(Vec3 scale)
-        {
-            Scale = scale;
-        }
+        
 
         public void CreateCube(Vec3 size, Color32 objectColor, bool flipFace = false)
         {

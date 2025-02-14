@@ -89,4 +89,14 @@ public class Transform
     {
         Rotation = rotation;
     }
+    
+    public void SetOffset(Vec3 offset)
+    {
+        Offset = offset;
+    }
+    
+    public void SetScale(Vec3 scale)
+    {
+        Scale = scale;
+    }
 }
