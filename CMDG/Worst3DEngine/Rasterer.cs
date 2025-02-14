@@ -12,7 +12,6 @@
 
         private readonly Tile[,] m_Buffer;
 
-        
 
         private readonly List<Triangle>? m_RenderTriangles;
         private readonly List<Particle>? m_RenderParticles;
@@ -47,7 +46,6 @@
 
         private void Clear()
         {
-
             for (int y = 0; y < m_Height; y++)
             {
                 for (int x = 0; x < m_Width; x++)
@@ -378,16 +376,14 @@
 
         private void ProcessParticles(GameObject gameObject)
         {
-            if (gameObject.RenderDistance >= 0 && Vec3.Distance(gameObject.GetPosition(), m_Camera!.GetPosition()) >
-                gameObject.RenderDistance)
+            float distance = Vec3.Distance(gameObject.GetPosition(), m_Camera!.GetPosition());
+            if (gameObject.RenderDistance >= 0 && distance > gameObject.RenderDistance)
                 return;
 
             var transformed = Mat4X4.MultiplyVector(gameObject.Matrix, gameObject.GetPosition());
             var viewSpacePosition = Mat4X4.MultiplyVector(m_Camera!.Matrix, transformed);
-            float z = 1;
-            if (gameObject.RenderDistance >= 0)
-                z = 1.0f - (viewSpacePosition.Z / gameObject.RenderDistance);
-
+            
+            float z = 1.0f - (1.0f /gameObject.RenderDistance * distance);
 
             if (viewSpacePosition.Z > 0.0f)
             {
