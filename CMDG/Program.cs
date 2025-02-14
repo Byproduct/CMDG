@@ -9,7 +9,7 @@ bool isSceneRunning = true;
 // Independent thread to draw the scene into the framebuffer. Choosing from various scenes is for dev purposes and not required in the final version. Feel free to add more scene files.
 Thread sceneThread = new Thread(() =>
 {
-    int sceneChoice = 5;
+    int sceneChoice = 6;
     while (isSceneRunning)
     {
         switch (sceneChoice)
@@ -28,6 +28,9 @@ Thread sceneThread = new Thread(() =>
                 break;
             case 5:
                 Scene5.Run();
+                break;
+            case 6:
+                Scene6.Run();
                 break;
             default:
                 SceneTemplate.Run();

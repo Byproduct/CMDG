@@ -102,7 +102,19 @@ namespace CMDG.Worst3DEngine
 
             return Vec3.Add(lineStart, lineToIntersect);
         }
+
+        public static float Distance(Vec3 a, Vec3 b)
+        {
+            var d = Vec3.Sub(a, b);
+            return Length(d);
+        }
     };
+
+    public struct Particle(Vec3 position, Color32 color)
+    {
+        public Vec3 Position = position;
+        public Color32 Color = color;
+    }
     
 //todo: Use unsafe fixed array for performance boost
     public struct Triangle(Vec3 a, Vec3 b, Vec3 c, Color32 c1)
