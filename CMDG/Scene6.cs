@@ -41,6 +41,8 @@ public class Scene6
         m_Raster.UseLight(true);
         m_Raster.SetAmbientColor(new Vec3(0.0f, 0.0f, 0.2f));
         m_Raster.SetLightColor(new Vec3(1.0f, 1.0f, 1.0f));
+        
+        List<GameObject> snowParticles = [];
 
         for (int i = 0; i < 1000; i++)
         {
@@ -51,7 +53,8 @@ public class Scene6
 
             //init snow particles
             var particle = GameObjects.Add(new GameObject(pos, new Color32(255, 255, 255), ObjectType.Particle));
-            particle.SetMaxRenderingDistance(10);
+            particle.SetMaxRenderingDistance(25);
+            snowParticles.Add(particle);
         }
         
         var cube = GameObjects.Add(new GameObject());
@@ -66,13 +69,26 @@ public class Scene6
             GetInputs();
             HandleCamera(camera, deltaTime);
 
-
-            for (int i = 0; i < GameObjects.GameObjectsList.Count; i++)
+            for (int i = 0; i < snowParticles.Count; i++)
             {
-                var gob = GameObjects.GameObjectsList[i];
+                var gob = snowParticles[i];
                 //fancy stuff with gameobjects here
+                var pos = gob.GetPosition();
+                var v = new Vec3(0.5f, -1, 0);
+                v = Vec3.Mul(v, deltaTime);
+                pos = Vec3.Add(pos, v);
+
+                if (pos.Y < -10)
+                {
+                    pos.X = (float)(random.NextDouble() * 2.0f - 1) * 10;
+                    pos.Y = 10;
+                    pos.Z = (float)(random.NextDouble() * 2.0f - 1) * 10;
+                }
+                gob.SetPosition(pos);
+                
                 gob.Update();
             }
+            
 
             m_Raster.Process3D();
 
