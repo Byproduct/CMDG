@@ -422,7 +422,7 @@
             m_RenderTriangles?.Clear();
             m_RenderParticles?.Clear();
 
-            m_Camera!.Update();
+            //m_Camera!.Update();
 
 
             foreach (var gameObject in GameObjects.GameObjectsList)

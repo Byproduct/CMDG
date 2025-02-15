@@ -16,7 +16,6 @@ public class Transform
     private Vec3 m_LookDir;
     private Vec3 m_Up;
     private Vec3 m_Target;
-    private Mat4X4 m_MatCamera;
 
     protected void Update()
     {
@@ -38,18 +37,39 @@ public class Transform
         Matrix = Mat4X4.Multiply(Matrix, matTrans);
     }
 
-    protected void PointAt(Vec3 position, Vec3 targetPosition, Vec3 up)
+    public void PointAt(Vec3 position, Vec3 targetPosition, Vec3 up)
     {
         SetPosition(position);
         m_LookDir = Mat4X4.MultiplyVector(Matrix, targetPosition); // original direction
+        m_LookDir = Vec3.Normalize(m_LookDir);
+        
         m_Up = Mat4X4.MultiplyVector(Matrix, up); // original up vector
-
+        m_Up = Vec3.Normalize(m_Up);
+        
         //update: where 'camera' is pointing
         m_Target = Vec3.Add(position, m_LookDir);
 
         //create view matrix
-        m_MatCamera = Mat4X4.PointAt(position, m_Target, m_Up);
-        Matrix = Mat4X4.QuickInverse(m_MatCamera);
+        Matrix = Mat4X4.PointAt(position, m_Target, m_Up);
+        Matrix = Mat4X4.QuickInverse(Matrix);
+    }
+    
+    public void LookAt(Vec3 position, Vec3 targetPosition, Vec3 up)
+    {
+        SetPosition(position);
+        
+        m_LookDir = Vec3.Sub(targetPosition, position);
+        m_LookDir = Vec3.Normalize(m_LookDir);
+        
+        var right = Vec3.Cross(up, m_LookDir);
+        right = Vec3.Normalize(right);
+        
+        m_Up = Vec3.Cross(m_LookDir, right);
+        
+        m_Target = Vec3.Add(position, m_LookDir);
+        
+        Matrix = Mat4X4.PointAt(position, targetPosition, m_Up);
+        Matrix = Mat4X4.QuickInverse(Matrix);
     }
 
 
