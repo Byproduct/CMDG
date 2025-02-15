@@ -46,7 +46,7 @@ namespace CMDG.Worst3DEngine
         {
             return new Vec3(a.X * k, a.Y * k, a.Z * k, a.W * k);
         }
-        
+
         public static Vec3 ScaleXY(Vec3 a, float k, float l)
         {
             return new Vec3(a.X * k, a.Y * l, a.Z, a.W);
@@ -56,7 +56,7 @@ namespace CMDG.Worst3DEngine
         {
             return new Vec3(a.X / k, a.Y / k, a.Z / k, a.W / k);
         }
-        
+
         public static float Dot(Vec3 a, Vec3 b)
         {
             return a.X * b.X +
@@ -108,6 +108,18 @@ namespace CMDG.Worst3DEngine
             var d = Vec3.Sub(a, b);
             return Length(d);
         }
+
+        public static Vec3 Lerp(Vec3 a, Vec3 b, float t)
+        {
+            t = Util.Clamp(t, 0, 1);
+
+            return new Vec3(
+                a.X + (b.X - a.X) * t,
+                a.Y + (b.Y - a.Y) * t,
+                a.Z + (b.Z - a.Z) * t,
+                a.W + (b.W - a.W) * t
+            );
+        }
     };
 
     public struct Particle(Vec3 position, Color32 color)
@@ -115,7 +127,7 @@ namespace CMDG.Worst3DEngine
         public Vec3 Position = position;
         public Color32 Color = color;
     }
-    
+
 //todo: Use unsafe fixed array for performance boost
     public struct Triangle(Vec3 a, Vec3 b, Vec3 c, Color32 c1)
     {
@@ -163,13 +175,13 @@ namespace CMDG.Worst3DEngine
                     outTri1 = new Triangle();
                     outTri2 = new Triangle();
                     return 0;
-                
+
                 // case 3: All points are inside the plane, so return the original triangle as is.
                 case 3:
                     outTri1 = inTri;
                     outTri2 = new Triangle();
                     return 1;
-                
+
                 // case 1: One point is inside, two are outside.
                 // In this case, the triangle is clipped into a smaller triangle along the plane.
                 case 1 when nOutsidePointCount == 2:
@@ -182,12 +194,12 @@ namespace CMDG.Worst3DEngine
                         P3 = Vec3.IntersectPlane(planeP, planeN, insidePoints[0], outsidePoints[1],
                             out var t2) //ConsoleColor.Magenta,
                     };
-                    
+
                     // Only one new triangle is needed after clipping.
                     outTri2 = new Triangle();
                     return 1;
                 }
-                
+
                 // case 2: Two points are inside, one is outside.
                 // Here, the original triangle is split into two smaller triangles.
                 case 2 when nOutsidePointCount == 1:
@@ -310,7 +322,7 @@ namespace CMDG.Worst3DEngine
                 [3, 2] = z,
             };
         }
-        
+
         public static Mat4X4 MakeScale(float sx, float sy, float sz)
         {
             return new Mat4X4
@@ -422,6 +434,4 @@ namespace CMDG.Worst3DEngine
             return matrix;
         }
     }
-    
-    
 }

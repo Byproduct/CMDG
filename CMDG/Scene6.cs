@@ -9,6 +9,7 @@ public class Scene6
     static extern short GetAsyncKeyState(int vKey);
 
     private static Rasterer? m_Raster;
+    private static Vec3 vc;
 
     //Placeholder
     private struct Input
@@ -33,8 +34,29 @@ public class Scene6
         m_Input = new Input();
         m_Raster = new Rasterer(Config.ScreenWidth, Config.ScreenHeight);
 
+
         var camera = Rasterer.GetCamera();
         camera!.SetPosition(new Vec3(0, 1, -3));
+        vc = camera.GetPosition();
+
+        var path = new CameraPath();
+
+        path.AddWayPoint(new CameraWayPoint(
+            new Vec3(0, 0, 0), new Vec3(0, 0, 0),
+            new Vec3(0, 2, -10), new Vec3(0, 1, 0),
+            5.0f
+        ));
+        path.AddWayPoint(new CameraWayPoint(
+            new Vec3(0, 2, -10), new Vec3(0, 1, 0),
+            new Vec3(10, 5, 0), new Vec3(0, 1, 0),
+            5.0f
+        ));
+        path.AddWayPoint(new CameraWayPoint(
+            new Vec3(10, 5, 0), new Vec3(0, 1, 0),
+            new Vec3(0, 0, 0), new Vec3(0, 0, 0),
+            5.0f
+        ));
+
 
         Random random = new();
 
@@ -66,15 +88,27 @@ public class Scene6
             SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
             float deltaTime = (float)(SceneControl.DeltaTime);
 
+            /*
+            if (m_Input.Down)
+            {
+                path.NextEasings();
+            }
+            */
+            if (m_Input.Up)
+            {
+                path.Reset();
+            }
+                
             GetInputs();
-            HandleCamera(camera, deltaTime);
+            //HandleCamera(camera, deltaTime);
+            path.Run(camera, deltaTime);
 
             for (int i = 0; i < snowParticles.Count; i++)
             {
                 var gob = snowParticles[i];
                 //fancy stuff with gameobjects here
                 var pos = gob.GetPosition();
-                var v = new Vec3(0.5f, -1, 0);
+                var v = new Vec3(0.05f, -1, 0);
                 v = Vec3.Mul(v, deltaTime);
                 pos = Vec3.Add(pos, v);
 
@@ -85,7 +119,7 @@ public class Scene6
                     pos.Z = (float)(random.NextDouble() * 2.0f - 1) * 10;
                 }
 
-                gob.SetPosition(pos);
+                //gob.SetPosition(pos);
 
                 gob.Update();
             }
@@ -99,6 +133,8 @@ public class Scene6
         }
     }
 
+    private static float k = 0;
+
     private static void HandleCamera(Camera camera, float deltaTime)
     {
         //case 2: Move based on camera direction (more natural for 3d movement)
@@ -108,15 +144,14 @@ public class Scene6
 
 
         float cameraMovementSpeed = 1.0f * deltaTime;
-        var vc = camera.GetPosition();
+
         if (m_Input.Forward) vc = Vec3.Add(vc, Vec3.Mul(forward, cameraMovementSpeed));
         if (m_Input.Backward) vc = Vec3.Sub(vc, Vec3.Mul(forward, cameraMovementSpeed));
         if (m_Input.Left) vc = Vec3.Add(vc, Vec3.Mul(right, cameraMovementSpeed));
         if (m_Input.Right) vc = Vec3.Sub(vc, Vec3.Mul(right, cameraMovementSpeed));
         if (m_Input.Up) vc = Vec3.Add(vc, Vec3.Mul(up, cameraMovementSpeed));
         if (m_Input.Down) vc = Vec3.Sub(vc, Vec3.Mul(up, cameraMovementSpeed));
-        //--------------------------------------------
-        camera.SetPosition(vc);
+
         // get the current rotation values of the camera.
         float cameraRotY = camera.GetRotation().Y;
         float cameraRotX = camera.GetRotation().X;
@@ -127,7 +162,13 @@ public class Scene6
         if (m_Input.Up2) cameraRotX -= 1.0f * deltaTime;
         if (m_Input.Down2) cameraRotX += 1.0f * deltaTime;
 
+        //--------------------------------------------
+        camera.SetPosition(vc);
         camera.SetRotation(new Vec3(cameraRotX, cameraRotY, 0));
+        camera.Update();
+        k += deltaTime;
+        //camera.LookAt(new Vec3(k, 0, 0));
+        camera.LookAt(vc, new Vec3(0, 0, 0), camera.GetUp());
     }
 
 
