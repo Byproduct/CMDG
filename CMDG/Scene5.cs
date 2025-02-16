@@ -60,14 +60,14 @@ public class Scene5
             if (GameObjects.GameObjectsList.Count < 100)
             {
                 var gob = GameObjects.Add(new GameObject());
-                
-                 // test 1
+
+                // test 1
                 var size = new Vec3(
                     (float)(random.NextDouble() * 2.0f - 1),
                     (float)(random.NextDouble() * 2.0f - 1),
                     (float)(random.NextDouble() * 2.0f - 1)
-                    );
-                
+                );
+
                 /*
                 // test 2
                 var size = new Vec3(
@@ -105,12 +105,12 @@ public class Scene5
             var right = camera.GetRight();
             var up = camera.GetUp();
 
-            if (_mInput.Forward) vc = Vec3.Add(vc, Vec3.Mul(forward, speed));
-            if (_mInput.Backward) vc = Vec3.Sub(vc, Vec3.Mul(forward, speed));
-            if (_mInput.Left) vc = Vec3.Add(vc, Vec3.Mul(right, speed));
-            if (_mInput.Right) vc = Vec3.Sub(vc, Vec3.Mul(right, speed));
-            if (_mInput.Up) vc = Vec3.Add(vc, Vec3.Mul(up, speed));
-            if (_mInput.Down) vc = Vec3.Sub(vc, Vec3.Mul(up, speed));
+            if (_mInput.Forward) vc += (forward * speed);
+            if (_mInput.Backward) vc -= (forward * speed);
+            if (_mInput.Left) vc += (right * speed);
+            if (_mInput.Right) vc -= (right * speed);
+            if (_mInput.Up) vc += (up * speed);
+            if (_mInput.Down) vc -= (up * speed);
 
             //--------------------------------------------
 
@@ -143,7 +143,7 @@ public class Scene5
                 var scale = new Vec3(s, s, s);
                 //foo.SetScale(scale);
                 foo.SetRotation(new Vec3(rotateObject * 0.3f, rotateObject * 0.8f, rotateObject));
-                
+
                 foo.Update();
             }
 

@@ -108,8 +108,8 @@ public class Scene6
                 //fancy stuff with gameobjects here
                 var pos = gob.GetPosition();
                 var v = new Vec3(0.05f, -1, 0);
-                v = Vec3.Mul(v, deltaTime);
-                pos = Vec3.Add(pos, v);
+                v *= deltaTime;
+                pos += v;
 
                 if (pos.Y < -10)
                 {
@@ -139,15 +139,15 @@ public class Scene6
         var right = camera.GetRight();
         var up = camera.GetUp();
 
-
         float cameraMovementSpeed = 1.0f * deltaTime;
 
-        if (m_Input.Forward) vc = Vec3.Add(vc, Vec3.Mul(forward, cameraMovementSpeed));
-        if (m_Input.Backward) vc = Vec3.Sub(vc, Vec3.Mul(forward, cameraMovementSpeed));
-        if (m_Input.Left) vc = Vec3.Add(vc, Vec3.Mul(right, cameraMovementSpeed));
-        if (m_Input.Right) vc = Vec3.Sub(vc, Vec3.Mul(right, cameraMovementSpeed));
-        if (m_Input.Up) vc = Vec3.Add(vc, Vec3.Mul(up, cameraMovementSpeed));
-        if (m_Input.Down) vc = Vec3.Sub(vc, Vec3.Mul(up, cameraMovementSpeed));
+        if (m_Input.Forward) vc += (forward * cameraMovementSpeed);
+        if (m_Input.Backward) vc -= (forward * cameraMovementSpeed);
+        if (m_Input.Left) vc += (right * cameraMovementSpeed);
+        if (m_Input.Right) vc -= (right * cameraMovementSpeed);
+        if (m_Input.Up) vc += (up * cameraMovementSpeed);
+        if (m_Input.Down) vc -= (up * cameraMovementSpeed);
+
 
         // get the current rotation values of the camera.
         float cameraRotY = camera.GetRotation().Y;

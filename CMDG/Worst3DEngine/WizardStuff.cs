@@ -32,17 +32,18 @@ namespace CMDG.Worst3DEngine
 
         public float W { get; set; } = w;
 
-        public static Vec3 Add(Vec3 a, Vec3 b)
+
+        public static Vec3 operator +(Vec3 a, Vec3 b)
         {
             return new Vec3(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W);
         }
 
-        public static Vec3 Sub(Vec3 a, Vec3 b)
+        public static Vec3 operator -(Vec3 a, Vec3 b)
         {
             return new Vec3(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W);
         }
 
-        public static Vec3 Mul(Vec3 a, float k)
+        public static Vec3 operator *(Vec3 a, float k)
         {
             return new Vec3(a.X * k, a.Y * k, a.Z * k, a.W * k);
         }
@@ -52,7 +53,7 @@ namespace CMDG.Worst3DEngine
             return new Vec3(a.X * k, a.Y * l, a.Z, a.W);
         }
 
-        public static Vec3 Div(Vec3 a, float k)
+        public static Vec3 operator /(Vec3 a, float k)
         {
             return new Vec3(a.X / k, a.Y / k, a.Z / k, a.W / k);
         }
@@ -97,15 +98,15 @@ namespace CMDG.Worst3DEngine
             //calculate the t value of intersection point
             t = (-planeD - ad) / (bd - ad);
 
-            var lineStartToEnd = Vec3.Sub(lineEnd, lineStart);
-            var lineToIntersect = Vec3.Mul(lineStartToEnd, t);
+            var lineStartToEnd = lineEnd - lineStart; // Vec3.Sub(lineEnd, lineStart);
+            var lineToIntersect = lineStartToEnd * t; // Vec3.Mul(lineStartToEnd, t);
 
-            return Vec3.Add(lineStart, lineToIntersect);
+            return lineStart + lineToIntersect;
         }
 
         public static float Distance(Vec3 a, Vec3 b)
         {
-            var d = Vec3.Sub(a, b);
+            var d = a - b; // Vec3.Sub(a, b);
             return Length(d);
         }
 
@@ -368,12 +369,12 @@ namespace CMDG.Worst3DEngine
 
         public static Mat4X4 PointAt(Vec3 pos, Vec3 target, Vec3 up)
         {
-            var forward = Vec3.Sub(target, pos);
+            var forward = target - pos;
             forward = Vec3.Normalize(forward);
 
             //calculate new up vector
-            var a = Vec3.Mul(forward, Vec3.Dot(up, forward));
-            var newUp = Vec3.Sub(up, a);
+            var a = forward * Vec3.Dot(up, forward);
+            var newUp = up - a;
             newUp = Vec3.Normalize(newUp);
 
             //new right direction

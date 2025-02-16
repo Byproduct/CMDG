@@ -54,7 +54,7 @@ public class Scene4
             SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
             _mStopwatch.Restart();
             GetInputs();
-            
+
             //update camera position using WASD for movement and RF for vertical movement
             var vc = camera.GetPosition();
             float speed = 1.0f * deltaTime;
@@ -68,22 +68,22 @@ public class Scene4
             if (_mInput.Up) vc.Y += speed;
             if (_mInput.Down) vc.Y -= speed;
             */
-            
+
 
             //case 2: Move based on camera direction (more natural for 3d movement)
             var forward = camera.GetForward();
             var right = camera.GetRight();
             var up = camera.GetUp();
 
-            if (_mInput.Forward) vc = Vec3.Add(vc, Vec3.Mul(forward, speed));
-            if (_mInput.Backward) vc = Vec3.Sub(vc, Vec3.Mul(forward, speed));
-            if (_mInput.Left) vc = Vec3.Add(vc, Vec3.Mul(right, speed));
-            if (_mInput.Right) vc = Vec3.Sub(vc, Vec3.Mul(right, speed));
-            if (_mInput.Up) vc = Vec3.Add(vc, Vec3.Mul(up, speed));
-            if (_mInput.Down) vc = Vec3.Sub(vc, Vec3.Mul(up, speed));
+            if (_mInput.Forward) vc += (forward * speed);
+            if (_mInput.Backward) vc -= (forward * speed);
+            if (_mInput.Left) vc += (right * speed);
+            if (_mInput.Right) vc -= (right * speed);
+            if (_mInput.Up) vc += (up * speed);
+            if (_mInput.Down) vc -= (up * speed);
 
             //--------------------------------------------
-            
+
 
             camera.SetPosition(vc);
             // get the current rotation values of the camera.
@@ -96,7 +96,7 @@ public class Scene4
             if (_mInput.Right2) cameraRotY += 1.0f * deltaTime;
             if (_mInput.Up2) cameraRotX -= 1.0f * deltaTime;
             if (_mInput.Down2) cameraRotX += 1.0f * deltaTime;
-            
+
 
             //how to rotate the Camera
             //--------------------------------------------
@@ -115,7 +115,7 @@ public class Scene4
             //You can also update object positions instantly.
 
             totalTime += deltaTime;
-            float z = -1f + 0.5f * (float)Math.Sin(totalTime * 5);  // baseZ + amplitude * sin(totalTime * frequency)
+            float z = -1f + 0.5f * (float)Math.Sin(totalTime * 5); // baseZ + amplitude * sin(totalTime * frequency)
             GameObjects.GameObjectsList[0].SetPosition(new Vec3(-1, 0, 1));
             GameObjects.GameObjectsList[1].SetPosition(new Vec3(0, 0, z));
 
@@ -129,10 +129,10 @@ public class Scene4
 
             //After all logic updates and transformations, process all meshes and triangles.
             _mRaster.Process3D();
-            
+
             SceneControl
                 .EndFrame(); // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
-            
+
             //measure the frame time to calculate deltatime.
             deltaTime = (float)_mStopwatch.Elapsed.TotalSeconds;
         }

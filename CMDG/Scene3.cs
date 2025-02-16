@@ -37,16 +37,17 @@ public class Scene3
 
         //how to create new Gameobjects from a file
         //The first object is placed at (0, 0, 1) and the second one at (10, 10, 0).
-        
-        GameObjects.Add(new GameObject("test.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0),  new Color32(255, 255, 255)));
-        var gnaa = GameObjects.Add(new GameObject("test.obj", new Vec3(10, 0, 0), new Vec3(0, 0, 0),  new Color32(255, 255, 255)));
+
+        GameObjects.Add(new GameObject("test.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0), new Color32(255, 255, 255)));
+        var gnaa = GameObjects.Add(new GameObject("test.obj", new Vec3(10, 0, 0), new Vec3(0, 0, 0),
+            new Color32(255, 255, 255)));
         var gob = GameObjects.Add(new GameObject());
         gob.CreateCube(new Vec3(1, 1, 1), new Color32(255, 255, 255));
         gob.SetPosition(new Vec3(3, 0, 3));
         _mRaster.UseLight(true);
         _mRaster.SetAmbientColor(new Vec3(0.1f, 0.3f, 0.3f));
         _mRaster.SetLightColor(new Vec3(1.0f, 1.0f, 1.0f));
-        
+
 
         float rotateObject = 0;
 
@@ -56,7 +57,7 @@ public class Scene3
             SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
             float deltaTime = (float)(SceneControl.DeltaTime);
             GetInputs();
-            
+
             //update camera position using WASD for movement and RF for vertical movement
             var vc = camera.GetPosition();
             float speed = 1.0f * deltaTime;
@@ -70,22 +71,22 @@ public class Scene3
             if (_mInput.Up) vc.Y += speed;
             if (_mInput.Down) vc.Y -= speed;
             */
-            
+
 
             //case 2: Move based on camera direction (more natural for 3d movement)
             var forward = camera.GetForward();
             var right = camera.GetRight();
             var up = camera.GetUp();
 
-            if (_mInput.Forward) vc = Vec3.Add(vc, Vec3.Mul(forward, speed));
-            if (_mInput.Backward) vc = Vec3.Sub(vc, Vec3.Mul(forward, speed));
-            if (_mInput.Left) vc = Vec3.Add(vc, Vec3.Mul(right, speed));
-            if (_mInput.Right) vc = Vec3.Sub(vc, Vec3.Mul(right, speed));
-            if (_mInput.Up) vc = Vec3.Add(vc, Vec3.Mul(up, speed));
-            if (_mInput.Down) vc = Vec3.Sub(vc, Vec3.Mul(up, speed));
+            if (_mInput.Forward) vc += (forward * speed);
+            if (_mInput.Backward) vc -= (forward * speed);
+            if (_mInput.Left) vc += (right * speed);
+            if (_mInput.Right) vc -= (right * speed);
+            if (_mInput.Up) vc += (up * speed);
+            if (_mInput.Down) vc -= (up * speed);
 
             //--------------------------------------------
-            
+
 
             camera.SetPosition(vc);
             // get the current rotation values of the camera.
@@ -98,7 +99,7 @@ public class Scene3
             if (_mInput.Right2) cameraRotY += 1.0f * deltaTime;
             if (_mInput.Up2) cameraRotX -= 1.0f * deltaTime;
             if (_mInput.Down2) cameraRotX += 1.0f * deltaTime;
-            
+
 
             //how to rotate the Camera
             //--------------------------------------------
@@ -113,7 +114,7 @@ public class Scene3
 
             //The camera update is handled in Process3D
             //--------------------------------------------
-            
+
             //You can also update object positions instantly.
             GameObjects.GameObjectsList[0].SetPosition(new Vec3(0, 0, 1));
             //GameObjects.GameObjectsList[1].SetPosition(new Vec3(0, 0, -1));
@@ -128,10 +129,9 @@ public class Scene3
 
             //After all logic updates and transformations, process all meshes and triangles.
             _mRaster.Process3D();
-            
+
             SceneControl
                 .EndFrame(); // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
-           
         }
     }
 

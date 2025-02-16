@@ -11,8 +11,7 @@
         private readonly int m_Height;
 
         private readonly Tile[,] m_Buffer;
-
-
+        
         private readonly List<Triangle>? m_RenderTriangles;
         private readonly List<Particle>? m_RenderParticles;
 
@@ -287,8 +286,7 @@
         {
             int meshId = gameObject.MeshId;
             var meshCube = MeshManager.GetMesh(meshId);
-            var meshColor = gameObject.Color;
-
+            
             if (meshCube == null)
                 return;
 
@@ -307,14 +305,14 @@
                 triTransformed.P2 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P2);
                 triTransformed.P3 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P3);
                 triTransformed.Color = tri.Color;
-                
+
                 //get the surface normal:
-                var line1 = Vec3.Sub(triTransformed.P2, triTransformed.P1);
-                var line2 = Vec3.Sub(triTransformed.P3, triTransformed.P1);
+                var line1 = triTransformed.P2 - triTransformed.P1;
+                var line2 = triTransformed.P3 - triTransformed.P1;
                 var normal = Vec3.Cross(line1, line2);
                 normal = Vec3.Normalize(normal);
 
-                var vCameraRay = Vec3.Sub(triTransformed.P1, m_Camera!.GetPosition());
+                var vCameraRay = triTransformed.P1 - m_Camera!.GetPosition();
 
                 if (!(Vec3.Dot(normal, vCameraRay) < 0.0f)) continue;
                 //project triangles from 3d to 2d
@@ -322,7 +320,7 @@
                 triViewed.P2 = Mat4X4.MultiplyVector(m_Camera.Matrix, triTransformed.P2);
                 triViewed.P3 = Mat4X4.MultiplyVector(m_Camera.Matrix, triTransformed.P3);
                 triViewed.Color = triTransformed.Color;
-                
+
                 var clipped = new Triangle[2];
 
                 int nClippedTriangles = Triangle.ClipAgainstPlane(new Vec3(0, 0, 0.1f), new Vec3(0, 0, 1),
@@ -335,29 +333,29 @@
                     triProjected.P2 = Mat4X4.MultiplyVector(m_Camera.GetProjectionMatrix(), clipped[n].P2);
                     triProjected.P3 = Mat4X4.MultiplyVector(m_Camera.GetProjectionMatrix(), clipped[n].P3);
                     triProjected.Color = clipped[n].Color;
-                    
+
                     float w1 = triProjected.P1.W;
                     float w2 = triProjected.P2.W;
                     float w3 = triProjected.P3.W;
 
                     //Scale
-                    triProjected.P1 = Vec3.Div(triProjected.P1, triProjected.P1.W);
-                    triProjected.P2 = Vec3.Div(triProjected.P2, triProjected.P2.W);
-                    triProjected.P3 = Vec3.Div(triProjected.P3, triProjected.P3.W);
+                    triProjected.P1 /= triProjected.P1.W;
+                    triProjected.P2 /= triProjected.P2.W;
+                    triProjected.P3 /= triProjected.P3.W;
 
                     triProjected.P1.W = w1;
                     triProjected.P2.W = w2;
                     triProjected.P3.W = w3;
 
                     //x and y are inverted, put them back
-                    triProjected.P1 = Vec3.Mul(triProjected.P1, -1);
-                    triProjected.P2 = Vec3.Mul(triProjected.P2, -1);
-                    triProjected.P3 = Vec3.Mul(triProjected.P3, -1);
+                    triProjected.P1 *= -1;
+                    triProjected.P2 *= -1;
+                    triProjected.P3 *= -1;
 
                     var vOffsetView = new Vec3(1, 1, 0);
-                    triProjected.P1 = Vec3.Add(triProjected.P1, vOffsetView);
-                    triProjected.P2 = Vec3.Add(triProjected.P2, vOffsetView);
-                    triProjected.P3 = Vec3.Add(triProjected.P3, vOffsetView);
+                    triProjected.P1 += vOffsetView;
+                    triProjected.P2 += vOffsetView;
+                    triProjected.P3 += vOffsetView;
 
                     //scale
                     triProjected.P1 = Vec3.ScaleXY(triProjected.P1, 0.5f * m_Width, 0.5f * m_Height);
@@ -385,8 +383,8 @@
 
             var transformed = Mat4X4.MultiplyVector(gameObject.Matrix, gameObject.GetPosition());
             var viewSpacePosition = Mat4X4.MultiplyVector(m_Camera!.Matrix, transformed);
-            
-            float z = 1.0f - (1.0f /gameObject.RenderDistance * distance);
+
+            float z = 1.0f - (1.0f / gameObject.RenderDistance * distance);
 
             if (viewSpacePosition.Z > 0.0f)
             {
@@ -396,13 +394,13 @@
                 float w1 = projected.W;
 
                 //Scale
-                projected = Vec3.Div(projected, projected.W);
+                projected /= projected.W;
                 projected.W = w1;
 
-                projected = Vec3.Mul(projected, -1);
+                projected *= -1;
 
                 var vOffsetView = new Vec3(1, 1, 0);
-                projected = Vec3.Add(projected, vOffsetView);
+                projected += vOffsetView; // Vec3.Add(projected, vOffsetView);
                 projected = Vec3.ScaleXY(projected, 0.5f * m_Width, 0.5f * m_Height);
 
                 var color = gameObject.Color;
@@ -424,9 +422,6 @@
             Clear();
             m_RenderTriangles?.Clear();
             m_RenderParticles?.Clear();
-
-            //m_Camera!.Update();
-
 
             foreach (var gameObject in GameObjects.GameObjectsList)
             {
@@ -496,7 +491,7 @@
             color.X *= m_LightColor.X * dp;
             color.Y *= m_LightColor.Y * dp;
             color.Z *= m_LightColor.Z * dp;
-            color = Vec3.Add(m_AmbientColor, color);
+            color = m_AmbientColor + color; // Vec3.Add(m_AmbientColor, color);
 
             color.X = Util.Clamp(color.X, 0, 1);
             color.Y = Util.Clamp(color.Y, 0, 1);
