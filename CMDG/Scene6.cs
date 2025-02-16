@@ -61,7 +61,7 @@ public class Scene6
         Random random = new();
 
         m_Raster.UseLight(true);
-        m_Raster.SetAmbientColor(new Vec3(0.0f, 0.0f, 0.2f));
+        m_Raster.SetAmbientColor(new Vec3(0.0f, 0.0f, 0.0f));
         m_Raster.SetLightColor(new Vec3(1.0f, 1.0f, 1.0f));
 
         List<GameObject> snowParticles = [];
@@ -80,8 +80,7 @@ public class Scene6
         }
 
         var cube = GameObjects.Add(new GameObject());
-        cube.CreateCube(new Vec3(2, 2, 2), new Color32(255, 0, 0));
-
+        cube.LoadMesh("test.obj");
 
         while (true)
         {
@@ -98,7 +97,7 @@ public class Scene6
             {
                 path.Reset();
             }
-                
+
             GetInputs();
             //HandleCamera(camera, deltaTime);
             path.Run(camera, deltaTime);
@@ -124,9 +123,7 @@ public class Scene6
                 gob.Update();
             }
 
-
             m_Raster.Process3D();
-
             // Calculates spent time, limits to max framerate,
             // and allows quitting by pressing ESC.
             SceneControl.EndFrame();

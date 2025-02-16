@@ -306,7 +306,8 @@
                 triTransformed.P1 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P1);
                 triTransformed.P2 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P2);
                 triTransformed.P3 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P3);
-
+                triTransformed.Color = tri.Color;
+                
                 //get the surface normal:
                 var line1 = Vec3.Sub(triTransformed.P2, triTransformed.P1);
                 var line2 = Vec3.Sub(triTransformed.P3, triTransformed.P1);
@@ -320,7 +321,8 @@
                 triViewed.P1 = Mat4X4.MultiplyVector(m_Camera.Matrix, triTransformed.P1);
                 triViewed.P2 = Mat4X4.MultiplyVector(m_Camera.Matrix, triTransformed.P2);
                 triViewed.P3 = Mat4X4.MultiplyVector(m_Camera.Matrix, triTransformed.P3);
-
+                triViewed.Color = triTransformed.Color;
+                
                 var clipped = new Triangle[2];
 
                 int nClippedTriangles = Triangle.ClipAgainstPlane(new Vec3(0, 0, 0.1f), new Vec3(0, 0, 1),
@@ -332,7 +334,8 @@
                     triProjected.P1 = Mat4X4.MultiplyVector(m_Camera.GetProjectionMatrix(), clipped[n].P1);
                     triProjected.P2 = Mat4X4.MultiplyVector(m_Camera.GetProjectionMatrix(), clipped[n].P2);
                     triProjected.P3 = Mat4X4.MultiplyVector(m_Camera.GetProjectionMatrix(), clipped[n].P3);
-
+                    triProjected.Color = clipped[n].Color;
+                    
                     float w1 = triProjected.P1.W;
                     float w2 = triProjected.P2.W;
                     float w3 = triProjected.P3.W;
@@ -361,11 +364,11 @@
                     triProjected.P2 = Vec3.ScaleXY(triProjected.P2, 0.5f * m_Width, 0.5f * m_Height);
                     triProjected.P3 = Vec3.ScaleXY(triProjected.P3, 0.5f * m_Width, 0.5f * m_Height);
 
-                    //var color = triProjected.Color;
-                    var color = meshColor;
+                    var color = triProjected.Color;
+                    //var color = meshColor;
                     //calculate light
                     if (m_UseLight)
-                        color = CalculateLight(meshColor, normal);
+                        color = CalculateLight(color, normal);
 
                     //add triangle to the renderlist
                     m_RenderTriangles!.Add(

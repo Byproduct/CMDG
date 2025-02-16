@@ -1,19 +1,18 @@
 ﻿namespace CMDG.Worst3DEngine
 {
-
     public enum ObjectType
     {
         None,
         Mesh,
         Particle,
     }
-    
+
     public class GameObject : Transform
     {
         public int MeshId { get; private set; }
         public Color32 Color { get; set; }
         public float RenderDistance { get; set; }
-        
+
         public new void Update() => base.Update();
 
         public ObjectType Type;
@@ -28,8 +27,8 @@
             Color = new Color32(255, 0, 255);
             RenderDistance = -1;
         }
-        
-        public GameObject( Vec3 position, Color32 objectColor, ObjectType objectType = ObjectType.None)
+
+        public GameObject(Vec3 position, Color32 objectColor, ObjectType objectType = ObjectType.None)
         {
             Type = objectType;
             Position = position;
@@ -51,7 +50,13 @@
             Color = objectColor;
             RenderDistance = -1;
         }
-        
+
+        public void LoadMesh(string filename)
+        {
+            Type = ObjectType.Mesh;
+            MeshId = MeshManager.LoadMesh(filename);
+        }
+
 
         public void CreateCube(Vec3 size, Color32 objectColor, bool flipFace = false)
         {

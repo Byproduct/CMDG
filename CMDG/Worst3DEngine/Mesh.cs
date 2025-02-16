@@ -2,6 +2,12 @@
 
 namespace CMDG.Worst3DEngine
 {
+    public struct Material
+    {
+        public string Name;
+        public Vec3 Color; //just diffuse
+    }
+
     public class Mesh
     {
         public readonly List<Triangle> Triangles;
@@ -9,10 +15,13 @@ namespace CMDG.Worst3DEngine
         //public ConsoleColor Color;
         public string MeshFileName;
 
+        private List<Material> m_Materials;
+
         public Mesh()
         {
             MeshFileName = "";
             Triangles = [];
+            m_Materials = new List<Material>();
             //Color = ConsoleColor.Magenta;
         }
 
@@ -96,13 +105,48 @@ namespace CMDG.Worst3DEngine
             });
         }
 
+        public void LoadMaterials(string filename)
+        {
+            m_Materials.Clear();
+
+            var material = new Material();
+
+            foreach (var line in File.ReadAllLines(filename.Trim()))
+            {
+                if (line.StartsWith("newmtl"))
+                {
+                    material = new Material();
+                    material.Name = line.Substring(6).Trim();
+                }
+                else if (line.StartsWith("Kd")) //diffuse
+                {
+                    var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    var r = float.Parse(parts[1], CultureInfo.InvariantCulture);
+                    var g = float.Parse(parts[2], CultureInfo.InvariantCulture);
+                    var b = float.Parse(parts[3], CultureInfo.InvariantCulture);
+                    material.Color = new Vec3(r, g, b);
+                }
+                else if (line.StartsWith("illum"))
+                {
+                    m_Materials.Add(material);
+                }
+            }
+
+            for (int i = 0; i < m_Materials.Count; i++)
+            {
+                DebugConsole.Add($"Material: '{m_Materials[i].Name}', {m_Materials[i].Color.X}, {m_Materials[i].Color.Y}, {m_Materials[i].Color.Z}");
+            }
+        }
+
         public void LoadMesh(string filename)
         {
             MeshFileName = filename;
             Triangles.Clear();
 
             var vertices = new List<Vec3>();
-            var colors = new List<Vec3>();
+            //var colors = new List<Vec3>();
+
+            Vec3 CurrentColor = new Vec3();
 
             foreach (var line in File.ReadAllLines(filename))
             {
@@ -118,7 +162,7 @@ namespace CMDG.Worst3DEngine
                             var z = float.Parse(parts[3], CultureInfo.InvariantCulture);
 
                             vertices.Add(new Vec3(x, y, z));
-                            colors.Add(new Vec3(1, 1, 1)); //white
+                            //colors.Add(new Vec3(1, 1, 1)); //white
                             break;
                         }
                         case 7:
@@ -132,7 +176,7 @@ namespace CMDG.Worst3DEngine
                             var b = float.Parse(parts[6], CultureInfo.InvariantCulture);
 
                             vertices.Add(new Vec3(x, y, z));
-                            colors.Add(new Vec3(r, g, b)); //found color!
+                            //colors.Add(new Vec3(r, g, b)); //found color!
                             break;
                         }
                     }
@@ -157,20 +201,27 @@ namespace CMDG.Worst3DEngine
                             int.TryParse(indices[0], out f[i]);
                         }
                     }
-
-                    //calculate the average color by summing the vertex colors.
-                    var finalColor = ConsoleColor.Magenta;
-                    var colorSum = new Vec3(0, 0, 0);
-
-                    colorSum = Vec3.Add(colorSum, colors[f[0] - 1]);
-                    colorSum = Vec3.Add(colorSum, colors[f[1] - 1]);
-                    colorSum = Vec3.Add(colorSum, colors[f[2] - 1]);
-
-                    colorSum = Vec3.Div(colorSum, 3);
-                    var c = new Color32((byte)(colorSum.X * 255), (byte)(colorSum.Y * 255), (byte)(colorSum.Z * 255));
-
-                    //finalColor = ConsoleColors.GetClosestConsoleColor(colorSum);
+                    
+                    var c = new Color32((byte)(CurrentColor.X * 255), (byte)(CurrentColor.Y * 255),
+                        (byte)(CurrentColor.Z * 255));
                     AddTriangle(vertices[f[0] - 1], vertices[f[1] - 1], vertices[f[2] - 1], c);
+                }
+                else if (line.StartsWith($"usemtl"))
+                {
+                    string[] mm = line.Split("usemtl");
+                    for (int m = 0; m < m_Materials.Count; m++)
+                    {
+                        if (m_Materials[m].Name == mm[1].Trim())
+                        {
+                            CurrentColor = m_Materials[m].Color;
+                            DebugConsole.Add($"Found material: {m_Materials[m].Name}. Color: {CurrentColor.X}, {CurrentColor.Y}, {CurrentColor.Z}");
+                        }
+                    }
+                }
+                else if (line.StartsWith($"mtllib"))
+                {
+                    string[] mm = line.Split("mtllib");
+                    LoadMaterials(mm[1]);
                 }
             }
         }
