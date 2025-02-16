@@ -68,13 +68,17 @@ public class Scene6
 
         for (int i = 0; i < 10000; i++)
         {
-            var pos = new Vec3(0, 0, 0);
-            pos.X = (float)(random.NextDouble() * 2.0f - 1) * 10;
-            pos.Y = (float)(random.NextDouble() * 2.0f - 1) * 10;
-            pos.Z = (float)(random.NextDouble() * 2.0f - 1) * 10;
+            var pos = new Vec3(
+                (float)(random.NextDouble()*2-1)*10,
+                (float)(random.NextDouble()*2-1)*10,
+                (float)(random.NextDouble()*2-1)*10
+                );
+            
+                        
+            var color = new Color32(255, 255, 255);
 
             //init snow particles
-            var particle = GameObjects.Add(new GameObject(pos, new Color32(255, 255, 255), ObjectType.Particle));
+            var particle = GameObjects.Add(new GameObject(pos, color, ObjectType.Particle));
             particle.SetMaxRenderingDistance(25);
             snowParticles.Add(particle);
         }
@@ -106,10 +110,8 @@ public class Scene6
             {
                 var gob = snowParticles[i];
                 //fancy stuff with gameobjects here
-                var pos = gob.GetPosition();
-                var v = new Vec3(0.05f, -1, 0);
-                v *= deltaTime;
-                pos += v;
+                var v = new Vec3(0.05f, -1, 0) * deltaTime;
+                var pos = gob.GetPosition() + v;
 
                 if (pos.Y < -10)
                 {
@@ -118,7 +120,7 @@ public class Scene6
                     pos.Z = (float)(random.NextDouble() * 2.0f - 1) * 10;
                 }
 
-                //gob.SetPosition(pos);
+                gob.SetPosition(pos);
 
                 gob.Update();
             }
