@@ -131,11 +131,6 @@ namespace CMDG.Worst3DEngine
                     m_Materials.Add(material);
                 }
             }
-
-            for (int i = 0; i < m_Materials.Count; i++)
-            {
-                DebugConsole.Add($"Material: '{m_Materials[i].Name}', {m_Materials[i].Color.X}, {m_Materials[i].Color.Y}, {m_Materials[i].Color.Z}");
-            }
         }
 
         public void LoadMesh(string filename)
@@ -201,7 +196,7 @@ namespace CMDG.Worst3DEngine
                             int.TryParse(indices[0], out f[i]);
                         }
                     }
-                    
+
                     var c = new Color32((byte)(CurrentColor.X * 255), (byte)(CurrentColor.Y * 255),
                         (byte)(CurrentColor.Z * 255));
                     AddTriangle(vertices[f[0] - 1], vertices[f[1] - 1], vertices[f[2] - 1], c);
@@ -214,7 +209,6 @@ namespace CMDG.Worst3DEngine
                         if (m_Materials[m].Name == mm[1].Trim())
                         {
                             CurrentColor = m_Materials[m].Color;
-                            DebugConsole.Add($"Found material: {m_Materials[m].Name}. Color: {CurrentColor.X}, {CurrentColor.Y}, {CurrentColor.Z}");
                         }
                     }
                 }
