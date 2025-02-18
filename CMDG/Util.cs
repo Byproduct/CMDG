@@ -12,6 +12,7 @@ namespace CMDG
 
         public static Dictionary<int, string> ansi_foreground_colour_codes = new();
         public static Dictionary<int, string> ansi_background_colour_codes = new();
+        public static Dictionary<int, string> ansi_colour_codes = new();      // will be filled with foreground or background codes depending on config
 
         // Set up the terminal for ANSI codes, character encoding etc.
         const int STD_OUTPUT_HANDLE = -11;

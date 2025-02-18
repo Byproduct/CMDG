@@ -1,10 +1,12 @@
-﻿using System.IO.Compression;
+﻿// An attempt at a fancier color converter. Results weren't great so it's currently not in use.
+
+using System.IO.Compression;
 
 namespace CMDG
 {
     // Loads an array of ANSI color codes for every possible Color32 (255*255*255) element. If the array doesn't already exist as a file, it gets generated.
-    // Now uses Euclidean distance in RGB space for color comparison
-    internal static class ColorConverter
+    // Uses CIE76 (Lab Color Space), which supposedly aligns better with human vision than e.g. Manhattan or Euclidean distance.
+    internal static class ColorConverterFancy
     {
         public static byte[] ansiMap = new byte[256 * 256 * 256];
 
@@ -94,14 +96,41 @@ namespace CMDG
                 new Color32(242, 242, 242)
             };
 
+        public struct LabColor
+        {
+            public double L;
+            public double a;
+            public double b;
+
+            public LabColor(double L, double a, double b)
+            {
+                this.L = L;
+                this.a = a;
+                this.b = b;
+            }
+        }
+
+        private static readonly LabColor[] AnsiLabColors = PrecomputeAnsiLabColors();
+
+        private static LabColor[] PrecomputeAnsiLabColors()
+        {
+            LabColor[] labColors = new LabColor[AnsiColors.Length];
+            for (int i = 0; i < AnsiColors.Length; i++)
+            {
+                labColors[i] = RgbToLab(AnsiColors[i]);
+            }
+            return labColors;
+        }
+
         public static int GetClosestAnsiColorIndex(Color32 color)
         {
+            LabColor inputLab = RgbToLab(color);
             int closestIndex = 0;
             double minDistance = double.MaxValue;
 
-            for (int i = 0; i < AnsiColors.Length; i++)
+            for (int i = 0; i < AnsiLabColors.Length; i++)
             {
-                double distance = EuclideanDistance(color, AnsiColors[i]);
+                double distance = Cie76Distance(inputLab, AnsiLabColors[i]);
                 if (distance < minDistance)
                 {
                     minDistance = distance;
@@ -111,13 +140,46 @@ namespace CMDG
             return closestIndex;
         }
 
-        private static double EuclideanDistance(Color32 c1, Color32 c2)
+        private static double Cie76Distance(LabColor c1, LabColor c2)
         {
             return Math.Sqrt(
-                Math.Pow(c1.r - c2.r, 2) +
-                Math.Pow(c1.g - c2.g, 2) +
+                Math.Pow(c1.L - c2.L, 2) +
+                Math.Pow(c1.a - c2.a, 2) +
                 Math.Pow(c1.b - c2.b, 2)
             );
+        }
+
+        private static LabColor RgbToLab(Color32 color)
+        {
+            // Convert RGB to XYZ
+            double r = color.r / 255.0;
+            double g = color.g / 255.0;
+            double b = color.b / 255.0;
+
+            // Apply sRGB gamma correction
+            r = (r > 0.04045) ? Math.Pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+            g = (g > 0.04045) ? Math.Pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+            b = (b > 0.04045) ? Math.Pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+
+            // Convert to XYZ (D65)
+            double x = (r * 0.4124564 + g * 0.3575761 + b * 0.1804375) * 100.0;
+            double y = (r * 0.2126729 + g * 0.7151522 + b * 0.0721750) * 100.0;
+            double z = (r * 0.0193339 + g * 0.1191920 + b * 0.9503041) * 100.0;
+
+            // Convert XYZ to Lab
+            x /= 95.047;
+            y /= 100.000;
+            z /= 108.883;
+
+            x = (x > 0.008856) ? Math.Pow(x, 1.0 / 3.0) : (7.787 * x) + (16.0 / 116.0);
+            y = (y > 0.008856) ? Math.Pow(y, 1.0 / 3.0) : (7.787 * y) + (16.0 / 116.0);
+            z = (z > 0.008856) ? Math.Pow(z, 1.0 / 3.0) : (7.787 * z) + (16.0 / 116.0);
+
+            double L = (116.0 * y) - 16.0;
+            double a = 500.0 * (x - y);
+            double bLab = 200.0 * (y - z);
+
+            return new LabColor(L, a, bLab);
         }
     }
 }

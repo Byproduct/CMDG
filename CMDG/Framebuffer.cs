@@ -17,7 +17,7 @@ namespace CMDG
         private static Color32[] previousFrame = new Color32[Config.ScreenWidth * Config.ScreenHeight]; // Previous frame is saved for optimization purposes (avoid writing characters that already exist on screen)
         private static Color32[] line = new Color32[Config.ScreenWidth];                                // One line of screen contents
         private static Color32[] previousLine = new Color32[Config.ScreenWidth];                        // The same line of previous frame
-        public static string pixelCharacter = " ";                                                      // Currenty, a "pixel" is drawn using an empty character and background color. (Faster than full block character and foreground color.)   
+        public static string pixelCharacter = Config.PixelCharacter;                                    // Currenty, a "pixel" is drawn using an empty character and background color. (Faster than full block character and foreground color.)   
 
         // Variables for measuring the time of the calculation and drawing threads
         private static Stopwatch stopwatch = new();
@@ -51,6 +51,15 @@ namespace CMDG
 
         private static void DrawLoop()
         {
+            if (Config.FullBlockCharacter)
+            {
+                pixelCharacter = " ";
+                Util.ansi_colour_codes = Util.ansi_background_colour_codes;
+            }
+            else
+            {
+                Util.ansi_colour_codes = Util.ansi_foreground_colour_codes;
+            }
             while (isRunning)
             {
                 DrawScreen();
@@ -128,7 +137,7 @@ namespace CMDG
                         // Add ANSI color command only if the color changed from the previous character.
                         if (colorCode != previousColorCode)
                         {
-                            outputBuffer.Append(Util.ansi_background_colour_codes[colorCode]);
+                            outputBuffer.Append(Util.ansi_colour_codes[colorCode]);
                             previousColorCode = colorCode;
                         }
                         outputBuffer.Append(pixelCharacter);

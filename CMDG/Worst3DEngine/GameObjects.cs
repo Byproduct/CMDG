@@ -14,5 +14,10 @@
             GameObjectsList.Add(gameObject);
             return GameObjectsList.Last();
         }
+
+        public static void Remove(GameObject gameObject)
+        {
+            GameObjectsList.Remove(gameObject);
+        }
     }
 }
