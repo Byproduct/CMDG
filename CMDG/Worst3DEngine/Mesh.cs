@@ -46,7 +46,7 @@ namespace CMDG.Worst3DEngine
             });
         }
 
-        public void CreateCube(Vec3 size, bool flipFace = false)
+        public void CreateCube(Vec3 size, bool flipFace, Color32 color )
         {
             size.X = MathF.Abs(size.X);
             size.Y = MathF.Abs(size.Y);
@@ -70,28 +70,28 @@ namespace CMDG.Worst3DEngine
             var p7 = new Vec3(-size.X / 2, size.Y / 2, size.Z / 2);
 
             // Front
-            AddTriangle(p0, p2, p1);
-            AddTriangle(p0, p3, p2);
+            AddTriangle(p0, p2, p1, color);
+            AddTriangle(p0, p3, p2, color);
 
             // Back
-            AddTriangle(p4, p5, p6);
-            AddTriangle(p4, p6, p7);
+            AddTriangle(p4, p5, p6, color);
+            AddTriangle(p4, p6, p7, color);
 
             // Left
-            AddTriangle(p0, p7, p3);
-            AddTriangle(p0, p4, p7);
+            AddTriangle(p0, p7, p3, color);
+            AddTriangle(p0, p4, p7, color);
 
             // Right
-            AddTriangle(p1, p2, p6);
-            AddTriangle(p1, p6, p5);
+            AddTriangle(p1, p2, p6, color);
+            AddTriangle(p1, p6, p5, color);
 
             // Top
-            AddTriangle(p2, p3, p7);
-            AddTriangle(p2, p7, p6);
+            AddTriangle(p2, p3, p7, color);
+            AddTriangle(p2, p7, p6, color);
 
             // Bottom
-            AddTriangle(p0, p1, p5);
-            AddTriangle(p0, p5, p4);
+            AddTriangle(p0, p1, p5, color);
+            AddTriangle(p0, p5, p4, color);
         }
 
         private void AddTriangle(Vec3 a, Vec3 b, Vec3 c, Color32 color)

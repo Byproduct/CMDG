@@ -48,7 +48,7 @@
             return Meshes;
         }
 
-        public static int CreateCube(Vec3 size, bool flipFace)
+        public static int CreateCube(Vec3 size, bool flipFace, Color32 objectColor)
         {
             var filename = $"size:({size.X}, {size.Y}, {size.Z})";
             var id = FindMeshID(filename);
@@ -59,7 +59,7 @@
             {
                 MeshFileName = filename
             };
-            mesh.CreateCube(size, flipFace);
+            mesh.CreateCube(size, flipFace, objectColor);
             Meshes.Add(mesh);
             return Meshes.Count - 1;
         }

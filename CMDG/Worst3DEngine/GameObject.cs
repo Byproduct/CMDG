@@ -62,7 +62,7 @@
         {
             Type = ObjectType.Mesh;
             Color = objectColor;
-            MeshId = MeshManager.CreateCube(size, flipFace);
+            MeshId = MeshManager.CreateCube(size, flipFace, Color);
         }
 
         public void SetMaxRenderingDistance(float distance)
