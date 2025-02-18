@@ -1,10 +1,7 @@
 ﻿using System.Reflection;
 using CMDG;
 
-
-string sceneName = "Scene6"; // Select the scene to play by entering its name. Must be a class that contains a Run() method.
-
-
+string sceneName = Config.SceneName;
 Util.Initialize();
 Util.DrawBorder();
 
@@ -17,10 +14,10 @@ if (sceneType == null || runMethod == null)
 }
 
 // Independent thread to run the selected scene
-bool isSceneRunning = true;
+bool sceneIsRunning = true;
 Thread sceneThread = new Thread(() =>
 {
-    while (isSceneRunning)
+    while (sceneIsRunning)
     {
         try
         {
@@ -29,6 +26,7 @@ Thread sceneThread = new Thread(() =>
         catch (Exception ex)
         {
             Console.WriteLine($"Error running scene {sceneName}: {ex.Message}");
+            sceneIsRunning = false;
         }
     }
 });
@@ -54,7 +52,10 @@ while (true)
         // ESC = stop threads and quit.
         if (key.Key == ConsoleKey.Escape)
         {
-            isSceneRunning = false;
+            sceneIsRunning = false;
+        }
+        if (!sceneIsRunning)
+        {
             sceneThread.Join();
             Framebuffer.StopDrawThread();
             Environment.Exit(0);

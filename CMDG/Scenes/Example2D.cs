@@ -1,7 +1,7 @@
 ﻿namespace CMDG
 {
     // Very simple example scene with random-colored "pixels" moving around randomly.
-    internal static class Scene
+    internal static class Example2D
     {
         class movingPixel
         {
@@ -44,7 +44,7 @@
                     // Add each pixel on the frame buffer
                     Framebuffer.SetPixel(movingPixels[i].x, movingPixels[i].y, movingPixels[i].col);
                 }
- 
+
                 SceneControl.EndFrame();          // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
             }
         }

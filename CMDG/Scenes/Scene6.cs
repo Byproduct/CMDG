@@ -69,12 +69,12 @@ public class Scene6
         for (int i = 0; i < 10000; i++)
         {
             var pos = new Vec3(
-                (float)(random.NextDouble()*2-1)*10,
-                (float)(random.NextDouble()*2-1)*10,
-                (float)(random.NextDouble()*2-1)*10
+                (float)(random.NextDouble() * 2 - 1) * 10,
+                (float)(random.NextDouble() * 2 - 1) * 10,
+                (float)(random.NextDouble() * 2 - 1) * 10
                 );
-            
-                        
+
+
             var color = new Color32(255, 255, 255);
 
             //init snow particles
@@ -89,7 +89,7 @@ public class Scene6
         while (true)
         {
             SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
-            float deltaTime = (float)(SceneControl.DeltaTime);
+            float deltaTime = (float)SceneControl.DeltaTime;
 
             /*
             if (m_Input.Down)
@@ -143,12 +143,12 @@ public class Scene6
 
         float cameraMovementSpeed = 1.0f * deltaTime;
 
-        if (m_Input.Forward) vc += (forward * cameraMovementSpeed);
-        if (m_Input.Backward) vc -= (forward * cameraMovementSpeed);
-        if (m_Input.Left) vc += (right * cameraMovementSpeed);
-        if (m_Input.Right) vc -= (right * cameraMovementSpeed);
-        if (m_Input.Up) vc += (up * cameraMovementSpeed);
-        if (m_Input.Down) vc -= (up * cameraMovementSpeed);
+        if (m_Input.Forward) vc += forward * cameraMovementSpeed;
+        if (m_Input.Backward) vc -= forward * cameraMovementSpeed;
+        if (m_Input.Left) vc += right * cameraMovementSpeed;
+        if (m_Input.Right) vc -= right * cameraMovementSpeed;
+        if (m_Input.Up) vc += up * cameraMovementSpeed;
+        if (m_Input.Down) vc -= up * cameraMovementSpeed;
 
 
         // get the current rotation values of the camera.

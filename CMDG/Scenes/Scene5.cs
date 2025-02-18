@@ -2,8 +2,9 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using CMDG.Worst3DEngine;
 
-namespace CMDG.Worst3DEngine;
+namespace CMDG;
 
 public class Scene5
 {
@@ -54,7 +55,7 @@ public class Scene5
         while (true)
         {
             SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
-            var deltaTime = (float)(SceneControl.DeltaTime);
+            var deltaTime = (float)SceneControl.DeltaTime;
             GetInputs();
 
             if (GameObjects.GameObjectsList.Count < 100)
@@ -105,12 +106,12 @@ public class Scene5
             var right = camera.GetRight();
             var up = camera.GetUp();
 
-            if (_mInput.Forward) vc += (forward * speed);
-            if (_mInput.Backward) vc -= (forward * speed);
-            if (_mInput.Left) vc += (right * speed);
-            if (_mInput.Right) vc -= (right * speed);
-            if (_mInput.Up) vc += (up * speed);
-            if (_mInput.Down) vc -= (up * speed);
+            if (_mInput.Forward) vc += forward * speed;
+            if (_mInput.Backward) vc -= forward * speed;
+            if (_mInput.Left) vc += right * speed;
+            if (_mInput.Right) vc -= right * speed;
+            if (_mInput.Up) vc += up * speed;
+            if (_mInput.Down) vc -= up * speed;
 
             //--------------------------------------------
 

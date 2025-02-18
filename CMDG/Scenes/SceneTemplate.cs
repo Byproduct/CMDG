@@ -1,4 +1,4 @@
-﻿namespace CMDG
+﻿namespace CMDG.Scenes
 {
     // Minimal scene template
     internal class SceneTemplate

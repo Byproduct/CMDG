@@ -12,7 +12,7 @@ namespace CMDG
         public static void StartFrame()
         {
             deltaTimeStopwatch.Restart();
-            Framebuffer.Backbuffer.AsSpan().Clear();
+            Framebuffer.Backbuffer.AsSpan().Fill(Config.BackgroundColor);
         }
         public static void EndFrame()
         {

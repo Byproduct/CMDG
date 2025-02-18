@@ -1,14 +1,17 @@
-﻿using System.Diagnostics;
+﻿using System.Buffers.Text;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using CMDG.Worst3DEngine;
 
-namespace CMDG.Worst3DEngine;
+namespace CMDG;
 
-public class Scene3
+public class Scene4
 {
     [DllImport("user32.dll")]
     static extern short GetAsyncKeyState(int vKey);
 
     private static Rasterer? _mRaster;
+    private static Stopwatch? _mStopwatch;
 
     //Placeholder
     private struct Input
@@ -31,31 +34,26 @@ public class Scene3
     {
         _mInput = new Input();
         _mRaster = new Rasterer(Config.ScreenWidth, Config.ScreenHeight);
+        _mStopwatch = new Stopwatch();
 
         var camera = Rasterer.GetCamera();
         camera!.SetPosition(new Vec3(0, 1, -3));
 
         //how to create new Gameobjects from a file
         //The first object is placed at (0, 0, 1) and the second one at (10, 10, 0).
+        //GameObjects.Add(new GameObject("car-van-blue.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0),  new Color32(255, 0, 0)));
+        //GameObjects.Add(new GameObject("car-coupe-red.obj", new Vec3(10, 10, 0), new Vec3(0, 0, 0),  new Color32(0, 0, 255)));
 
-        GameObjects.Add(new GameObject("test.obj", new Vec3(0, 0, 1), new Vec3(0, 0, 0), new Color32(255, 255, 255)));
-        var gnaa = GameObjects.Add(new GameObject("test.obj", new Vec3(10, 0, 0), new Vec3(0, 0, 0),
-            new Color32(255, 255, 255)));
-        var gob = GameObjects.Add(new GameObject());
-        gob.CreateCube(new Vec3(1, 1, 1), new Color32(255, 255, 255));
-        gob.SetPosition(new Vec3(3, 0, 3));
-        _mRaster.UseLight(true);
-        _mRaster.SetAmbientColor(new Vec3(0.1f, 0.3f, 0.3f));
-        _mRaster.SetLightColor(new Vec3(1.0f, 1.0f, 1.0f));
-
-
+        float deltaTime = 0;
         float rotateObject = 0;
+
+        float totalTime = 0;
 
 
         while (true)
         {
             SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
-            float deltaTime = (float)(SceneControl.DeltaTime);
+            _mStopwatch.Restart();
             GetInputs();
 
             //update camera position using WASD for movement and RF for vertical movement
@@ -78,12 +76,12 @@ public class Scene3
             var right = camera.GetRight();
             var up = camera.GetUp();
 
-            if (_mInput.Forward) vc += (forward * speed);
-            if (_mInput.Backward) vc -= (forward * speed);
-            if (_mInput.Left) vc += (right * speed);
-            if (_mInput.Right) vc -= (right * speed);
-            if (_mInput.Up) vc += (up * speed);
-            if (_mInput.Down) vc -= (up * speed);
+            if (_mInput.Forward) vc += forward * speed;
+            if (_mInput.Backward) vc -= forward * speed;
+            if (_mInput.Left) vc += right * speed;
+            if (_mInput.Right) vc -= right * speed;
+            if (_mInput.Up) vc += up * speed;
+            if (_mInput.Down) vc -= up * speed;
 
             //--------------------------------------------
 
@@ -116,8 +114,11 @@ public class Scene3
             //--------------------------------------------
 
             //You can also update object positions instantly.
-            GameObjects.GameObjectsList[0].SetPosition(new Vec3(0, 0, 1));
-            //GameObjects.GameObjectsList[1].SetPosition(new Vec3(0, 0, -1));
+
+            totalTime += deltaTime;
+            float z = -1f + 0.5f * (float)Math.Sin(totalTime * 5); // baseZ + amplitude * sin(totalTime * frequency)
+            GameObjects.GameObjectsList[0].SetPosition(new Vec3(-1, 0, 1));
+            GameObjects.GameObjectsList[1].SetPosition(new Vec3(0, 0, z));
 
             rotateObject += speed;
 
@@ -132,6 +133,9 @@ public class Scene3
 
             SceneControl
                 .EndFrame(); // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
+
+            //measure the frame time to calculate deltatime.
+            deltaTime = (float)_mStopwatch.Elapsed.TotalSeconds;
         }
     }
 

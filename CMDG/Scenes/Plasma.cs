@@ -1,7 +1,7 @@
 ﻿namespace CMDG
 {
     // Deepseek
-    internal class Scene2
+    internal class Plasma
     {
         private static double _time;
 
