@@ -1,29 +1,11 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using CMDG.Worst3DEngine;
 
 namespace CMDG;
 
 // Requires this vehicles folder in bin. https://u.pcloud.link/publink/show?code=XZeoWL5Z0MaG3wEryCfl6Tn7DDsihfyC1x7X 
-public class ForwardCar
-{
-    public GameObject gameObject;
-    public Vec3 velocity;
-    public ForwardCar(GameObject gameObject, Vec3 velocity)
-    {
-        this.gameObject = gameObject;
-        this.velocity = velocity;
-    }
-}
-public class OppositeCar
-{
-    public GameObject gameObject;
-    public Vec3 velocity;
-    public OppositeCar(GameObject gameObject, Vec3 velocity)
-    {
-        this.gameObject = gameObject;
-        this.velocity = velocity;
-    }
-}
+
 
 public class AssemblyWinter2025
 {
@@ -50,8 +32,8 @@ public class AssemblyWinter2025
         Random random = new();
 
         m_Raster.UseLight(false);
-        m_Raster.SetAmbientColor(new Vec3(0.0f, 0.0f, 0.0f));
-        m_Raster.SetLightColor(new Vec3(1.0f, 1.0f, 1.0f));
+        m_Raster.SetAmbientColor(new Vec3(0f, 0f, 0f));
+        m_Raster.SetLightColor(new Vec3(1f, 1f, 1f));
 
 
         // Snow flakes (just regular objects instead of particles for now)
@@ -74,7 +56,8 @@ public class AssemblyWinter2025
             //int colorIndex = random.Next(snowflakeColors.Length);
             int colorIndex = 1;
             GameObject gob = GameObjects.Add(new GameObject());
-            float flakeSize = 0.05f + i / 5000f;
+            //float flakeSize = 0.05f + i / 5000f;      // could vary size like this but small + near and large + far easily appears off
+            float flakeSize = 0.07f;
             gob.CreateCube(new Vec3(flakeSize, flakeSize, flakeSize), snowflakeColors[colorIndex]);
             snowflakes.Add(gob);
         }
@@ -93,38 +76,58 @@ public class AssemblyWinter2025
         for (int i = 0; i < 4; i++)
         {
             var roadEdge = GameObjects.Add(new GameObject());
-            roadEdge.CreateCube(new Vec3(roadEdgeWidth, 0.1f, roadEdgeLength), new Color32(249, 241, 165));
-            roadEdge.SetPosition(new Vec3(roadEdgeXCoords[i], 0, roadEdgeLength/2f));
+            roadEdge.CreateCube(new Vec3(roadEdgeWidth, 0.2f, roadEdgeLength), new Color32(249, 241, 165));
+            roadEdge.SetPosition(new Vec3(roadEdgeXCoords[i], 0f, roadEdgeLength/2f));
             roadEdges.Add(roadEdge);
             roadEdge.Update();
         }
 
         // Road banks
         List<GameObject> roadbanks = new List<GameObject>();
+        GameObject median = GameObjects.Add(new GameObject());
+        //median.CreateCube(new Vec3(medianWidth, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
+        //median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth/2, -0.1f, roadEdgeLength / 2f));
+        //roadEdges.Add(median);
+        //median.Update();
+
+        median.CreateCube(new Vec3(medianWidth, 0.1f, roadEdgeLength), new Color32(204, 204, 204));
+        median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth / 2, -0.1f, roadEdgeLength / 2f));
+        roadEdges.Add(median);
+        median.Update();
+
+        //// Road sides disabled for performance reasons for now
         //GameObject rightBank = GameObjects.Add(new GameObject());
         //rightBank.CreateCube(new Vec3(10f, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
-        //rightBank.SetPosition(new Vec3(roadEdgeXCoords[0] - 5f, 0, roadEdgeLength / 2f));
-        //roadbanks.Add(rightBank);
+        //rightBank.SetPosition(new Vec3(roadEdgeXCoords[0] - 5f, -0.1f, roadEdgeLength / 2f));
+        //roadEdges.Add(rightBank);
         //rightBank.Update();
 
         //GameObject leftBank = GameObjects.Add(new GameObject());
-        //leftBank.CreateCube(new Vec3(100, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
-        //leftBank.SetPosition(new Vec3(roadEdgeXCoords[4], 0, roadEdgeLength / 2f));
-        //roadbanks.Add(leftBank);
+        //leftBank.CreateCube(new Vec3(40f, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
+        //leftBank.SetPosition(new Vec3(roadEdgeXCoords[3] + 20f, -0.1f, roadEdgeLength / 2f));
+        //roadEdges.Add(leftBank);
         //leftBank.Update();
 
-        GameObject median = GameObjects.Add(new GameObject());
-        median.CreateCube(new Vec3(medianWidth, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
-        median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth/2, -0.1f, roadEdgeLength / 2f));
-        roadEdges.Add(median);
-        median.Update();
+        ////Road base color
+        //GameObject roadfwd = GameObjects.Add(new GameObject());
+        //roadfwd.CreateCube(new Vec3(laneWidth * 2, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
+        //roadfwd.SetPosition(new Vec3(roadEdgeXCoords[0] + laneWidth, -0.1f, roadEdgeLength / 2f));
+        //roadEdges.Add(roadfwd);
+        //roadfwd.Update();
+
+        //GameObject roadrev = GameObjects.Add(new GameObject());
+        //roadrev.CreateCube(new Vec3(laneWidth * 2, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
+        //roadrev.SetPosition(new Vec3(roadEdgeXCoords[2] + laneWidth, -0.1f, roadEdgeLength / 2f));
+        //roadEdges.Add(roadrev);
+        //roadrev.Update();
+
 
 
 
         // Dashed lines between lanes
         float dashWidth = 0.15f;
-        float dashLength = 0.5f;
-        float dashSpacing = 3.5f;
+        float dashLength = 0.75f;
+        float dashSpacing = 4.5f;
         List<float> dashXCoords = new();
         dashXCoords.Add(laneWidth);
         dashXCoords.Add(laneWidth * 3 + medianWidth);
@@ -158,17 +161,19 @@ public class AssemblyWinter2025
 
 
         // Forward-going cars
+        int number_of_forward_cars = 7;
         List<ForwardCar> forwardCars = new();
         float carPosZ = 0f;
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < number_of_forward_cars; i++)
         {
-            carPosZ += 3 + (float)(random.NextDouble() * 5.0);
+            carPosZ += 3 + (float)(random.NextDouble() * 10f);
             GameObject car = GameObjects.Add(new GameObject());
             car.LoadMesh(getRandomCarFileName());
             car.SetPosition(new Vec3(roadEdgeXCoords[0] + laneWidth / 2f, 0, carPosZ));
             car.Update();
             Vec3 velocity = new Vec3(0, 0, 5 + (float)(random.NextDouble() * 7f));
-            forwardCars.Add(new ForwardCar(car, velocity));
+            float tailgateDistance = 5 + (float)(random.NextDouble() * 5f);
+            forwardCars.Add(new ForwardCar(car, velocity, tailgateDistance));
         }
 
         // Opposite cars
@@ -220,6 +225,24 @@ public class AssemblyWinter2025
                 car.gameObject.Update();
             }
 
+            // Avoid collisions among forwardCars
+            forwardCars = forwardCars.OrderBy(car => car.gameObject.GetPosition().Z).ToList();  // sort cars by z-coordinate so need to check only against the next car
+            for (int i = 0; i < forwardCars.Count - 1; i++)
+            {
+                var carA = forwardCars[i];
+                var carB = forwardCars[i + 1];
+
+                float xA = carA.gameObject.GetPosition().Z;
+                float xB = carB.gameObject.GetPosition().Z;
+
+                if (xB - xA < carA.tailgateDistance) // Collision detected
+                {
+                    // Move carA back to be exactly 3 units behind carB
+                    carA.gameObject.SetPosition(carB.gameObject.GetPosition() - new Vec3(0, 0, carA.tailgateDistance));
+                }
+            }
+
+
             // Update opposite car positions.
             for (int i = oppositeCars.Count - 1; i >= 0; i--)
             {
@@ -264,7 +287,7 @@ public class AssemblyWinter2025
                     roadEdge.SetPosition(new Vec3(roadEdge.GetPosition().X, roadEdge.GetPosition().Y, mainZ + roadEdgeLength/2.5f));
                     roadEdge.Update();
                 }
-                // Snap dashed road to its spacing so it doesn't visually jump around
+                // Snap dashed lines to their spacing so they doesn't visually jump around
                 float dashSnap = (float)(Math.Floor(mainZ / dashSpacing) * dashSpacing);
                 float dashOffset = 0f;
                 foreach (GameObject dash in dashes)
@@ -282,7 +305,14 @@ public class AssemblyWinter2025
                 }
             }
 
-            camera.SetPosition(mainCar.GetPosition() + mainCarCameraOffset);
+            // Adjust camera 
+            // Sin multiplier is random-ish just to avoid them being in sync
+            double time = SceneControl.ElapsedTime;
+            float x = 0.6f + 0.1f * (float)Math.Sin(time * 0.19f);       // pan up/down
+            float y = -0.6f + 0.2f * (float)Math.Sin(time * 0.24f);     // pan left/righ
+            float heightVariance = -1 + (float)Math.Sin(time * 0.13f);  // move up/down
+            camera.SetPosition(mainCar.GetPosition() + mainCarCameraOffset + new Vec3(0, heightVariance, 0));
+            camera.SetRotation(new Vec3(x, y, 0));
             camera.Update();
 
             m_Raster.Process3D();
@@ -291,13 +321,14 @@ public class AssemblyWinter2025
 
         void SpawnNewForwardCar()
         {
-            carPosZ = mainZ + 50;
+            carPosZ = mainZ + 50 + (float)(random.NextDouble()) * 20;
             GameObject car = GameObjects.Add(new GameObject());
             car.LoadMesh(getRandomCarFileName());
             car.SetPosition(new Vec3(roadEdgeXCoords[0] + laneWidth / 2f, 0, carPosZ));
             car.Update();
             Vec3 velocity = new Vec3(0, 0, 5 + (float)(random.NextDouble() * 7f));
-            forwardCars.Add(new ForwardCar(car, velocity));
+            float tailgateDistance = 5 + (float)(random.NextDouble() * 5f);
+            forwardCars.Add(new ForwardCar(car, velocity, tailgateDistance));
         }
 
         void SpawnNewOppositeCar()
@@ -341,5 +372,28 @@ public class AssemblyWinter2025
             Console.WriteLine("The 'vehicles' folder does not exist.");
         }
         return randomCarFileName;
+    }
+}
+
+public class ForwardCar
+{
+    public GameObject gameObject;
+    public Vec3 velocity;
+    public float tailgateDistance;
+    public ForwardCar(GameObject gameObject, Vec3 velocity, float tailgateDistance)
+    {
+        this.gameObject = gameObject;
+        this.velocity = velocity;
+        this.tailgateDistance = tailgateDistance;
+    }
+}
+public class OppositeCar
+{
+    public GameObject gameObject;
+    public Vec3 velocity;
+    public OppositeCar(GameObject gameObject, Vec3 velocity)
+    {
+        this.gameObject = gameObject;
+        this.velocity = velocity;
     }
 }

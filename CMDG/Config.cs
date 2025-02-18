@@ -22,6 +22,6 @@ namespace CMDG
         public const bool DoubleWidth = false;               // Use two character blocks to display one "pixel". (Looks more square, but requires more space and processing time.)
         public static Color32 BackgroundColor = new Color32(0, 0, 0);   // Wipe the framebuffer with this colour before drawing
         public static string PixelCharacter = "Z";           // Character to use as a 'pixel'
-        public static bool FullBlockCharacter = false;        // Use a full block character █ and background color instead of above character 
+        public static bool FullBlockCharacter = true;        // Use a full block character █ and background color instead of above character 
     }
 }
