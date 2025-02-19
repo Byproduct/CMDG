@@ -23,5 +23,7 @@ namespace CMDG
         public static Color32 BackgroundColor = new Color32(0, 0, 0);   // Wipe the framebuffer with this colour before drawing
         public static string PixelCharacter = "Z";           // Character to use as a 'pixel'
         public static bool FullBlockCharacter = true;        // Use a full block character █ and background color instead of above character 
+        public static bool AdjustScreen = true;              // Auto-adjust and manual screen adjustment prompt at the start of the program
+        public static bool SplashScreen = true;              // CMDG splash screen after screen adjustment and before demo. Works only for 400x100 demos for the time being.
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 namespace CMDG
 {
     // Bootup things and miscellaneous utilities
-    public class Util
+    public partial class Util
     {
         public static string ANSI_escape_character = "\u001b";
         public static string ANSI_reset_code = ANSI_escape_character + "[0m";

@@ -2,9 +2,17 @@
 using CMDG;
 
 string sceneName = Config.SceneName;
+
+
+// Bootup sequence in single thread
 Util.Initialize();
+if (Config.AdjustScreen) AdjustScreen.Run();
+Util.DrawBorder();
+if (Config.SplashScreen) SplashScreen.Run();
 Util.DrawBorder();
 
+
+// The selected scene runs in an independent thread
 Type sceneType = Type.GetType($"CMDG.{sceneName}");
 MethodInfo runMethod = sceneType?.GetMethod("Run");
 if (sceneType == null || runMethod == null)
@@ -12,8 +20,6 @@ if (sceneType == null || runMethod == null)
     Console.WriteLine($"Error: Scene {sceneName} not found or missing Run() method.");
     Environment.Exit(1);
 }
-
-// Independent thread to run the selected scene
 bool sceneIsRunning = true;
 Thread sceneThread = new Thread(() =>
 {
@@ -32,15 +38,17 @@ Thread sceneThread = new Thread(() =>
 });
 sceneThread.Start();
 
-Framebuffer.StartDrawThread(); // Another independent thread to draw the framebuffer.
 
+// Another independent thread handles drawing the scene from the buffer to the console.
+Framebuffer.StartDrawThread();
+
+
+// Main thread periodically listens for esc = exit or c = redraw console. 
 while (true)
 {
     if (Console.KeyAvailable)
     {
         var key = Console.ReadKey(intercept: true);
-
-        // C = clear and redraw console.
         if (key.Key == ConsoleKey.C)
         {
             Framebuffer.StopDrawThread();
@@ -49,7 +57,7 @@ while (true)
             Thread.Sleep(100);
             Framebuffer.StartDrawThread();
         }
-        // ESC = stop threads and quit.
+
         if (key.Key == ConsoleKey.Escape)
         {
             sceneIsRunning = false;
@@ -61,6 +69,5 @@ while (true)
             Environment.Exit(0);
         }
     }
-
     Thread.Sleep(10);
 }
