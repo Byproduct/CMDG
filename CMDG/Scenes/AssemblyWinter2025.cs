@@ -22,7 +22,7 @@ public class AssemblyWinter2025
     {
         float mainZ = 0;  // demo main Z-position. It's about the same as camera z-position, but has this helper variable because of frequent access.
 
-        vehicleFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "vehicles");
+        vehicleFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "vehicles");
         Directory.SetCurrentDirectory(vehicleFolderPath);
 
         m_Raster = new Rasterer(Config.ScreenWidth, Config.ScreenHeight);
@@ -349,7 +349,6 @@ public class AssemblyWinter2025
         }
 
     }
-
 
     private static string getRandomCarFileName()
     {

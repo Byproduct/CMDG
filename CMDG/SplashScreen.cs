@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 
+// A quick hack for a demo. Can be made to support image scaling and colors later.
 namespace CMDG
 {
     internal static class SplashScreen
