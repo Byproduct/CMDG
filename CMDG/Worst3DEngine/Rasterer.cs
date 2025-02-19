@@ -25,7 +25,7 @@
         public Rasterer(int width, int height, int fontX = 9, int fontY = 19, float fov = 70.0f, float near = 0.1f,
             float far = 100.0f)
         {
-            Console.Write($"size: {width}x{height}\n");
+            Console.Write($"\nRasterer size: {width}x{height}\n");
             m_Width = width;
             m_Height = height;
 

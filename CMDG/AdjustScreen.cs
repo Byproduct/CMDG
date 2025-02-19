@@ -97,11 +97,9 @@ namespace CMDG
 
             if (GetCurrentConsoleFontEx(hnd, false, ref originalFontInfo))
             {
-                Console.WriteLine($"Saved current font: {originalFontInfo.FaceName}, Size: {originalFontInfo.dwFontSizeY}");
             }
             else
             {
-                Console.WriteLine("Failed to retrieve current console font.");
             }
         }
 

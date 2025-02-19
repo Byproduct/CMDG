@@ -5,6 +5,8 @@
     {
         // Your custom classes, structs etc. for the scene
 
+        private static bool exitScene = false;  // Set to true any time to exit. Program will also exit if user presses esc.
+
         public static void Run()
         {
             // Initialization and other things before the main loop
@@ -29,5 +31,18 @@
                 SceneControl.EndFrame();          // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
             }
         }
+
+        public static void Exit()
+        {
+            // This method will be called when closing the program.
+            // You can use this for any cleanup, for example to dispose of a separate music player.
+        }
+
+        public static bool CheckForExit()
+        {
+            if (exitScene) return true;
+            else return false;
+        }
+
     }
 }

@@ -4,6 +4,7 @@ using CMDG;
 string sceneName = Config.SceneName;
 
 
+
 // Bootup sequence in single thread
 Util.Initialize();
 if (Config.AdjustScreen) AdjustScreen.Run();
@@ -15,6 +16,8 @@ Util.DrawBorder();
 // The selected scene runs in an independent thread
 Type sceneType = Type.GetType($"CMDG.{sceneName}");
 MethodInfo runMethod = sceneType?.GetMethod("Run");
+MethodInfo checkForExitMethod = sceneType?.GetMethod("CheckForExit");
+MethodInfo exitMethod = sceneType?.GetMethod("Exit");
 if (sceneType == null || runMethod == null)
 {
     Console.WriteLine($"Error: Scene {sceneName} not found or missing Run() method.");
@@ -57,17 +60,50 @@ while (true)
             Thread.Sleep(100);
             Framebuffer.StartDrawThread();
         }
-
         if (key.Key == ConsoleKey.Escape)
         {
             sceneIsRunning = false;
         }
-        if (!sceneIsRunning)
+    }
+
+    // Check if the scene has set an exit condition
+    if (checkForExitMethod != null)
+    {
+        try
         {
-            sceneThread.Join();
-            Framebuffer.StopDrawThread();
-            Environment.Exit(0);
+            object result = checkForExitMethod.Invoke(null, null);
+            if (result is bool sceneExit && sceneExit)
+            {
+                sceneIsRunning = false;
+            }
+        }
+        catch (Exception ex)
+        {
+
         }
     }
-    Thread.Sleep(10);
+
+    if (!sceneIsRunning)
+    {
+        // call Exit method in scene first   (to-do: verify that this works in template too)
+        if (exitMethod != null)
+        {
+            try
+            {
+                exitMethod.Invoke(null, null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in Exit method of scene {sceneName}: {ex.Message}");
+            }
+        }
+        // end threads
+        if (sceneThread.IsAlive)
+        {
+            sceneThread.Join();
+        }
+        Framebuffer.StopDrawThread();
+        Environment.Exit(0);
+    }
+    Thread.Sleep(20);
 }
