@@ -40,6 +40,8 @@ public class AssemblyWinter2025
         bool charSwapped = false;        // swap drawing character halfway into the demo
         float charSwapTime = 26.1f;
         bool fadeoutComplete = false;
+        bool updateCameraAtEndOfFrame = false;
+        float sloMoMultiplier = 0.05f;
 
         vehicleFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "vehicles");
 
@@ -56,27 +58,18 @@ public class AssemblyWinter2025
 
         // Snow flakes (just regular objects instead of particles for now)
         List<GameObject> snowflakes = [];
-        // Not many colors to choose from in ANSI. More probability for brightest white.
-        Color32[] snowflakeColors = new Color32[]
-        {
-            new Color32(255, 255, 255),
-            new Color32(255, 255, 255),
-            new Color32(204, 204, 204),
-            new Color32(249, 241, 165),
-            new Color32(118, 118, 188),
-        };
         for (int i = 0; i < 750; i++)
         {
             var pos = new Vec3(0, 0, 0);
             pos.X = (float)(random.NextDouble() * 20f);
             pos.Y = (float)(random.NextDouble() * 5f);
-            pos.Z = (float)(random.NextDouble() * 20f);
-            //int colorIndex = random.Next(snowflakeColors.Length);
-            int colorIndex = 1;
+            pos.Z = (float)(random.NextDouble() * 50f - 10f);
             GameObject gob = GameObjects.Add(new GameObject());
             //float flakeSize = 0.05f + i / 5000f;      // could vary size like this but small + near and large + far easily appears off
             float flakeSize = 0.08f;
-            gob.CreateCube(new Vec3(flakeSize, flakeSize, flakeSize), snowflakeColors[colorIndex]);
+            gob.CreateCube(new Vec3(flakeSize, flakeSize, flakeSize), new Color32(255,255,255));
+            gob.SetPosition(pos);
+            gob.Update();
             snowflakes.Add(gob);
         }
 
@@ -95,7 +88,7 @@ public class AssemblyWinter2025
         {
             var roadEdge = GameObjects.Add(new GameObject());
             roadEdge.CreateCube(new Vec3(roadEdgeWidth, 0.2f, roadEdgeLength), new Color32(249, 241, 165));
-            roadEdge.SetPosition(new Vec3(roadEdgeXCoords[i], 0f, roadEdgeLength / 2f));
+            roadEdge.SetPosition(new Vec3(roadEdgeXCoords[i], 0f, 0));
             roadEdges.Add(roadEdge);
             roadEdge.Update();
         }
@@ -109,7 +102,7 @@ public class AssemblyWinter2025
         //median.Update();
 
         median.CreateCube(new Vec3(medianWidth, 0.1f, roadEdgeLength), new Color32(204, 204, 204));
-        median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth / 2, -0.1f, roadEdgeLength / 2f));
+        median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth / 2, -0.1f, 0));
         roadEdges.Add(median);
         median.Update();
 
@@ -241,7 +234,7 @@ public class AssemblyWinter2025
             float deltaTime = (float)SceneControl.DeltaTime;
 
             // Update main car position
-            mainCar.SetPosition(mainCar.GetPosition() + mainCarVelocity * deltaTime);
+            mainCar.SetPosition(mainCar.GetPosition() + mainCarVelocity * deltaTime * sloMoMultiplier);
             mainCar.Update();
 
             if (SceneControl.ElapsedTime < thirdPhaseTime)
@@ -253,8 +246,8 @@ public class AssemblyWinter2025
             for (int i = forwardCars.Count - 1; i >= 0; i--)
             {
                 ForwardCar car = forwardCars[i];
-                car.gameObject.SetPosition(car.gameObject.GetPosition() + car.velocity * deltaTime);
-                if ((car.gameObject.GetPosition().Z < mainZ - 10) && (SceneControl.ElapsedTime < thirdPhaseTime))
+                car.gameObject.SetPosition(car.gameObject.GetPosition() + car.velocity * deltaTime * sloMoMultiplier);
+                if ((car.gameObject.GetPosition().Z < mainZ - 10) && (SceneControl.ElapsedTime < thirdPhaseTime) && (SceneControl.ElapsedTime > firstPhaseTime))
                 {
                     forwardCars.RemoveAt(i);
                     GameObjects.Remove(car.gameObject);
@@ -286,8 +279,8 @@ public class AssemblyWinter2025
             for (int i = oppositeCars.Count - 1; i >= 0; i--)
             {
                 OppositeCar car = oppositeCars[i];
-                car.gameObject.SetPosition(car.gameObject.GetPosition() + car.velocity * deltaTime);
-                if ((car.gameObject.GetPosition().Z < mainZ - 10) && (SceneControl.ElapsedTime < thirdPhaseTime))
+                car.gameObject.SetPosition(car.gameObject.GetPosition() + car.velocity * deltaTime * sloMoMultiplier);
+                if ((car.gameObject.GetPosition().Z < mainZ - 10) && (SceneControl.ElapsedTime < thirdPhaseTime) && (SceneControl.ElapsedTime > firstPhaseTime))
                 {
                     oppositeCars.RemoveAt(i);
                     GameObjects.Remove(car.gameObject);
@@ -320,23 +313,43 @@ public class AssemblyWinter2025
                 }
             }
 
-            // Update snowflakes
-            for (int i = 0; i < snowflakes.Count; i++)
+            // Update snowflakes  (different behavior for the slo-mo intro)
+            if (SceneControl.ElapsedTime < firstPhaseTime)
             {
-                var gob = snowflakes[i];
-                var v = new Vec3(0, -5, -2) * deltaTime;
-                var pos = gob.GetPosition() + v;
-
-                if ((pos.Y < 0) || (pos.Z < mainZ - 3))
+                for (int i = 0; i < snowflakes.Count; i++)
                 {
-                    pos.X = (float)(random.NextDouble() * 40f - 20);
-                    pos.Y = 5 + (float)(random.NextDouble() * 10f);
-                    pos.Z = mainZ + (float)(random.NextDouble() * 40f);
-                }
-                gob.SetPosition(pos);
-                gob.Update();
-            }
+                    var gob = snowflakes[i];
+                    var v = new Vec3(0, -5, -2) * deltaTime * sloMoMultiplier;
+                    var pos = gob.GetPosition() + v;
 
+                    if ((pos.Y < 0) || (pos.Z < mainZ - 10))
+                    {
+                        pos.X = (float)(random.NextDouble() * 40f - 20);
+                        pos.Y = 4 + (float)(random.NextDouble() * 10f);
+                        pos.Z = mainZ + (float)(random.NextDouble() * 40f);
+                    }
+                    gob.SetPosition(pos);
+                    gob.Update();
+                }
+            }
+            else
+            {
+                for (int i = 0; i < snowflakes.Count; i++)
+                {
+                    var gob = snowflakes[i];
+                    var v = new Vec3(0, -5, -2) * deltaTime * sloMoMultiplier;
+                    var pos = gob.GetPosition() + v;
+
+                    if ((pos.Y < 0) || (pos.Z < mainZ - 3))
+                    {
+                        pos.X = (float)(random.NextDouble() * 40f - 20);
+                        pos.Y = 4 + (float)(random.NextDouble() * 10f);
+                        pos.Z = mainZ + (float)(random.NextDouble() * 40f);
+                    }
+                    gob.SetPosition(pos);
+                    gob.Update();
+                }
+            }
 
             // Fadeout at the end by changing the drawing character into less visible ones
             if (SceneControl.ElapsedTime > thirdPhaseTime)
@@ -350,97 +363,93 @@ public class AssemblyWinter2025
                             Framebuffer.SetDrawingCharacter(ch);
                             Framebuffer.WipeScreen();
                         }
-                        break; 
+                        break;
                     }
                 }
             }
 
 
-            // Things to do less frequently
+
             slowUpdateFrame++;
-            if (slowUpdateFrame > slowUpdateInterval)
+            // Things to do less frequently
+            if (SceneControl.ElapsedTime > firstPhaseTime)
             {
-                slowUpdateFrame = 0;
+                if (slowUpdateFrame > slowUpdateInterval)
+                {
+                    slowUpdateFrame = 0;
 
-                if (!charSwapped && SceneControl.ElapsedTime > charSwapTime)
-                {
-                    Framebuffer.SetDrawingCharacter('█');
-                    Framebuffer.WipeScreen();
-                    charSwapped = true;
-                }
+                    if (!charSwapped && SceneControl.ElapsedTime > charSwapTime)
+                    {
+                        Framebuffer.SetDrawingCharacter('█');
+                        Framebuffer.WipeScreen();
+                        charSwapped = true;
+                    }
 
-                if (SceneControl.ElapsedTime < thirdPhaseTime)
-                {
-                    // Move road edges forward to main car position
-                    foreach (GameObject roadEdge in roadEdges)
+                    if (SceneControl.ElapsedTime < thirdPhaseTime)
                     {
-                        roadEdge.SetPosition(new Vec3(roadEdge.GetPosition().X, roadEdge.GetPosition().Y, mainZ + roadEdgeLength / 2.5f));
-                        roadEdge.Update();
+                        // Move road edges forward to main car position
+                        foreach (GameObject roadEdge in roadEdges)
+                        {
+                            roadEdge.SetPosition(new Vec3(roadEdge.GetPosition().X, roadEdge.GetPosition().Y, mainZ + roadEdgeLength / 2.5f));
+                            roadEdge.Update();
+                        }
+                        // Snap dashed lines to their spacing so they doesn't visually jump around
+                        float dashSnap = (float)(Math.Floor(mainZ / dashSpacing) * dashSpacing);
+                        float dashOffset = 0f;
+                        foreach (GameObject dash in dashes)
+                        {
+                            dash.SetPosition(new Vec3(dash.GetPosition().X, dash.GetPosition().Y, dashSnap + dashOffset));
+                            dash.Update();
+                            dashOffset += dashSpacing;
+                        }
+                        dashOffset = 0f;
+                        foreach (GameObject dash in oppositeDashes)
+                        {
+                            dash.SetPosition(new Vec3(dash.GetPosition().X, dash.GetPosition().Y, dashSnap + dashOffset));
+                            dash.Update();
+                            dashOffset += dashSpacing;
+                        }
                     }
-                    // Snap dashed lines to their spacing so they doesn't visually jump around
-                    float dashSnap = (float)(Math.Floor(mainZ / dashSpacing) * dashSpacing);
-                    float dashOffset = 0f;
-                    foreach (GameObject dash in dashes)
+                    if (SceneControl.ElapsedTime > sceneEndTime)
                     {
-                        dash.SetPosition(new Vec3(dash.GetPosition().X, dash.GetPosition().Y, dashSnap + dashOffset));
-                        dash.Update();
-                        dashOffset += dashSpacing;
+                        exitScene = true;
                     }
-                    dashOffset = 0f;
-                    foreach (GameObject dash in oppositeDashes)
-                    {
-                        dash.SetPosition(new Vec3(dash.GetPosition().X, dash.GetPosition().Y, dashSnap + dashOffset));
-                        dash.Update();
-                        dashOffset += dashSpacing;
-                    }
-                }
-                if (SceneControl.ElapsedTime > sceneEndTime)
-                {
-                    exitScene = true;
                 }
             }
 
-            // Adjust camera 
-            // Sin multiplier is random-ish just to avoid them being in sync
+            float elapsedTime = (float)(SceneControl.ElapsedTime);
 
-            // First phase: zoom around the car (just a frozen camera for the time being)
-            //if (SceneControl.ElapsedTime < firstPhaseTime)
-            //{
-            //    //camera.SetPosition(mainCar.GetPosition() + mainCarCameraOffset * 0.2f);
-            //    //camera.SetRotation(new Vec3(0.8f, -1f, 0));
-            //}
-            // First phase: orbit camera aorund the car
-            if (SceneControl.ElapsedTime < firstPhaseTime)
+            // First phase: orbit camera around the car
+            if (elapsedTime < firstPhaseTime)
             {
-                float elapsedTime = (float)(SceneControl.ElapsedTime);
-                float orbitDuration = 8.0f;
-                float orbitRadius = 2.0f;
-                float angle = (elapsedTime / orbitDuration) * (2.0f * MathF.PI);
+                float orbitDuration = 15.0f;
+                float orbitRadius = 1.5f;
+                float angle = (elapsedTime / orbitDuration) * (2.0f * MathF.PI) + 1.5f;
                 Vec3 carPosition = mainCar.GetPosition();
 
                 // Compute the new camera position using circular motion
                 float camX = carPosition.X + orbitRadius * MathF.Cos(angle);
                 float camZ = carPosition.Z + orbitRadius * MathF.Sin(angle);
-                float camY = carPosition.Y + 0.3f;
-                camera.SetPosition(new Vec3(camX, camY, camZ));
-
-                camera.PointAt(camera.GetPosition(), mainCar.GetPosition(), camera.GetUp());
+                float camY = carPosition.Y + 0.5f;
+                camera.SetPosition(new Vec3(camX, camY + 0.5f, camZ));
+                camera.Update();
+                camera.LookAt(camera.GetPosition(), mainCar.GetPosition(), new Vec3(1, 1, 0));
             }
 
             // Third phase: stop moving the camera and stop spawning more cars
-            else if (SceneControl.ElapsedTime > thirdPhaseTime)
+            else if (elapsedTime > thirdPhaseTime)
             {
             }
 
             // Second phase: the camera floats behind main car with some movement
-            else if (SceneControl.ElapsedTime >= firstPhaseTime && SceneControl.ElapsedTime <= thirdPhaseTime)
+            else if (elapsedTime >= firstPhaseTime && SceneControl.ElapsedTime <= thirdPhaseTime)
             {
-                float time = (float)(SceneControl.ElapsedTime);
-
+                updateCameraAtEndOfFrame = true;
+                sloMoMultiplier = 1f;
                 // Compute new target position and rotation
-                float x = 0.6f + 0.1f * (float)Math.Sin(time * 0.19f);  // pan up/down
-                float y = -0.6f + 0.2f * (float)Math.Sin(time * 0.24f); // pan left/right
-                float heightVariance = -1 + (float)Math.Sin(time * 0.13f); // move up/down
+                float x = 0.6f + 0.1f * (float)Math.Sin(elapsedTime * 0.19f);  // pan up/down
+                float y = -0.6f + 0.2f * (float)Math.Sin(elapsedTime * 0.24f); // pan left/right
+                float heightVariance = -1 + (float)Math.Sin(elapsedTime * 0.13f); // move up/down
 
                 Vec3 targetPosition = mainCar.GetPosition() + mainCarCameraOffset + new Vec3(0, heightVariance, 0);
                 Vec3 targetRotation = new Vec3(x, y, 0);
@@ -449,7 +458,7 @@ public class AssemblyWinter2025
 
                 if (cameraPanning)
                 {
-                    float panTime = 1 - (cameraPanEndTime - (float)(SceneControl.ElapsedTime));
+                    float panTime = 1 - (cameraPanEndTime - elapsedTime);
                     if (panTime >= 1)
                     {
                         panTime = 1;
@@ -472,7 +481,10 @@ public class AssemblyWinter2025
                 }
             }
 
-            camera.Update();
+            if (updateCameraAtEndOfFrame)
+            {
+                camera.Update();
+            }
 
             m_Raster.Process3D();
             SceneControl.EndFrame();             // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
