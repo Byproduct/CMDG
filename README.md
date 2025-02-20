@@ -11,11 +11,11 @@ The aim is to get right into it without having to study its workings for too lon
 In a nutshell, you have a SetPixel function
 `Framebuffer.SetPixel(x, y, color))`
 in which you specify the pixel coordinates and color (rgb in bytes),
-and the engine takes care of turning that into a character on screen. 
+and the engine takes care of drawing that into the console. 
 
 Besides that, you're free to structure your program in any way you like, add any files, directories etc.
 
-You have the [glorious ANSI palette of 16 characters](https://github.com/Byproduct/CMDG/blob/main/CMDG/Help/palette.png) to work with. You can choose and change the character used, but the entire screen will be drawn with the same character (i.e. no ASCII art).
+You have the [glorious ANSI palette of 16 characters](https://github.com/Byproduct/CMDG/blob/main/CMDG/Help/palette.png) to work with. You can swap the character used for drawing, but the entire screen will be drawn with the same character (so think of it as pixels rather than ASCII art).
 
 More details are available in the template and example scenes, and 3D tutorial is also in the works.
 
