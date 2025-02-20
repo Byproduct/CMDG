@@ -34,7 +34,7 @@ Thread sceneThread = new Thread(() =>
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error running scene {sceneName}: {ex.Message}");
+            Console.WriteLine($"Error running scene {sceneName}: {ex.InnerException?.Message ?? ex.Message}");
             sceneIsRunning = false;
         }
     }

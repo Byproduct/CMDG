@@ -215,7 +215,8 @@ namespace CMDG.Worst3DEngine
                 else if (line.StartsWith($"mtllib"))
                 {
                     string[] mm = line.Split("mtllib");
-                    LoadMaterials(mm[1]);
+                    string materialFile = Path.Combine(Path.GetDirectoryName(filename), mm[1].Trim());
+                    LoadMaterials(materialFile);
                 }
             }
         }

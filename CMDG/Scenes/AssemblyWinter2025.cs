@@ -37,7 +37,6 @@ public class AssemblyWinter2025
         float cameraStopTime = 48.3f;    // time in seconds to stop moving the camera after the car (scene ends soon after)
 
         vehicleFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "vehicles");
-        Directory.SetCurrentDirectory(vehicleFolderPath);
 
         m_Raster = new Rasterer(Config.ScreenWidth, Config.ScreenHeight);
 
@@ -165,7 +164,8 @@ public class AssemblyWinter2025
 
         // Main car
         var mainCar = GameObjects.Add(new GameObject());
-        mainCar.LoadMesh("car-coupe-red.obj");
+        string mainCarPath = Path.Combine(vehicleFolderPath, "car-coupe-red.obj");
+        mainCar.LoadMesh(mainCarPath);
         mainCar.SetPosition(new Vec3(dashXCoords[0] + laneWidth / 2f, 0, 0));
         mainCar.Update();
         Vec3 mainCarVelocity = new Vec3(0, 0, 15f);
@@ -182,7 +182,7 @@ public class AssemblyWinter2025
         {
             carPosZ += 3 + (float)(random.NextDouble() * 10f);
             GameObject car = GameObjects.Add(new GameObject());
-            car.LoadMesh(getRandomCarFileName());
+            car.LoadMesh(getRandomCarPath());
             car.SetPosition(new Vec3(roadEdgeXCoords[0] + laneWidth / 2f, 0, carPosZ));
             car.Update();
             Vec3 velocity = new Vec3(0, 0, 5 + (float)(random.NextDouble() * 7f));
@@ -202,7 +202,7 @@ public class AssemblyWinter2025
                 carPosX += laneWidth;
             }
             GameObject car = GameObjects.Add(new GameObject());
-            car.LoadMesh(getRandomCarFileName());
+            car.LoadMesh(getRandomCarPath());
             car.SetPosition(new Vec3(carPosX, 0, carPosZ));
             car.SetRotation(new Vec3(0, 3.14f, 0));
             car.Update();
@@ -378,7 +378,7 @@ public class AssemblyWinter2025
             {
                 carPosZ = mainZ + 50 + (float)(random.NextDouble()) * 20;
                 GameObject car = GameObjects.Add(new GameObject());
-                car.LoadMesh(getRandomCarFileName());
+                car.LoadMesh(getRandomCarPath());
                 car.SetPosition(new Vec3(roadEdgeXCoords[0] + laneWidth / 2f, 0, carPosZ));
                 car.Update();
                 Vec3 velocity = new Vec3(0, 0, 5 + (float)(random.NextDouble() * 7f));
@@ -398,7 +398,7 @@ public class AssemblyWinter2025
                     carPosX += laneWidth;
                 }
                 GameObject car = GameObjects.Add(new GameObject());
-                car.LoadMesh(getRandomCarFileName());
+                car.LoadMesh(getRandomCarPath());
                 car.SetPosition(new Vec3(carPosX, 0, carPosZ));
                 car.SetRotation(new Vec3(0, 3.14f, 0));
                 car.Update();
@@ -420,16 +420,16 @@ public class AssemblyWinter2025
         waveStream.Dispose();
     }
 
-    private static string getRandomCarFileName()
+    private static string getRandomCarPath()
     {
-        string randomCarFileName = "";
+        string randomCarPath = "";
         if (Directory.Exists(vehicleFolderPath))
         {
             string[] objFiles = Directory.GetFiles(vehicleFolderPath, "*.obj");
 
             if (objFiles.Length > 0)
             {
-                randomCarFileName = objFiles[random.Next(objFiles.Length)];
+                randomCarPath = objFiles[random.Next(objFiles.Length)];
             }
             else
             {
@@ -440,7 +440,7 @@ public class AssemblyWinter2025
         {
             Console.WriteLine("The 'vehicles' folder does not exist.");
         }
-        return randomCarFileName;
+        return randomCarPath;
     }
 }
 
