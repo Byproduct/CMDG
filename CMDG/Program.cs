@@ -9,7 +9,7 @@ string sceneName = Config.SceneName;
 Util.Initialize();
 if (Config.AdjustScreen) AdjustScreen.Run();
 Util.DrawBorder();
-if (Config.SplashScreen) SplashScreen.Run();
+if (Config.SplashScreen) SplashScreen.ShowSplashScreen();
 Util.DrawBorder();
 
 
@@ -111,6 +111,10 @@ while (true)
             Console.WriteLine($"Unable to end all threads: {ex.Message}");
         }
         Util.DrawBorder();
+        if (Config.EndScreen)
+        {
+            SplashScreen.ShowEndScreen();
+        }
         Environment.Exit(0);
     }
     Thread.Sleep(20);

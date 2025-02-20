@@ -3,6 +3,7 @@ using CMDG.Worst3DEngine;
 
 namespace CMDG;
 
+// Simple 3D scene: rotate with arrows + WASD
 public class CarRotateTest
 {
     [DllImport("user32.dll")]
@@ -11,7 +12,6 @@ public class CarRotateTest
     private static Rasterer? m_Raster;
     private static Vec3 vc;
 
-    //Placeholder
     private struct Input
     {
         public bool Forward;
@@ -30,95 +30,33 @@ public class CarRotateTest
 
     public static void Run()
     {
-        DebugConsole.SetMessageLimit(10);
         m_Input = new Input();
         m_Raster = new Rasterer(Config.ScreenWidth, Config.ScreenHeight);
-
 
         var camera = Rasterer.GetCamera();
         camera!.SetPosition(new Vec3(0, 1, -3));
         vc = camera.GetPosition();
 
-
-
         Random random = new();
 
-        m_Raster.UseLight(false);
-        m_Raster.SetAmbientColor(new Vec3(0.0f, 0.0f, 0.0f));
+        //Global directional light
+        m_Raster.UseLight(true);  
+        m_Raster.SetAmbientColor(new Vec3(0.1f, 0.1f, 0.1f));
         m_Raster.SetLightColor(new Vec3(1.0f, 1.0f, 1.0f));
 
-        List<GameObject> snowParticles = [];
-
-        for (int i = 0; i < 1000; i++)
-        {
-            var pos = new Vec3(
-                (float)(random.NextDouble() * 2 - 1) * 10,
-                (float)(random.NextDouble() * 2 - 1) * 10,
-                (float)(random.NextDouble() * 2 - 1) * 10
-                );
-
-
-            var color = new Color32(255, 255, 255);
-
-            //init snow particles
-            var particle = GameObjects.Add(new GameObject(pos, color, ObjectType.Particle));
-            particle.SetMaxRenderingDistance(25);
-            snowParticles.Add(particle);
-        }
-
-        string folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "vehicles");
-        string randomFile = "";
-        if (Directory.Exists(folderPath))
-        {
-            string[] objFiles = Directory.GetFiles(folderPath, "*.obj");
-
-            if (objFiles.Length > 0)
-            {
-                randomFile = objFiles[random.Next(objFiles.Length)];
-            }
-            else
-            {
-                Console.WriteLine("No .obj files found in the 'vehicles' folder.");
-            }
-        }
-        else
-        {
-            Console.WriteLine("The 'vehicles' folder does not exist.");
-        }
-        Directory.SetCurrentDirectory(folderPath);
+        string carPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "vehicles", "car-hatchback-green.obj");
         var car = GameObjects.Add(new GameObject());
-        car.LoadMesh(randomFile);
+        car.LoadMesh(carPath);
 
         while (true)
         {
-            SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
+            SceneControl.StartFrame();
             float deltaTime = (float)SceneControl.DeltaTime;
 
-
             GetInputs();
-
-            // Update snow particles
-            for (int i = 0; i < snowParticles.Count; i++)
-            {
-                var gob = snowParticles[i];
-                var v = new Vec3(0.05f, -1, 0) * deltaTime;
-                var pos = gob.GetPosition() + v;
-
-                if (pos.Y < -10)
-                {
-                    pos.X = (float)(random.NextDouble() * 2.0f - 1) * 10;
-                    pos.Y = 10 + (float)(random.NextDouble() * 2.0) * 10;
-                    pos.Z = (float)(random.NextDouble() * 2.0f - 1) * 10;
-                }
-
-                gob.SetPosition(pos);
-                gob.Update();
-            }
-
             m_Raster.Process3D();
-            // Calculates spent time, limits to max framerate,
-            // and allows quitting by pressing ESC.
             HandleCamera(camera, deltaTime);
+
             SceneControl.EndFrame();
         }
     }
@@ -127,7 +65,6 @@ public class CarRotateTest
 
     private static void HandleCamera(Camera camera, float deltaTime)
     {
-        //case 2: Move based on camera direction (more natural for 3d movement)
         var forward = camera.GetForward();
         var right = camera.GetRight();
         var up = camera.GetUp();
@@ -141,7 +78,6 @@ public class CarRotateTest
         if (m_Input.Up) vc += up * cameraMovementSpeed;
         if (m_Input.Down) vc -= up * cameraMovementSpeed;
 
-
         // get the current rotation values of the camera.
         float cameraRotY = camera.GetRotation().Y;
         float cameraRotX = camera.GetRotation().X;
@@ -152,17 +88,12 @@ public class CarRotateTest
         if (m_Input.Up2) cameraRotX -= 1.0f * deltaTime;
         if (m_Input.Down2) cameraRotX += 1.0f * deltaTime;
 
-        //--------------------------------------------
         camera.SetPosition(vc);
         camera.SetRotation(new Vec3(cameraRotX, cameraRotY, 0));
         camera.Update();
         k += deltaTime;
-        //camera.LookAt(new Vec3(k, 0, 0));
-        camera.LookAt(vc, new Vec3(0, 0, 0), camera.GetUp());
     }
 
-
-    //Just placeholder to get inputs
     private static void GetInputs()
     {
         m_Input.Forward = (GetAsyncKeyState((int)ConsoleKey.W) & 0x8000) != 0;

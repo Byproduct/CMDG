@@ -1,13 +1,10 @@
-﻿using System.ComponentModel.Design;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Threading;
+﻿using System.Runtime.InteropServices;
 using CMDG.Worst3DEngine;
 using NAudio.Wave;
 
 namespace CMDG;
 
-// Requires this vehicles folder in bin. https://u.pcloud.link/publink/show?code=XZeoWL5Z0MaG3wEryCfl6Tn7DDsihfyC1x7X 
+// Vehicle models (CC0 license) by eracoon: https://opengameart.org/content/vehicles-assets-pt1
 
 
 public class AssemblyWinter2025
@@ -36,6 +33,8 @@ public class AssemblyWinter2025
 
         float mainZ = 0;                 // demo main Z-position. It's about the same as camera z-position, but has this helper variable because of frequent access.
         float firstPhaseTime = 7.3f;     // beat kicks in and camera zooms out at this point
+        float cameraPanEndTime = firstPhaseTime + 1f;
+        bool cameraPanning = true;       // slow pan (camera interpolation) from first to second phase
         float thirdPhaseTime = 45.6f;    // beat stops and camera stops (scene ends soon after)
         float sceneEndTime = 51.0f;
         bool charSwapped = false;        // swap drawing character halfway into the demo
@@ -405,10 +404,27 @@ public class AssemblyWinter2025
             // Sin multiplier is random-ish just to avoid them being in sync
 
             // First phase: zoom around the car (just a frozen camera for the time being)
+            //if (SceneControl.ElapsedTime < firstPhaseTime)
+            //{
+            //    //camera.SetPosition(mainCar.GetPosition() + mainCarCameraOffset * 0.2f);
+            //    //camera.SetRotation(new Vec3(0.8f, -1f, 0));
+            //}
+            // First phase: orbit camera aorund the car
             if (SceneControl.ElapsedTime < firstPhaseTime)
             {
-                camera.SetPosition(mainCar.GetPosition() + mainCarCameraOffset * 0.2f);
-                camera.SetRotation(new Vec3(0.8f, -1f, 0));
+                float elapsedTime = (float)(SceneControl.ElapsedTime);
+                float orbitDuration = 8.0f;
+                float orbitRadius = 2.0f;
+                float angle = (elapsedTime / orbitDuration) * (2.0f * MathF.PI);
+                Vec3 carPosition = mainCar.GetPosition();
+
+                // Compute the new camera position using circular motion
+                float camX = carPosition.X + orbitRadius * MathF.Cos(angle);
+                float camZ = carPosition.Z + orbitRadius * MathF.Sin(angle);
+                float camY = carPosition.Y + 0.3f;
+                camera.SetPosition(new Vec3(camX, camY, camZ));
+
+                camera.PointAt(camera.GetPosition(), mainCar.GetPosition(), camera.GetUp());
             }
 
             // Third phase: stop moving the camera and stop spawning more cars
@@ -420,11 +436,40 @@ public class AssemblyWinter2025
             else if (SceneControl.ElapsedTime >= firstPhaseTime && SceneControl.ElapsedTime <= thirdPhaseTime)
             {
                 float time = (float)(SceneControl.ElapsedTime);
-                float x = 0.6f + 0.1f * (float)Math.Sin(time * 0.19f);         // pan up/down
-                float y = -0.6f + 0.2f * (float)Math.Sin(time * 0.24f);        // pan left/righ
-                float heightVariance = -1 + (float)Math.Sin(time * 0.13f);     // move up/down
-                camera.SetPosition(mainCar.GetPosition() + mainCarCameraOffset + new Vec3(0, heightVariance, 0));
-                camera.SetRotation(new Vec3(x, y, 0));
+
+                // Compute new target position and rotation
+                float x = 0.6f + 0.1f * (float)Math.Sin(time * 0.19f);  // pan up/down
+                float y = -0.6f + 0.2f * (float)Math.Sin(time * 0.24f); // pan left/right
+                float heightVariance = -1 + (float)Math.Sin(time * 0.13f); // move up/down
+
+                Vec3 targetPosition = mainCar.GetPosition() + mainCarCameraOffset + new Vec3(0, heightVariance, 0);
+                Vec3 targetRotation = new Vec3(x, y, 0);
+                Vec3 currentPosition = camera.GetPosition();
+                Vec3 currentRotation = camera.GetRotation();
+
+                if (cameraPanning)
+                {
+                    float panTime = 1 - (cameraPanEndTime - (float)(SceneControl.ElapsedTime));
+                    if (panTime >= 1)
+                    {
+                        panTime = 1;
+                        cameraPanning = false;
+                    }
+                    Vec3 newPosition = Lerp(currentPosition, targetPosition, panTime);
+                    Vec3 newRotation = Lerp(currentRotation, targetRotation, panTime);
+                    camera.SetPosition(newPosition);
+                    camera.SetRotation(newRotation);
+
+                    Vec3 Lerp(Vec3 a, Vec3 b, float t)
+                    {
+                        return a * (1 - t) + b * t;
+                    }
+                }
+                else
+                {
+                    camera.SetPosition(targetPosition);
+                    camera.SetRotation(targetRotation);
+                }
             }
 
             camera.Update();

@@ -5,7 +5,7 @@ namespace CMDG
 {
     internal static class SplashScreen
     {
-        public static void Run()
+        public static void ShowSplashScreen()
         {
             if (Config.ScreenWidth == 500 && Config.ScreenHeight == 125)
             {
@@ -34,6 +34,26 @@ namespace CMDG
                 {
                     Console.WriteLine("Error: " + ex.Message);
                 }
+            }
+        }
+
+        public static void ShowEndScreen()
+        {
+            if (Config.ScreenWidth == 500 && Config.ScreenHeight == 125)
+            {
+                string imagePath = "Media/fin.png";
+                try
+                {
+                    using (Bitmap bitmap = new Bitmap(imagePath))
+                    {
+                        DrawBitmap(bitmap, 'F', 0);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: " + ex.Message);
+                }
+                Console.SetCursorPosition(0, Config.ScreenHeight + 2);
             }
         }
 
