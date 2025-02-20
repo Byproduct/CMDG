@@ -35,11 +35,11 @@ public class AssemblyWinter2025
         waveOut.Init(waveStream);
 
         float mainZ = 0;                 // demo main Z-position. It's about the same as camera z-position, but has this helper variable because of frequent access.
-        float firstPhaseTime = 9.7f;     // beat kicks in and camera zooms out at this point
-        float thirdPhaseTime = 48.3f;    // beat stops and camera stops (scene ends soon after)
-        float sceneEndTime = 56f;
+        float firstPhaseTime = 7.3f;     // beat kicks in and camera zooms out at this point
+        float thirdPhaseTime = 45.6f;    // beat stops and camera stops (scene ends soon after)
+        float sceneEndTime = 51.0f;
         bool charSwapped = false;        // swap drawing character halfway into the demo
-        float charSwapTime = 28.5f;
+        float charSwapTime = 26.1f;
         bool fadeoutComplete = false;
 
         vehicleFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "vehicles");
@@ -222,11 +222,11 @@ public class AssemblyWinter2025
 
         var fadeoutThresholds = new[] // Fadeout characters at the end
         {
-            (offset: 7f, character: 'ˈ'),
-            (offset: 6f, character: '·'),
-            (offset: 5f, character: '•'),
+            (offset: 5.5f, character: 'ˈ'),
+            (offset: 5f, character: '·'),
+            (offset: 4.5f, character: '•'),
             (offset: 4f, character: '#'),
-            (offset: 3f, character: '▓'),
+            (offset: 3.5f, character: '▓'),
         };
 
 
