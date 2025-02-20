@@ -2,7 +2,7 @@
 
 ![cover image](https://github.com/Byproduct/CMDG/blob/main/cover_image_small.png)
 
-Welcome to the commandline graphics engine!
+Welcome to the CMD graphics engine!
 
 CMDG makes it easy for artistic C# programmers to draw graphics in the windows command terminal (cmd.exe). 
 
