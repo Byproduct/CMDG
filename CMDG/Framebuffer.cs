@@ -17,7 +17,7 @@ namespace CMDG
         private static Color32[] previousFrame = new Color32[Config.ScreenWidth * Config.ScreenHeight]; // Previous frame is saved for optimization purposes (avoid writing characters that already exist on screen)
         private static Color32[] line = new Color32[Config.ScreenWidth];                                // One line of screen contents
         private static Color32[] previousLine = new Color32[Config.ScreenWidth];                        // The same line of previous frame
-        public static string pixelCharacter = Config.PixelCharacter;                                    // Currenty, a "pixel" is drawn using an empty character and background color. (Faster than full block character and foreground color.)   
+        private static char pixelCharacter = Config.PixelCharacter;                                   // Currenty, a "pixel" is drawn using an empty character and background color. (Faster than full block character and foreground color.)   
 
         // Variables for measuring the time of the calculation and drawing threads
         private static Stopwatch stopwatch = new();
@@ -53,7 +53,7 @@ namespace CMDG
         {
             if (Config.FullBlockCharacter)
             {
-                pixelCharacter = " ";
+                pixelCharacter = ' ';
                 Util.ansi_colour_codes = Util.ansi_background_colour_codes;
             }
             else
@@ -188,10 +188,25 @@ namespace CMDG
             else
             {
                 drawFrameWaitTime = 0;
-            }
-            
-           
+            }                    
+        }
 
+        public static void ChangeBackgroundColor (Color32 color)
+        {
+            Config.BackgroundColor = color;
+        }
+ 
+        public static void ChangeDrawingCharacter (char character)
+        {
+            pixelCharacter = character;
+        }
+
+        // Wipe buffers if needed after character change. The 1 is for the value to be non-identical, avoiding it being optimised out.
+        public static void WipeBuffers()
+        {
+            Array.Fill(Backbuffer, new Color32(0, 0, 1));
+            Array.Fill(Frontbuffer, new Color32(0, 0, 1));
+            Array.Fill(Swapbuffer, new Color32(0, 0, 1));
         }
     }
 }

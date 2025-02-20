@@ -1,4 +1,5 @@
-﻿ANSI reference - for dev purposes only, not needed for using iFramebuffer
+﻿CMD ANSI codes for reference. You don't need these unless you want to modify the engine.
+
 
 CMDG integer - Foreground / Background / COLOR equivalent
 0	-	Black			-	Esc[30m	- Esc[40m - 0
@@ -18,7 +19,6 @@ CMDG integer - Foreground / Background / COLOR equivalent
 14	-	Light cyan		-	Esc[96m - Esc[106m - B
 15	-	White			-	Esc[97m - Esc[107m - F
 
-
 Bold - Esc[1m 	  	 
 Underline - Esc[4m 	  	 
 No underline - Esc[24m 	  	 
@@ -27,8 +27,6 @@ Positive text (not reversed) - Esc[27m
 Default - Esc[0m
 
 https://en.wikipedia.org/wiki/List_of_Unicode_characters
-
-
 
 Print reference on console:
 Console.WriteLine(Util.ANSI_reset_code);

@@ -15,14 +15,16 @@ namespace CMDG
         AssemblyWinter2025: work in progress
         */
 
+
+        // The settings below are all optional
         public const int MaxFrameRate = 60;
         public const int ScreenWidth = 400;
         public const int ScreenHeight = 100;
-        public const bool ShowTime = true;                   // Display draw/calc/wait milliseconds below screen
-        public const bool DoubleWidth = false;               // Use two character blocks to display one "pixel". (Looks more square, but requires more space and processing time.)
-        public static Color32 BackgroundColor = new Color32(0, 0, 0);   // Wipe the framebuffer with this colour before drawing
-        public static string PixelCharacter = "#";           // Character to use as a 'pixel'
-        public static bool FullBlockCharacter = true;        // Use a full block character █ and background color instead of above character 
+        public const bool ShowTime = true;                    // Display draw/calc/wait milliseconds below screen
+        public const bool DoubleWidth = false;                // Use two character blocks to display one "pixel". (Looks more square, but requires more space and processing time.)
+        public static Color32 BackgroundColor = new Color32(0, 0, 0);   // Wipe the framebuffer with this color before drawing
+        public static char PixelCharacter = '#';              // Character to use as a 'pixel'
+        public static bool FullBlockCharacter = false;        // Use a full block character █ and background color instead of above character 
         public static bool AdjustScreen = false;              // Auto-adjust and manual screen adjustment prompt at the start of the program
         public static bool SplashScreen = false;              // CMDG splash screen after screen adjustment and before demo. Works only for 400x100 demos for the time being.
     }
