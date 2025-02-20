@@ -54,6 +54,8 @@ namespace CMDG
                     Console.WriteLine("Error: " + ex.Message);
                 }
                 Console.SetCursorPosition(0, Config.ScreenHeight + 2);
+                Console.WriteLine("Enter to close.");
+                Console.ReadLine();
             }
         }
 
