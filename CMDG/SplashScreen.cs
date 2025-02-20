@@ -5,9 +5,9 @@ namespace CMDG
 {
     internal static class SplashScreen
     {
-        public static void Run()
+        public static void ShowSplashScreen()
         {
-            if (Config.ScreenWidth == 400 && Config.ScreenHeight == 100)
+            if (Config.ScreenWidth == 500 && Config.ScreenHeight == 125)
             {
                 string imagePath = "Media/cmdg-splash.png";
 
@@ -16,14 +16,14 @@ namespace CMDG
                     using (Bitmap bitmap = new Bitmap(imagePath))
                     {
                         Console.Clear();
-                        int splashFrameRate = 50;
+                        int splashFrameRate = 100;
 
                         DrawBitmap(bitmap, '·', splashFrameRate);
                         DrawBitmap(bitmap, '•', splashFrameRate);
                         DrawBitmap(bitmap, '#', splashFrameRate);
                         DrawBitmap(bitmap, '▓', splashFrameRate);
                         DrawBitmap(bitmap, '█', splashFrameRate);
-                        Thread.Sleep(2000);
+                        Thread.Sleep(3000);
                         DrawBitmap(bitmap, '▓', splashFrameRate);
                         DrawBitmap(bitmap, '#', splashFrameRate);
                         DrawBitmap(bitmap, '•', splashFrameRate);
@@ -34,6 +34,26 @@ namespace CMDG
                 {
                     Console.WriteLine("Error: " + ex.Message);
                 }
+            }
+        }
+
+        public static void ShowEndScreen()
+        {
+            if (Config.ScreenWidth == 500 && Config.ScreenHeight == 125)
+            {
+                string imagePath = "Media/fin.png";
+                try
+                {
+                    using (Bitmap bitmap = new Bitmap(imagePath))
+                    {
+                        DrawBitmap(bitmap, 'F', 0);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: " + ex.Message);
+                }
+                Console.SetCursorPosition(0, Config.ScreenHeight + 2);
             }
         }
 

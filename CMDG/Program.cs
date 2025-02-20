@@ -9,7 +9,7 @@ string sceneName = Config.SceneName;
 Util.Initialize();
 if (Config.AdjustScreen) AdjustScreen.Run();
 Util.DrawBorder();
-if (Config.SplashScreen) SplashScreen.Run();
+if (Config.SplashScreen) SplashScreen.ShowSplashScreen();
 Util.DrawBorder();
 
 
@@ -98,11 +98,23 @@ while (true)
             }
         }
         // end threads
-        if (sceneThread.IsAlive)
+        try
         {
-            sceneThread.Join();
+            if (sceneThread.IsAlive)
+            {
+                sceneThread.Join(1000);
+            }
+            Framebuffer.StopDrawThread();
         }
-        Framebuffer.StopDrawThread();
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unable to end all threads: {ex.Message}");
+        }
+        Util.DrawBorder();
+        if (Config.EndScreen)
+        {
+            SplashScreen.ShowEndScreen();
+        }
         Environment.Exit(0);
     }
     Thread.Sleep(20);

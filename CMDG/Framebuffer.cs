@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.Text;
 using CMDG.Worst3DEngine;
 
@@ -27,6 +28,9 @@ namespace CMDG
         public volatile static int CalcFrameWaitTime = 0;
         private static List<int> calcFrameTimes = new();
         private static List<int> drawFrameTimes = new();
+
+        // Force the entire buffer on screen once, without optimising any characters.
+        private static bool forceWipe = false;
 
         // The function to set pixels in backbuffer. The scene is built entirely using this.
         public static void SetPixel(int x, int y, Color32 color)
@@ -88,6 +92,13 @@ namespace CMDG
             SwapbufferToFrontbuffer();      // Get the contents of Backbuffer (Swapbuffer) as written by the scene function.
 
             var outputBuffer = new StringBuilder(Config.ScreenWidth * Config.ScreenHeight * 5);     // Buffer to store the commands for characters, colors and cursor placements, collected and executed in one go.
+
+            if (forceWipe)
+            {
+                Frontbuffer.AsSpan().Fill(new Color32(0, 0, 0));
+                forceWipe = false;
+            }
+
             for (int y = 0; y < Config.ScreenHeight; y++)
             {
                 // Examine one line of the buffer at a time
@@ -107,7 +118,8 @@ namespace CMDG
                             break;
                         }
                     }
-                    
+
+
                     // Set the cursor based on the first changed x-position within the line:
                     // Offset one unit for 1-based ANSI coordinates and one unit for picture border, then moved based on the first x-position and the optional double width characters.
                     int xCursorPosition = 2 + firstChangedX;
@@ -145,9 +157,10 @@ namespace CMDG
                     }
                 }
             }
+
             Frontbuffer.AsSpan().CopyTo(previousFrame);
 
-            // Dispaly calculating and drawing times below the picture border
+            // Display calculating and drawing times below the picture border
             if (Config.ShowTime)
             {
                 if (calcFrameTimes.Count >= 100) calcFrameTimes.RemoveAt(0);
@@ -165,7 +178,7 @@ namespace CMDG
                 outputBuffer.Append($"\x1b[{Config.ScreenHeight + 4};1H");
                 outputBuffer.Append($"Draw frame: {drawFrameTime.ToString("D").PadLeft(4, ' ')} ms, wait {drawFrameWaitTime.ToString("D").PadLeft(4, ' ')} ms, avg {avgDrawTime.ToString("D").PadLeft(4, ' ')} ms    ");
             }
-            
+
             DebugConsole.PrintMessages(1, 2);
 
             // Finally write the entire buffer as bytes
@@ -177,8 +190,8 @@ namespace CMDG
             stopwatch.Stop();
             drawFrameTime = (int)(stopwatch.ElapsedMilliseconds);  // Frame time display lags one frame behind calculation, but who cares.
 
-            
-            
+
+
             // If drawing this frame needed less time than specified max framerate, wait to steady the framerate to max.
             drawFrameWaitTime = SceneControl.maxMs - drawFrameTime;
             if (drawFrameWaitTime > 0)
@@ -188,25 +201,28 @@ namespace CMDG
             else
             {
                 drawFrameWaitTime = 0;
-            }                    
+            }
         }
 
-        public static void ChangeBackgroundColor (Color32 color)
+        public static void ChangeBackgroundColor(Color32 color)
         {
             Config.BackgroundColor = color;
         }
- 
-        public static void ChangeDrawingCharacter (char character)
+
+        public static char GetDrawingCharacter()
+        {
+            return pixelCharacter;
+        }
+
+        public static void SetDrawingCharacter(char character)
         {
             pixelCharacter = character;
         }
 
-        // Wipe buffers if needed after character change. The 1 is for the value to be non-identical, avoiding it being optimised out.
-        public static void WipeBuffers()
+        // Draw the entire new buffer onto the screen without optimising anything out (e.g. when swapping the used character).
+        public static void WipeScreen()
         {
-            Array.Fill(Backbuffer, new Color32(0, 0, 1));
-            Array.Fill(Frontbuffer, new Color32(0, 0, 1));
-            Array.Fill(Swapbuffer, new Color32(0, 0, 1));
+            forceWipe = true;
         }
     }
 }
