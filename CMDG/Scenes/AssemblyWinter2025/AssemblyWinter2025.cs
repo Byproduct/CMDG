@@ -172,6 +172,19 @@ public class AssemblyWinter2025
         camera.SetRotation(new Vec3(0.6f, -0.6f, 0));
 
 
+        //shhh
+        string signsFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "signs");
+        string mainSignPath = Path.Combine(signsFolderPath, "salainen_kylttitiedosto_01.obj");
+        var mainSign = GameObjects.Add(new GameObject());
+        mainSign.LoadMesh(mainSignPath);
+        mainSign.SetPosition(new Vec3(-1, 0, 400));
+        mainSign.Update();
+        
+        var mainSign2 = GameObjects.Add(new GameObject());
+        mainSign2.LoadMesh(mainSignPath);
+        mainSign2.SetPosition(new Vec3(-1, 0, 695));
+        mainSign2.Update();
+        
         // Forward-going cars
         int number_of_forward_cars = 7;
         List<ForwardCar> forwardCars = new();
