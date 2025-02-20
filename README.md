@@ -14,7 +14,7 @@ in which you specify the pixel coordinates and color, and the engine takes care 
 
 Besides that, you're free to structure your program in any way you like, add any files, directories etc.
 
-You have the [glorious ANSI palette of 16 characters](https://github.com/Byproduct/CMDG/blob/main/CMDG/Help/palette.png) to work with. You specify the colors in RGB bytes (e.g. 255,255,255) and the engine converts them to the nearest ANSI color.
+You have the [glorious ANSI palette of 16 colors](https://github.com/Byproduct/CMDG/blob/main/CMDG/Help/palette.png) to work with. You specify the colors in RGB bytes (e.g. 255,255,255) and the engine converts them to the nearest ANSI color.
 
 By default the █ character is used for drawing. You can change it to any Unicode character, also while the scene is running, but the entire screen will always be drawn with the same character. (So think of it as pixels rather than ASCII art.)
 
