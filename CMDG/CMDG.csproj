@@ -22,6 +22,12 @@
     <None Update="Media\cmdg-splash.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Scenes\AssemblyWinter2025\signs\salainen_kylttitiedosto_01.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Scenes\AssemblyWinter2025\signs\salainen_kylttitiedosto_01.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Scenes\AssemblyWinter2025\vehicles\car-coupe-blue.mtl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

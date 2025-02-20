@@ -32,13 +32,13 @@ public class AssemblyWinter2025
         waveOut.Init(waveStream);
 
         float mainZ = 0;                 // demo main Z-position. It's about the same as camera z-position, but has this helper variable because of frequent access.
-        float firstPhaseTime = 7.3f;     // beat kicks in and camera zooms out at this point
+        float firstPhaseTime = 7.1f;     // beat kicks in and camera zooms out at this point
         float cameraPanEndTime = firstPhaseTime + 1f;
         bool cameraPanning = true;       // slow pan (camera interpolation) from first to second phase
         float thirdPhaseTime = 45.6f;    // beat stops and camera stops (scene ends soon after)
         float sceneEndTime = 51.0f;
         bool charSwapped = false;        // swap drawing character halfway into the demo
-        float charSwapTime = 26.1f;
+        float charSwapTime = 26.2f;
         bool fadeoutComplete = false;
         bool updateCameraAtEndOfFrame = false;
         float sloMoMultiplier = 0.05f;
@@ -182,11 +182,11 @@ public class AssemblyWinter2025
         
         var mainSign2 = GameObjects.Add(new GameObject());
         mainSign2.LoadMesh(mainSignPath);
-        mainSign2.SetPosition(new Vec3(-1, 0, 695));
+        mainSign2.SetPosition(new Vec3(-0.9f, 0, 698.7f));
         mainSign2.Update();
         
         // Forward-going cars
-        int number_of_forward_cars = 7;
+        int number_of_forward_cars = 6;
         List<ForwardCar> forwardCars = new();
         float carPosZ = 0f;
         for (int i = 0; i < number_of_forward_cars; i++)
@@ -381,7 +381,12 @@ public class AssemblyWinter2025
                 }
             }
 
-
+            if (!charSwapped && SceneControl.ElapsedTime > charSwapTime)
+            {
+                Framebuffer.SetDrawingCharacter('█');
+                Framebuffer.WipeScreen();
+                charSwapped = true;
+            }
 
             slowUpdateFrame++;
             // Things to do less frequently
@@ -390,13 +395,6 @@ public class AssemblyWinter2025
                 if (slowUpdateFrame > slowUpdateInterval)
                 {
                     slowUpdateFrame = 0;
-
-                    if (!charSwapped && SceneControl.ElapsedTime > charSwapTime)
-                    {
-                        Framebuffer.SetDrawingCharacter('█');
-                        Framebuffer.WipeScreen();
-                        charSwapped = true;
-                    }
 
                     if (SceneControl.ElapsedTime < thirdPhaseTime)
                     {
@@ -460,9 +458,9 @@ public class AssemblyWinter2025
                 updateCameraAtEndOfFrame = true;
                 sloMoMultiplier = 1f;
                 // Compute new target position and rotation
-                float x = 0.6f + 0.1f * (float)Math.Sin(elapsedTime * 0.19f);  // pan up/down
-                float y = -0.6f + 0.2f * (float)Math.Sin(elapsedTime * 0.24f); // pan left/right
-                float heightVariance = -1 + (float)Math.Sin(elapsedTime * 0.13f); // move up/down
+                float x = 0.6f + 0.1f * (float)Math.Sin(elapsedTime * 0.21f);  // pan up/down
+                float y = -0.5f + 0.2f * (float)Math.Sin(elapsedTime * 0.28f); // pan left/right
+                float heightVariance = -1.1f + (float)Math.Sin(elapsedTime * 0.23f); // move up/down
 
                 Vec3 targetPosition = mainCar.GetPosition() + mainCarCameraOffset + new Vec3(0, heightVariance, 0);
                 Vec3 targetRotation = new Vec3(x, y, 0);
@@ -508,7 +506,7 @@ public class AssemblyWinter2025
         {
             if (SceneControl.ElapsedTime < thirdPhaseTime)
             {
-                carPosZ = mainZ + 50 + (float)(random.NextDouble()) * 20;
+                carPosZ = mainZ + 50 + (float)(random.NextDouble()) * 25;
                 GameObject car = GameObjects.Add(new GameObject());
                 car.LoadMesh(getRandomCarPath());
                 car.SetPosition(new Vec3(roadEdgeXCoords[0] + laneWidth / 2f, 0, carPosZ));
