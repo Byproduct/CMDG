@@ -1,6 +1,6 @@
 # CMDG
 
-![cover image]([image.jpg](https://github.com/Byproduct/CMDG/blob/main/cover_image_small.png))
+![cover image](https://github.com/Byproduct/CMDG/blob/main/cover_image_small.png)
 
 Welcome to the commandline graphics engine!
 
