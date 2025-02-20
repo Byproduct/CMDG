@@ -3,9 +3,12 @@
 
 namespace CMDG
 {
-    // It takes all this mess just to adjust font size in windows console. Nice!
+    // It takes all this mess just to adjust the console window. Nice!
     public class AdjustScreen
     {
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool SetCurrentConsoleFontEx(IntPtr hConsoleOutput, bool bMaximumWindow, ref CONSOLE_FONT_INFO_EX lpConsoleCurrentFontEx);
 
@@ -14,6 +17,11 @@ namespace CMDG
 
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr GetStdHandle(int nStdHandle);
+
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetConsoleWindow();
+
+        private const int SW_MAXIMIZE = 3;
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const int TMPF_TRUETYPE = 4;
@@ -36,6 +44,26 @@ namespace CMDG
 
         public static void Run()
         {
+            IntPtr consoleWindow = GetConsoleWindow();
+            if (consoleWindow != IntPtr.Zero)
+            {
+                ShowWindow(consoleWindow, SW_MAXIMIZE);
+            }
+            string resizeInstructions = """
+               
+                About to watch a demo! ^_^
+                
+                After you press enter, a white border will be drawn on the screen. 
+                
+                Please adjust zoom so that you can see all of the border both horizontally and vertically. It may look like a mess until zoomed out enough.
+
+                Zoom with ctrl + mouse wheel. 
+
+                Enter to proceed.               
+                """;
+            Console.Clear();
+            Console.Write(resizeInstructions);
+            Console.ReadLine();
             // Set font size to 1, resize window to the dimensions set in config, then reapply original font. This is needed to resize the window beyond screen dimensions while avoiding a "console buffer too small" error.
             try
             {
@@ -58,12 +86,8 @@ namespace CMDG
                 Util.DrawBorder();
 
                 Console.SetCursorPosition(3, 3);
-                Console.Write("About to watch a demo! ^_^");
+                Console.Write("Seeing all of the border?");
                 Console.SetCursorPosition(3, 5);
-                Console.Write("Adjust the text size with ctrl + mouse wheel so that you can see a white outer border correctly.");
-                Console.SetCursorPosition(3, 7);
-                Console.Write("On some systems you may need to adjust the window size too.");
-                Console.SetCursorPosition(3, 9);
                 Console.Write("Press enter when ready. R to refresh window.");
 
                 if (Console.KeyAvailable)

@@ -96,11 +96,6 @@ public class AssemblyWinter2025
         // Road banks
         List<GameObject> roadbanks = new List<GameObject>();
         GameObject median = GameObjects.Add(new GameObject());
-        //median.CreateCube(new Vec3(medianWidth, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
-        //median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth/2, -0.1f, roadEdgeLength / 2f));
-        //roadEdges.Add(median);
-        //median.Update();
-
         median.CreateCube(new Vec3(medianWidth, 0.1f, roadEdgeLength), new Color32(204, 204, 204));
         median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth / 2, -0.1f, 0));
         roadEdges.Add(median);
@@ -131,8 +126,6 @@ public class AssemblyWinter2025
         //roadrev.SetPosition(new Vec3(roadEdgeXCoords[2] + laneWidth, -0.1f, roadEdgeLength / 2f));
         //roadEdges.Add(roadrev);
         //roadrev.Update();
-
-
 
 
         // Dashed lines between lanes
