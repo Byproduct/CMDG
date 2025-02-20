@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Design;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 using CMDG.Worst3DEngine;
@@ -36,8 +37,10 @@ public class AssemblyWinter2025
         float mainZ = 0;                 // demo main Z-position. It's about the same as camera z-position, but has this helper variable because of frequent access.
         float firstPhaseTime = 9.7f;     // beat kicks in and camera zooms out at this point
         float thirdPhaseTime = 48.3f;    // beat stops and camera stops (scene ends soon after)
+        float sceneEndTime = 56f;
         bool charSwapped = false;        // swap drawing character halfway into the demo
         float charSwapTime = 28.5f;
+        bool fadeoutComplete = false;
 
         vehicleFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "vehicles");
 
@@ -214,8 +217,18 @@ public class AssemblyWinter2025
             oppositeCars.Add(new OppositeCar(car, velocity, tailgateDistance));
         }
 
-        int slowUpdateInterval = 40;  // Update less frequent stuff every nth frame
+        int slowUpdateInterval = 30;  // Update less frequent stuff every nth frame
         int slowUpdateFrame = 0;
+
+        var fadeoutThresholds = new[] // Fadeout characters at the end
+        {
+            (offset: 7f, character: 'ˈ'),
+            (offset: 6f, character: '·'),
+            (offset: 5f, character: '•'),
+            (offset: 4f, character: '#'),
+            (offset: 3f, character: '▓'),
+        };
+
 
         // Start audio playback just before entering loop
         if (waveOut != null)
@@ -325,6 +338,25 @@ public class AssemblyWinter2025
                 gob.Update();
             }
 
+
+            // Fadeout at the end by changing the drawing character into less visible ones
+            if (SceneControl.ElapsedTime > thirdPhaseTime)
+            {
+                foreach (var (offset, ch) in fadeoutThresholds)
+                {
+                    if (SceneControl.ElapsedTime > thirdPhaseTime + offset)
+                    {
+                        if (Framebuffer.GetDrawingCharacter() != ch)
+                        {
+                            Framebuffer.SetDrawingCharacter(ch);
+                            Framebuffer.WipeScreen();
+                        }
+                        break; 
+                    }
+                }
+            }
+
+
             // Things to do less frequently
             slowUpdateFrame++;
             if (slowUpdateFrame > slowUpdateInterval)
@@ -333,8 +365,8 @@ public class AssemblyWinter2025
 
                 if (!charSwapped && SceneControl.ElapsedTime > charSwapTime)
                 {
-                    Framebuffer.ChangeDrawingCharacter('█');
-                    Framebuffer.WipeBuffers();
+                    Framebuffer.SetDrawingCharacter('█');
+                    Framebuffer.WipeScreen();
                     charSwapped = true;
                 }
 
@@ -363,6 +395,10 @@ public class AssemblyWinter2025
                         dashOffset += dashSpacing;
                     }
                 }
+                if (SceneControl.ElapsedTime > sceneEndTime)
+                {
+                    exitScene = true;
+                }
             }
 
             // Adjust camera 
@@ -390,10 +426,7 @@ public class AssemblyWinter2025
                 camera.SetPosition(mainCar.GetPosition() + mainCarCameraOffset + new Vec3(0, heightVariance, 0));
                 camera.SetRotation(new Vec3(x, y, 0));
             }
-            else
-            {
-                exitScene = true;
-            }
+
             camera.Update();
 
             m_Raster.Process3D();

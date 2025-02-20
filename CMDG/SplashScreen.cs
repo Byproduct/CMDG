@@ -7,7 +7,7 @@ namespace CMDG
     {
         public static void Run()
         {
-            if (Config.ScreenWidth == 400 && Config.ScreenHeight == 100)
+            if (Config.ScreenWidth == 500 && Config.ScreenHeight == 125)
             {
                 string imagePath = "Media/cmdg-splash.png";
 
@@ -16,14 +16,14 @@ namespace CMDG
                     using (Bitmap bitmap = new Bitmap(imagePath))
                     {
                         Console.Clear();
-                        int splashFrameRate = 50;
+                        int splashFrameRate = 100;
 
                         DrawBitmap(bitmap, '·', splashFrameRate);
                         DrawBitmap(bitmap, '•', splashFrameRate);
                         DrawBitmap(bitmap, '#', splashFrameRate);
                         DrawBitmap(bitmap, '▓', splashFrameRate);
                         DrawBitmap(bitmap, '█', splashFrameRate);
-                        Thread.Sleep(2000);
+                        Thread.Sleep(3000);
                         DrawBitmap(bitmap, '▓', splashFrameRate);
                         DrawBitmap(bitmap, '#', splashFrameRate);
                         DrawBitmap(bitmap, '•', splashFrameRate);

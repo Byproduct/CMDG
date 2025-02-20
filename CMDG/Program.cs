@@ -98,11 +98,19 @@ while (true)
             }
         }
         // end threads
-        if (sceneThread.IsAlive)
+        try
         {
-            sceneThread.Join();
+            if (sceneThread.IsAlive)
+            {
+                sceneThread.Join(1000);
+            }
+            Framebuffer.StopDrawThread();
         }
-        Framebuffer.StopDrawThread();
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unable to end all threads: {ex.Message}");
+        }
+        Util.DrawBorder();
         Environment.Exit(0);
     }
     Thread.Sleep(20);
