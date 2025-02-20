@@ -65,7 +65,7 @@ namespace CMDG.Worst3DEngine
                    a.Z * b.Z;
         }
 
-        private static float Length(Vec3 v)
+        public static float Length(Vec3 v)
         {
             return (float)Math.Sqrt(Dot(v, v));
         }
@@ -90,18 +90,37 @@ namespace CMDG.Worst3DEngine
         public static Vec3 IntersectPlane(Vec3 planeP, Vec3 planeN, Vec3 lineStart, Vec3 lineEnd, out float t)
         {
             planeN = Vec3.Normalize(planeN);
-            var planeD = -Vec3.Dot(planeN, planeP);
 
+            if (Vec3.Length(planeN) < 1e-6f)
+                throw new Exception("Plane normal is zero!");
+
+            var planeD = -Vec3.Dot(planeN, planeP);
             var ad = Vec3.Dot(lineStart, planeN);
             var bd = Vec3.Dot(lineEnd, planeN);
 
+            var denominator = bd - ad;
+            if (Math.Abs(denominator) < 1e-6f)
+            {
+                t = float.NaN;
+                return new Vec3(float.NaN, float.NaN, float.NaN);
+            }
+
             //calculate the t value of intersection point
-            t = (-planeD - ad) / (bd - ad);
+            t = (-planeD - ad) / denominator;
 
-            var lineStartToEnd = lineEnd - lineStart; // Vec3.Sub(lineEnd, lineStart);
-            var lineToIntersect = lineStartToEnd * t; // Vec3.Mul(lineStartToEnd, t);
 
-            return lineStart + lineToIntersect;
+            if (t < 0 || t > 1)
+            {
+                t = float.NaN;
+                return new Vec3(float.NaN, float.NaN, float.NaN);
+            }
+
+            var lineStartToEnd = lineEnd - lineStart;
+            var lineToIntersect = lineStartToEnd * t;
+            var intersection = lineStart + lineToIntersect;
+            var interpolatedW = lineStart.W + (lineEnd.W - lineStart.W) * t;
+            
+            return new Vec3(intersection.X, intersection.Y, intersection.Z, interpolatedW);
         }
 
         public static float Distance(Vec3 a, Vec3 b)
@@ -140,6 +159,9 @@ namespace CMDG.Worst3DEngine
         {
             //ensure its normalized
             planeN = Vec3.Normalize(planeN);
+
+            if (Vec3.Length(planeN) == 0) throw new Exception("Plane normal is zero!");
+
 
             //temp points
             List<Vec3> insidePoints = [];
@@ -223,7 +245,8 @@ namespace CMDG.Worst3DEngine
                     // Second triangle: the second inside point, first triangle’s new point, and another intersection point.
                     outTri2.P1 = insidePoints[1];
                     outTri2.P2 = outTri1.P3;
-                    outTri2.P3 = Vec3.IntersectPlane(planeP, planeN, insidePoints[1], outsidePoints[0], out var t2);
+                    if (outsidePoints.Count > 0)
+                        outTri2.P3 = Vec3.IntersectPlane(planeP, planeN, insidePoints[1], outsidePoints[0], out var t2);
                     return 2;
                 }
             }
@@ -233,6 +256,8 @@ namespace CMDG.Worst3DEngine
             return 0;
 
             //if negative, it means the point is outside
+
+
             float Dist(Vec3 p) =>
                 Vec3.Dot(planeN, p) - Vec3.Dot(planeN, planeP);
         }
