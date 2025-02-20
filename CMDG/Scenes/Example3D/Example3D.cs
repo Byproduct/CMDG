@@ -58,9 +58,6 @@ public class Example3D
         _mRaster.SetLightColor(new Vec3(1.0f, 1.0f, 1.0f));
 
 
-        float rotateObject = 0;
-
-
         while (true)
         {
             SceneControl.StartFrame();                           // StartFrame clears frame buffer and starts frame timer.

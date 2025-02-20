@@ -4,7 +4,7 @@ using CMDG.Worst3DEngine;
 namespace CMDG;
 
 // Simple 3D scene: rotate with arrows + WASD
-public class CarRotateTest
+public class RotateTutorial
 {
     [DllImport("user32.dll")]
     static extern short GetAsyncKeyState(int vKey);
