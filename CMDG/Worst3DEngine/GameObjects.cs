@@ -3,10 +3,12 @@
     public static class GameObjects
     {
         public static List<GameObject> GameObjectsList;
-
+        public static GameObject backgroundObject;
+        
         static GameObjects()
         {
             GameObjectsList = [];
+            backgroundObject = new GameObject();
         }
 
         public static GameObject Add(GameObject gameObject)

@@ -446,6 +446,36 @@
             }
         }
 
+        public void ProcessBackground3D()
+        {
+            Clear();
+            m_RenderTriangles?.Clear();
+            m_RenderParticles?.Clear();
+           
+
+            var gameObject = GameObjects.backgroundObject;
+            var objectType = gameObject.Type;
+
+            switch (objectType)
+            {
+                case ObjectType.Particle:
+                    ProcessParticles(gameObject);
+                    break;
+                case ObjectType.Mesh:
+                    ProcessMesh(gameObject);
+                    break;
+                case ObjectType.None:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+
+            //render all triangles and particles
+            ProcessTriangles();
+            DrawParticles();
+        }
+
         public void Process3D()
         {
             Clear();
@@ -489,7 +519,7 @@
         public void SetLightDirection(Vec3 direction)
         {
             m_LightDirection = direction;
-            m_LightDirection = Vec3.Normalize(m_LightDirection);
+            //m_LightDirection = Vec3.Normalize(m_LightDirection);
         }
 
         public void SetAmbientColor(Vec3 color)
@@ -506,7 +536,7 @@
         {
             var dp = Vec3.Dot(m_LightDirection, normal);
             dp = Util.Clamp(dp, 0, 1);
-            
+
             var color = new Vec3(inColor.R / 255.0f, inColor.G / 255.0f, inColor.B / 255.0f);
             var original = new Vec3(inColor.R / 255.0f, inColor.G / 255.0f, inColor.B / 255.0f);
 
@@ -515,14 +545,14 @@
             color.Z *= m_LightColor.Z * dp;
 
             color = m_AmbientColor + color;
-            
+
             //mix between calculated and original color
             color.X = Util.Clamp(color.X, 0, 1);
             color.Y = Util.Clamp(color.Y, 0, 1);
             color.Z = Util.Clamp(color.Z, 0, 1);
-
-
-            var finalColor = Vec3.Lerp(original, color, dp);
+            
+            var finalColor = Vec3.Lerp(original, color, dp*dp);
+            //var finalColor = Vec3.Lerp(original, color, 1.0f);
 
             var result = new Color32
             {

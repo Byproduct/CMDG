@@ -58,6 +58,12 @@ public class AssemblyWinter2025
         m_Raster.SetLightColor(new Vec3(1.5f, 1.5f, 1.0f));
         m_Raster.SetLightDirection(new Vec3(1, 1, -1));
 
+        /*
+        var startLightDirection = new Vec3(-1, 0.1f, 1);
+        var endLightDirection = new Vec3(1, 1, -1);
+        float LightDirectionTimer = 0;
+        */
+
         // Snow flakes (just regular objects instead of particles for now)
         List<GameObject> snowflakes = [];
         for (int i = 0; i < 750; i++)
@@ -164,11 +170,17 @@ public class AssemblyWinter2025
         var tree01 = Path.Combine(randomObjectsFolderPath, "tree_01.obj");
         var tree02 = Path.Combine(randomObjectsFolderPath, "tree_02.obj");
         var bearPath = Path.Combine(randomObjectsFolderPath, "bear.obj");
+        var backgroundPath = Path.Combine(randomObjectsFolderPath, "background.obj");
+
         var bear = GameObjects.Add(new GameObject());
         bear.LoadMesh(bearPath);
         bear.SetPosition(new Vec3(0, 0, 600f));
         bear.Update();
-        
+
+        GameObjects.backgroundObject.LoadMesh(backgroundPath);
+        GameObjects.backgroundObject.SetPosition(new Vec3(0, 0, 0));
+        GameObjects.backgroundObject.Update();
+
 
         for (int i = 0; i < 100; i++)
         {
@@ -263,10 +275,65 @@ public class AssemblyWinter2025
             waveOut.Play();
         }
 
+
+        /*
+        var backgroundColors = new List<Vec3>
+        {
+            new Vec3(0, 0, 0),
+            new Vec3(0, 0, 0.25f),
+            new Vec3(0.25f, 0, 0.25f),
+            new Vec3(0.25f, 0.25f, 0.25f),
+            new Vec3(0.5f, 0.5f, 0.5f)
+        };
+        int backgroundColorIndex = 0;
+
+        float t = 0;
+
+        var currentBackgroundColor = backgroundColors[backgroundColorIndex];
+        */
+
         while (true)
         {
             SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
             float deltaTime = (float)SceneControl.DeltaTime;
+
+            /*
+            LightDirectionTimer += deltaTime * (1.0f / 5.0f);
+            if (LightDirectionTimer > 1.0f)
+            {
+                LightDirectionTimer -= 1.0f;
+            }
+
+            LightDirectionTimer = Util.Clamp(LightDirectionTimer, 0, 1);
+            var currentLightDirection = Vec3.Lerp(startLightDirection, endLightDirection, LightDirectionTimer);
+            m_Raster.SetLightDirection(currentLightDirection);
+            */
+
+            //change barckground color 
+            /*
+            t += deltaTime * 0.1f;
+            if (t > 1.0f)
+            {
+                if (backgroundColorIndex < backgroundColors.Count - 1)
+                    backgroundColorIndex++;
+                t = 0;
+            }
+
+
+            if (backgroundColorIndex < backgroundColors.Count - 1)
+                currentBackgroundColor = Vec3.Lerp(backgroundColors[backgroundColorIndex],
+                    backgroundColors[backgroundColorIndex + 1], t);
+            else
+                currentBackgroundColor = backgroundColors[backgroundColorIndex];
+
+            Color32 cc;
+            cc.r = (byte)(currentBackgroundColor.X * 255);
+            cc.g = (byte)(currentBackgroundColor.Y * 255);
+            cc.b = (byte)(currentBackgroundColor.Z * 255);
+
+            Framebuffer.ChangeBackgroundColor(cc);
+            */
+
 
             // Update main car position
             mainCar.SetPosition(mainCar.GetPosition() + mainCarVelocity * deltaTime * sloMoMultiplier);
@@ -480,7 +547,7 @@ public class AssemblyWinter2025
                 float camZ = carPosition.Z + orbitRadius * MathF.Sin(angle);
                 float camY = carPosition.Y + 0.5f;
                 //camera.SetPosition(new Vec3(camX, camY + 0.5f, camZ));
-                
+
                 camera.LookAt(new Vec3(camX, camY + 0.5f, camZ), mainCar.GetPosition(), new Vec3(1, 1, 0));
             }
 
@@ -502,7 +569,7 @@ public class AssemblyWinter2025
                             camera.GetPosition(),
                             camera.GetRotation(),
                             mainSign.GetPosition() + new Vec3(-0.25f, 1, -3),
-                            camera.GetRotation(), 3, 
+                            camera.GetRotation() + new Vec3(-0.5f, 0, 0), 3,
                             EasingTypes.EaseInSine));
                 }
                 else
@@ -539,6 +606,7 @@ public class AssemblyWinter2025
                     camera.SetPosition(newPosition);
                     camera.SetRotation(newRotation);
                     camera.Update();
+
                     Vec3 Lerp(Vec3 a, Vec3 b, float t)
                     {
                         return a * (1 - t) + b * t;
@@ -552,7 +620,13 @@ public class AssemblyWinter2025
                 }
             }
 
+            m_Raster.UseLight(false);
+            GameObjects.backgroundObject.SetPosition(camera.GetPosition());
+            GameObjects.backgroundObject.Update();
 
+            m_Raster.ProcessBackground3D();
+
+            m_Raster.UseLight(true);
             m_Raster.Process3D();
             SceneControl
                 .EndFrame(); // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
