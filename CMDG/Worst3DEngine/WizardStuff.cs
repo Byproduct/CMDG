@@ -21,6 +21,7 @@
 '-  ()_.\,\,   -
  */
 
+
 namespace CMDG.Worst3DEngine
 {
     public struct Vec3(float x, float y, float z, float w = 1)
@@ -28,24 +29,38 @@ namespace CMDG.Worst3DEngine
         public float X { get; set; } = x;
         public float Y { get; set; } = y;
         public float Z { get; set; } = z;
-
-
         public float W { get; set; } = w;
 
+        public static Vec3 operator +(in Vec3 a, in Vec3 b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W);
+        public static Vec3 operator -(in Vec3 a, in Vec3 b) => new(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W);
+        public static Vec3 operator *(in Vec3 a, float k) => new(a.X * k, a.Y * k, a.Z * k, a.W * k);
+        public static Vec3 operator /(in Vec3 a, float k) => new(a.X / k, a.Y / k, a.Z / k, a.W / k);
 
-        public static Vec3 operator +(Vec3 a, Vec3 b)
+        public static float Dot(in Vec3 a, in Vec3 b) => a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+
+        public static float Length(in Vec3 v) => MathF.Sqrt(Dot(v, v));
+
+        public static Vec3 Normalize(in Vec3 v)
         {
-            return new Vec3(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W);
+            var length = Length(v);
+            return length > 0 ? v / length : v;
         }
 
-        public static Vec3 operator -(Vec3 a, Vec3 b)
-        {
-            return new Vec3(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W);
-        }
+        public static Vec3 Cross(in Vec3 a, in Vec3 b) =>
+            new(a.Y * b.Z - a.Z * b.Y,
+                a.Z * b.X - a.X * b.Z,
+                a.X * b.Y - a.Y * b.X);
 
-        public static Vec3 operator *(Vec3 a, float k)
+        public static float Distance(in Vec3 a, in Vec3 b) => Length(a - b);
+
+        public static Vec3 Lerp(in Vec3 a, in Vec3 b, float t)
         {
-            return new Vec3(a.X * k, a.Y * k, a.Z * k, a.W * k);
+            t = Util.Clamp(t, 0, 1);
+            return new Vec3(
+                a.X + (b.X - a.X) * t,
+                a.Y + (b.Y - a.Y) * t,
+                a.Z + (b.Z - a.Z) * t
+            );
         }
 
         public static Vec3 ScaleXY(Vec3 a, float k, float l)
@@ -53,92 +68,32 @@ namespace CMDG.Worst3DEngine
             return new Vec3(a.X * k, a.Y * l, a.Z, a.W);
         }
 
-        public static Vec3 operator /(Vec3 a, float k)
-        {
-            return new Vec3(a.X / k, a.Y / k, a.Z / k, a.W / k);
-        }
-
-        public static float Dot(Vec3 a, Vec3 b)
-        {
-            return a.X * b.X +
-                   a.Y * b.Y +
-                   a.Z * b.Z;
-        }
-
-        public static float Length(Vec3 v)
-        {
-            return (float)Math.Sqrt(Dot(v, v));
-        }
-
-        public static Vec3 Normalize(Vec3 v)
-        {
-            var l = Length(v);
-            return new Vec3(v.X / l, v.Y / l, v.Z / l, v.W);
-        }
-
-        public static Vec3 Cross(Vec3 a, Vec3 b)
-        {
-            var v = new Vec3
-            {
-                X = a.Y * b.Z - a.Z * b.Y,
-                Y = a.Z * b.X - a.X * b.Z,
-                Z = a.X * b.Y - a.Y * b.X
-            };
-            return v;
-        }
-
         public static Vec3 IntersectPlane(Vec3 planeP, Vec3 planeN, Vec3 lineStart, Vec3 lineEnd, out float t)
         {
-            planeN = Vec3.Normalize(planeN);
-
-            if (Vec3.Length(planeN) < 1e-6f)
-                throw new Exception("Plane normal is zero!");
-
+            //var normPlaneN = Vec3.Normalize(planeN);
             var planeD = -Vec3.Dot(planeN, planeP);
+
             var ad = Vec3.Dot(lineStart, planeN);
             var bd = Vec3.Dot(lineEnd, planeN);
 
             var denominator = bd - ad;
-            if (Math.Abs(denominator) < 1e-6f)
+            if (MathF.Abs(denominator) < 1e-6f)
             {
                 t = float.NaN;
                 return new Vec3(float.NaN, float.NaN, float.NaN);
             }
 
-            //calculate the t value of intersection point
             t = (-planeD - ad) / denominator;
+            if (!(t < 0) && !(t > 1))
 
-
-            if (t < 0 || t > 1)
-            {
-                t = float.NaN;
-                return new Vec3(float.NaN, float.NaN, float.NaN);
-            }
-
-            var lineStartToEnd = lineEnd - lineStart;
-            var lineToIntersect = lineStartToEnd * t;
-            var intersection = lineStart + lineToIntersect;
-            var interpolatedW = lineStart.W + (lineEnd.W - lineStart.W) * t;
-            
-            return new Vec3(intersection.X, intersection.Y, intersection.Z, interpolatedW);
-        }
-
-        public static float Distance(Vec3 a, Vec3 b)
-        {
-            var d = a - b; // Vec3.Sub(a, b);
-            return Length(d);
-        }
-
-        public static Vec3 Lerp(Vec3 a, Vec3 b, float t)
-        {
-            t = Util.Clamp(t, 0, 1);
-
-            return new Vec3(
-                a.X + (b.X - a.X) * t,
-                a.Y + (b.Y - a.Y) * t,
-                a.Z + (b.Z - a.Z) * t,
-                a.W + (b.W - a.W) * t
-            );
+                return new Vec3(
+                    lineStart.X + (lineEnd.X - lineStart.X) * t,
+                    lineStart.Y + (lineEnd.Y - lineStart.Y) * t,
+                    lineStart.Z + (lineEnd.Z - lineStart.Z) * t,
+                    lineStart.W + (lineEnd.W - lineStart.W) * t
+                );
+            t = float.NaN;
+            return new Vec3(float.NaN, float.NaN, float.NaN);
         }
     };
 
@@ -148,121 +103,97 @@ namespace CMDG.Worst3DEngine
         public Color32 Color = color;
     }
 
-//todo: Use unsafe fixed array for performance boost
-    public struct Triangle(Vec3 a, Vec3 b, Vec3 c, Color32 c1)
+    public struct Triangle()
     {
-        public Vec3 P1 = a, P2 = b, P3 = c;
-        public Color32 Color = c1;
+        public Vec3 P1, P2, P3;
+        public Color32 Color;
 
-        public static int ClipAgainstPlane(Vec3 planeP, Vec3 planeN, Triangle inTri, out Triangle outTri1,
+        public Triangle(in Vec3 a, in Vec3 b, in Vec3 c, Color32 color) : this()
+        {
+            P1 = a;
+            P2 = b;
+            P3 = c;
+            Color = color;
+        }
+
+        private static float Dist(in Vec3 p, in Vec3 planeN, in Vec3 planeP)
+        {
+            return Vec3.Dot(planeN, p) - Vec3.Dot(planeN, planeP);
+        }
+
+        public static int ClipAgainstPlane(in Vec3 planeP, in Vec3 planeN, in Triangle inTri, out Triangle outTri1,
             out Triangle outTri2)
         {
-            //ensure its normalized
-            planeN = Vec3.Normalize(planeN);
+            Span<Vec3> insidePoints = stackalloc Vec3[3];
+            Span<Vec3> outsidePoints = stackalloc Vec3[3];
 
-            if (Vec3.Length(planeN) == 0) throw new Exception("Plane normal is zero!");
+            int insideCount = 0, outsideCount = 0;
 
+            var d0 = Dist(inTri.P1, planeN, planeP);
+            var d1 = Dist(inTri.P2, planeN, planeP);
+            var d2 = Dist(inTri.P3, planeN, planeP);
 
-            //temp points
-            List<Vec3> insidePoints = [];
-            List<Vec3> outsidePoints = [];
+            if (d0 >= 0) insidePoints[insideCount++] = inTri.P1;
+            else outsidePoints[outsideCount++] = inTri.P1;
 
-            //calculate every triangle distance to plane
-            var d0 = Dist(inTri.P1);
-            var d1 = Dist(inTri.P2);
-            var d2 = Dist(inTri.P3);
+            if (d1 >= 0) insidePoints[insideCount++] = inTri.P2;
+            else outsidePoints[outsideCount++] = inTri.P2;
 
-            if (d0 >= 0)
-                insidePoints.Add(inTri.P1);
-            else
-                outsidePoints.Add(inTri.P1);
+            if (d2 >= 0) insidePoints[insideCount++] = inTri.P3;
+            else outsidePoints[outsideCount++] = inTri.P3;
 
-            if (d1 >= 0)
-                insidePoints.Add(inTri.P2);
-            else
-                outsidePoints.Add(inTri.P2);
-
-
-            if (d2 >= 0)
-                insidePoints.Add(inTri.P3);
-            else
-                outsidePoints.Add(inTri.P3);
-
-            var nInsidePointCount = insidePoints.Count;
-            var nOutsidePointCount = outsidePoints.Count;
-
-            switch (nInsidePointCount)
+            switch (insideCount)
             {
-                // case 0: All points are outside the plane, so no triangles are returned.
                 case 0:
-                    outTri1 = new Triangle();
-                    outTri2 = new Triangle();
+                    outTri1 = default;
+                    outTri2 = default;
                     return 0;
 
-                // case 3: All points are inside the plane, so return the original triangle as is.
                 case 3:
                     outTri1 = inTri;
-                    outTri2 = new Triangle();
+                    outTri2 = default;
                     return 1;
 
-                // case 1: One point is inside, two are outside.
-                // In this case, the triangle is clipped into a smaller triangle along the plane.
-                case 1 when nOutsidePointCount == 2:
-                {
+                case 1:
                     outTri1 = new Triangle
                     {
                         Color = inTri.Color,
                         P1 = insidePoints[0],
-                        P2 = Vec3.IntersectPlane(planeP, planeN, insidePoints[0], outsidePoints[0], out var t1),
-                        P3 = Vec3.IntersectPlane(planeP, planeN, insidePoints[0], outsidePoints[1],
-                            out var t2) //ConsoleColor.Magenta,
+                        P2 = Vec3.IntersectPlane(planeP, planeN, insidePoints[0], outsidePoints[0], out _),
+                        P3 = Vec3.IntersectPlane(planeP, planeN, insidePoints[0], outsidePoints[1], out _)
                     };
-
-                    // Only one new triangle is needed after clipping.
-                    outTri2 = new Triangle();
+                    outTri2 = default;
                     return 1;
-                }
 
-                // case 2: Two points are inside, one is outside.
-                // Here, the original triangle is split into two smaller triangles.
-                case 2 when nOutsidePointCount == 1:
-                {
+                case 2:
+                    var intersect1 = Vec3.IntersectPlane(planeP, planeN, insidePoints[0], outsidePoints[0], out _);
+                    var intersect2 = Vec3.IntersectPlane(planeP, planeN, insidePoints[1], outsidePoints[0], out _);
+
                     outTri1 = new Triangle
                     {
-                        Color = inTri.Color //ConsoleColor.Cyan, NYAAN
+                        Color = inTri.Color,
+                        P1 = insidePoints[0],
+                        P2 = insidePoints[1],
+                        P3 = intersect1
                     };
 
                     outTri2 = new Triangle
                     {
-                        Color = inTri.Color // ConsoleColor.Cyan,NYAAN NYAAN
+                        Color = inTri.Color,
+                        P1 = insidePoints[1],
+                        P2 = intersect1,
+                        P3 = intersect2
                     };
-
-                    // First triangle: two inside points and one new intersection point.
-                    outTri1.P1 = insidePoints[0];
-                    outTri1.P2 = insidePoints[1];
-                    outTri1.P3 = Vec3.IntersectPlane(planeP, planeN, insidePoints[0], outsidePoints[0], out var t1);
-
-                    // Second triangle: the second inside point, first triangle’s new point, and another intersection point.
-                    outTri2.P1 = insidePoints[1];
-                    outTri2.P2 = outTri1.P3;
-                    if (outsidePoints.Count > 0)
-                        outTri2.P3 = Vec3.IntersectPlane(planeP, planeN, insidePoints[1], outsidePoints[0], out var t2);
                     return 2;
-                }
             }
 
-            outTri1 = new Triangle();
-            outTri2 = new Triangle();
+            outTri1 = default;
+            outTri2 = default;
             return 0;
-
-            //if negative, it means the point is outside
-
-
-            float Dist(Vec3 p) =>
-                Vec3.Dot(planeN, p) - Vec3.Dot(planeN, planeP);
         }
     }
 
+    
     public struct Mat4X4()
     {
         private float[,] _m = new float[4, 4];
@@ -273,14 +204,14 @@ namespace CMDG.Worst3DEngine
             set => _m[row, col] = value;
         }
 
-        public static Vec3 MultiplyVector(Mat4X4 m, Vec3 i)
+        public Vec3 MultiplyVector(Vec3 i)
         {
             return new Vec3
             {
-                X = i.X * m._m[0, 0] + i.Y * m._m[1, 0] + i.Z * m._m[2, 0] + i.W * m._m[3, 0],
-                Y = i.X * m._m[0, 1] + i.Y * m._m[1, 1] + i.Z * m._m[2, 1] + i.W * m._m[3, 1],
-                Z = i.X * m._m[0, 2] + i.Y * m._m[1, 2] + i.Z * m._m[2, 2] + i.W * m._m[3, 2],
-                W = i.X * m._m[0, 3] + i.Y * m._m[1, 3] + i.Z * m._m[2, 3] + i.W * m._m[3, 3]
+                X = i.X * _m[0, 0] + i.Y * _m[1, 0] + i.Z * _m[2, 0] + i.W * _m[3, 0],
+                Y = i.X * _m[0, 1] + i.Y * _m[1, 1] + i.Z * _m[2, 1] + i.W * _m[3, 1],
+                Z = i.X * _m[0, 2] + i.Y * _m[1, 2] + i.Z * _m[2, 2] + i.W * _m[3, 2],
+                W = i.X * _m[0, 3] + i.Y * _m[1, 3] + i.Z * _m[2, 3] + i.W * _m[3, 3]
             };
         }
 
@@ -460,4 +391,5 @@ namespace CMDG.Worst3DEngine
             return matrix;
         }
     }
+    
 }

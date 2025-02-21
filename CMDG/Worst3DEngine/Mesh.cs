@@ -10,43 +10,57 @@ namespace CMDG.Worst3DEngine
 
     public class Mesh
     {
-        public readonly List<Triangle> Triangles;
-
-        //public ConsoleColor Color;
+        public Triangle[] Triangles;
         public string MeshFileName;
+        private int triangleIndex;
 
         private List<Material> m_Materials;
+
+        private readonly List<Triangle> TempTriangles;
 
         public Mesh()
         {
             MeshFileName = "";
             Triangles = [];
-            m_Materials = new List<Material>();
-            //Color = ConsoleColor.Magenta;
+            m_Materials = [];
+            TempTriangles = [];
+            triangleIndex = 0;
         }
 
         public void AddTriangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy,
             float cz)
         {
-            Triangles.Add(new Triangle
+            Triangles[triangleIndex++] = new Triangle
             {
                 P1 = new Vec3(ax, ay, az),
                 P2 = new Vec3(bx, by, bz),
                 P3 = new Vec3(cx, cy, cz),
-            });
+            };
         }
 
         private void AddTriangle(Vec3 a, Vec3 b, Vec3 c)
         {
-            Triangles.Add(new Triangle
+            Triangles[triangleIndex++] = new Triangle
             {
                 P1 = a,
                 P2 = b,
                 P3 = c,
+            };
+        }
+
+
+        private void AddTempTriangle(Vec3 a, Vec3 b, Vec3 c, Color32 color)
+        {
+            TempTriangles.Add(new Triangle
+            {
+                P1 = a,
+                P2 = b,
+                P3 = c,
+                Color = color,
             });
         }
 
-        public void CreateCube(Vec3 size, bool flipFace, Color32 color )
+        public void CreateCube(Vec3 size, bool flipFace, Color32 color)
         {
             size.X = MathF.Abs(size.X);
             size.Y = MathF.Abs(size.Y);
@@ -59,6 +73,9 @@ namespace CMDG.Worst3DEngine
                 size.Z = -size.Z;
             }
 
+            Triangles = new Triangle[8];
+            triangleIndex = 0;
+
             var p0 = new Vec3(-size.X / 2, -size.Y / 2, -size.Z / 2);
             var p1 = new Vec3(size.X / 2, -size.Y / 2, -size.Z / 2);
             var p2 = new Vec3(size.X / 2, size.Y / 2, -size.Z / 2);
@@ -70,42 +87,33 @@ namespace CMDG.Worst3DEngine
             var p7 = new Vec3(-size.X / 2, size.Y / 2, size.Z / 2);
 
             // Front
-            AddTriangle(p0, p2, p1, color);
-            AddTriangle(p0, p3, p2, color);
+            AddTempTriangle(p0, p2, p1, color);
+            AddTempTriangle(p0, p3, p2, color);
 
             // Back
-            AddTriangle(p4, p5, p6, color);
-            AddTriangle(p4, p6, p7, color);
+            AddTempTriangle(p4, p5, p6, color);
+            AddTempTriangle(p4, p6, p7, color);
 
             // Left
-            AddTriangle(p0, p7, p3, color);
-            AddTriangle(p0, p4, p7, color);
+            AddTempTriangle(p0, p7, p3, color);
+            AddTempTriangle(p0, p4, p7, color);
 
             // Right
-            AddTriangle(p1, p2, p6, color);
-            AddTriangle(p1, p6, p5, color);
+            AddTempTriangle(p1, p2, p6, color);
+            AddTempTriangle(p1, p6, p5, color);
 
             // Top
-            AddTriangle(p2, p3, p7, color);
-            AddTriangle(p2, p7, p6, color);
+            AddTempTriangle(p2, p3, p7, color);
+            AddTempTriangle(p2, p7, p6, color);
 
             // Bottom
-            AddTriangle(p0, p1, p5, color);
-            AddTriangle(p0, p5, p4, color);
+            AddTempTriangle(p0, p1, p5, color);
+            AddTempTriangle(p0, p5, p4, color);
+            CreateMesh();
         }
 
-        private void AddTriangle(Vec3 a, Vec3 b, Vec3 c, Color32 color)
-        {
-            Triangles.Add(new Triangle
-            {
-                P1 = a,
-                P2 = b,
-                P3 = c,
-                Color = color,
-            });
-        }
 
-        public void LoadMaterials(string filename)
+        private void LoadMaterials(string filename)
         {
             m_Materials.Clear();
 
@@ -136,12 +144,11 @@ namespace CMDG.Worst3DEngine
         public void LoadMesh(string filename)
         {
             MeshFileName = filename;
-            Triangles.Clear();
+            TempTriangles.Clear();
 
             var vertices = new List<Vec3>();
-            //var colors = new List<Vec3>();
 
-            Vec3 CurrentColor = new Vec3();
+            var CurrentColor = new Vec3();
 
             foreach (var line in File.ReadAllLines(filename))
             {
@@ -157,7 +164,6 @@ namespace CMDG.Worst3DEngine
                             var z = float.Parse(parts[3], CultureInfo.InvariantCulture);
 
                             vertices.Add(new Vec3(x, y, z));
-                            //colors.Add(new Vec3(1, 1, 1)); //white
                             break;
                         }
                         case 7:
@@ -199,7 +205,7 @@ namespace CMDG.Worst3DEngine
 
                     var c = new Color32((byte)(CurrentColor.X * 255), (byte)(CurrentColor.Y * 255),
                         (byte)(CurrentColor.Z * 255));
-                    AddTriangle(vertices[f[0] - 1], vertices[f[1] - 1], vertices[f[2] - 1], c);
+                    AddTempTriangle(vertices[f[0] - 1], vertices[f[1] - 1], vertices[f[2] - 1], c);
                 }
                 else if (line.StartsWith($"usemtl"))
                 {
@@ -219,6 +225,22 @@ namespace CMDG.Worst3DEngine
                     LoadMaterials(materialFile);
                 }
             }
+
+            CreateMesh();
+        }
+
+        private void CreateMesh()
+        {
+            Triangles = new Triangle[TempTriangles.Count];
+
+            for (var i = 0; i < TempTriangles.Count; i++)
+            {
+                Triangles[i] = new Triangle();
+                Triangles[i] = TempTriangles[i];
+                
+            }
+
+            TempTriangles.Clear();
         }
     }
 }

@@ -11,9 +11,9 @@
         private readonly int m_Height;
 
         private readonly Tile[,] m_Buffer;
-
-        private readonly List<Triangle>? m_RenderTriangles;
-        private readonly List<Particle>? m_RenderParticles;
+        
+        private readonly Queue<Triangle>? m_RenderTriangles;
+        private readonly Queue<Particle>? m_RenderParticles;
 
         private static Camera? m_Camera;
         private static Vec3 m_LightDirection;
@@ -23,7 +23,7 @@
         private bool m_UseLight;
 
         public Rasterer(int width, int height, int fontX = 9, int fontY = 19, float fov = 70.0f, float near = 0.01f,
-            float far = 1000.0f)
+            float far = 200.0f)
         {
             Console.Write($"\nRasterer size: {width}x{height}\n");
             m_Width = width;
@@ -45,11 +45,11 @@
 
         private void Clear()
         {
-            for (int y = 0; y < m_Height; y++)
+            for (var y = 0; y < m_Height; y++)
             {
-                for (int x = 0; x < m_Width; x++)
+                for (var x = 0; x < m_Width; x++)
                 {
-                    m_Buffer[x, y].Z = 100.0f;
+                    m_Buffer[x, y].Z = m_Camera.Far;
                 }
             }
         }
@@ -74,17 +74,21 @@
         }
 
 
-        private void DrawParticle(Particle particle)
+        private void DrawParticles()
         {
-            var x = (int)particle.Position.X;
-            var y = (int)particle.Position.Y;
-            var w = particle.Position.W;
+            while (m_RenderParticles.Count > 0)
+            {
+                var particle = m_RenderParticles.Dequeue();
+                var x = (int)particle.Position.X;
+                var y = (int)particle.Position.Y;
+                var w = particle.Position.W;
 
-            if (!InScreen(x, y)) return;
-            if (!(w >= GetDepth(x, y))) return;
+                if (!InScreen(x, y)) return;
+                if (!(w >= GetDepth(x, y))) return;
 
-            m_Buffer[x, y].Z = w;
-            PutPixel(x, y, particle.Color);
+                m_Buffer[x, y].Z = w;
+                PutPixel(x, y, particle.Color);
+            }
         }
 
 
@@ -233,69 +237,74 @@
         }
 
 
-        private void ProcessTriangle(Triangle tri)
+        private void ProcessTriangles()
         {
-            var clipped = new Triangle[2];
-            var listTriangles = new Queue<Triangle>();
-            listTriangles.Enqueue(tri);
-
-            int numTriangles = 1;
-            for (int p = 0; p < 4; p++)
+            while (m_RenderTriangles.Count > 0)
             {
-                int nTrisToAdd = 0;
-                while (numTriangles > 0)
+                var triangle = m_RenderTriangles.Dequeue();
+                var clipped = new Triangle[2];
+                var listTriangles = new Queue<Triangle>();
+                listTriangles.Enqueue(triangle);
+
+                int numTriangles = 1;
+                for (var p = 0; p < 4; p++)
                 {
-                    var test = listTriangles.Dequeue();
-                    numTriangles--;
-
-                    Vec3 av;
-                    Vec3 bv;
-
-                    switch (p)
+                    var nTrisToAdd = 0;
+                    while (numTriangles > 0)
                     {
-                        case 0:
-                            av = new Vec3(0, 0, 0);
-                            bv = new Vec3(0, 1, 0);
-                            nTrisToAdd = Triangle.ClipAgainstPlane(av, bv, test, out clipped[0], out clipped[1]);
-                            break;
-                        case 1:
-                            av = new Vec3(0, (float)m_Height - 1, 0);
-                            bv = new Vec3(0, -1, 0);
-                            nTrisToAdd = Triangle.ClipAgainstPlane(av, bv, test, out clipped[0], out clipped[1]);
-                            break;
-                        case 2:
-                            av = new Vec3(0, 0, 0);
-                            bv = new Vec3(1, 0, 0);
-                            nTrisToAdd = Triangle.ClipAgainstPlane(av, bv, test, out clipped[0], out clipped[1]);
-                            break;
-                        case 3:
-                            av = new Vec3((float)m_Width - 1, 0, 0);
-                            bv = new Vec3(-1, 0, 0);
-                            nTrisToAdd = Triangle.ClipAgainstPlane(av, bv, test, out clipped[0], out clipped[1]);
-                            break;
-                    }
+                        var test = listTriangles.Dequeue();
+                        numTriangles--;
 
-                    for (var w = 0; w < nTrisToAdd; w++)
-                    {
-                        listTriangles.Enqueue(clipped[w]);
+                        Vec3 av;
+                        Vec3 bv;
+
+                        switch (p)
+                        {
+                            case 0:
+                                av = new Vec3(0, 0, 0);
+                                bv = new Vec3(0, 1, 0);
+                                nTrisToAdd = Triangle.ClipAgainstPlane(av, bv, test, out clipped[0], out clipped[1]);
+                                break;
+                            case 1:
+                                av = new Vec3(0, (float)m_Height - 1, 0);
+                                bv = new Vec3(0, -1, 0);
+                                nTrisToAdd = Triangle.ClipAgainstPlane(av, bv, test, out clipped[0], out clipped[1]);
+                                break;
+                            case 2:
+                                av = new Vec3(0, 0, 0);
+                                bv = new Vec3(1, 0, 0);
+                                nTrisToAdd = Triangle.ClipAgainstPlane(av, bv, test, out clipped[0], out clipped[1]);
+                                break;
+                            case 3:
+                                av = new Vec3((float)m_Width - 1, 0, 0);
+                                bv = new Vec3(-1, 0, 0);
+                                nTrisToAdd = Triangle.ClipAgainstPlane(av, bv, test, out clipped[0], out clipped[1]);
+                                break;
+                        }
+
+                        for (var w = 0; w < nTrisToAdd; w++)
+                        {
+                            listTriangles.Enqueue(clipped[w]);
+                        }
                     }
                 }
-            }
 
-            //and finally render to the scr... buffer!
-            foreach (var t in listTriangles)
-            {
-                DrawTriangle(
-                    (int)t.P1.X, (int)t.P1.Y, t.P1.W,
-                    (int)t.P2.X, (int)t.P2.Y, t.P2.W,
-                    (int)t.P3.X, (int)t.P3.Y, t.P3.W,
-                    t.Color);
+
+                //and finally render to the scr... buffer!
+                foreach (var t in listTriangles)
+                {
+                    DrawTriangle(
+                        (int)t.P1.X, (int)t.P1.Y, t.P1.W,
+                        (int)t.P2.X, (int)t.P2.Y, t.P2.W,
+                        (int)t.P3.X, (int)t.P3.Y, t.P3.W,
+                        t.Color);
+                }
             }
         }
 
         private void ProcessMesh(GameObject gameObject)
         {
-            int meshId = gameObject.MeshId;
+            var meshId = gameObject.MeshId;
             var meshCube = MeshManager.GetMesh(meshId);
 
             if (meshCube == null)
@@ -305,31 +314,37 @@
                 gameObject.RenderDistance)
                 return;
 
+            Triangle triProjected;
+            Triangle triTransformed;
+            var triViewed = new Triangle();
+
+            Vec3 line1;
+            Vec3 line2;
+            Vec3 normal;
 
             foreach (var tri in meshCube.Triangles)
             {
-                Triangle triProjected;
-                Triangle triTransformed;
-                var triViewed = new Triangle();
+                triTransformed.P1 = gameObject.Matrix.MultiplyVector(tri.P1);
+                triTransformed.P2 = gameObject.Matrix.MultiplyVector(tri.P2);
+                triTransformed.P3 = gameObject.Matrix.MultiplyVector(tri.P3);
 
-                triTransformed.P1 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P1);
-                triTransformed.P2 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P2);
-                triTransformed.P3 = Mat4X4.MultiplyVector(gameObject.Matrix, tri.P3);
                 triTransformed.Color = tri.Color;
 
                 //get the surface normal:
-                var line1 = triTransformed.P2 - triTransformed.P1;
-                var line2 = triTransformed.P3 - triTransformed.P1;
-                var normal = Vec3.Cross(line1, line2);
+                line1 = triTransformed.P2 - triTransformed.P1;
+                line2 = triTransformed.P3 - triTransformed.P1;
+                normal = Vec3.Cross(line1, line2);
                 normal = Vec3.Normalize(normal);
 
                 var vCameraRay = triTransformed.P1 - m_Camera!.GetPosition();
 
                 if (!(Vec3.Dot(normal, vCameraRay) < 0.0f)) continue;
                 //project triangles from 3d to 2d
-                triViewed.P1 = Mat4X4.MultiplyVector(m_Camera.Matrix, triTransformed.P1);
-                triViewed.P2 = Mat4X4.MultiplyVector(m_Camera.Matrix, triTransformed.P2);
-                triViewed.P3 = Mat4X4.MultiplyVector(m_Camera.Matrix, triTransformed.P3);
+                triViewed.P1 = m_Camera.Matrix.MultiplyVector(triTransformed.P1);
+                triViewed.P2 = m_Camera.Matrix.MultiplyVector(triTransformed.P2);
+                triViewed.P3 = m_Camera.Matrix.MultiplyVector(triTransformed.P3);
+
+
                 triViewed.Color = triTransformed.Color;
 
                 var clipped = new Triangle[2];
@@ -340,9 +355,10 @@
 
                 for (int n = 0; n < nClippedTriangles; n++)
                 {
-                    triProjected.P1 = Mat4X4.MultiplyVector(m_Camera.GetProjectionMatrix(), clipped[n].P1);
-                    triProjected.P2 = Mat4X4.MultiplyVector(m_Camera.GetProjectionMatrix(), clipped[n].P2);
-                    triProjected.P3 = Mat4X4.MultiplyVector(m_Camera.GetProjectionMatrix(), clipped[n].P3);
+                    triProjected.P1 = m_Camera.GetProjectionMatrix().MultiplyVector(clipped[n].P1);
+                    triProjected.P2 = m_Camera.GetProjectionMatrix().MultiplyVector(clipped[n].P2);
+                    triProjected.P3 = m_Camera.GetProjectionMatrix().MultiplyVector(clipped[n].P3);
+
                     triProjected.Color = clipped[n].Color;
 
                     var w1 = triProjected.P1.W;
@@ -353,7 +369,7 @@
                     triProjected.P1 /= triProjected.P1.W;
                     triProjected.P2 /= triProjected.P2.W;
                     triProjected.P3 /= triProjected.P3.W;
-                
+
                     //x and y are inverted, put them back
                     triProjected.P1 *= -1;
                     triProjected.P2 *= -1;
@@ -375,7 +391,7 @@
 
                     if (triProjected.P1.Z > 0 || triProjected.P2.Z > 0 || triProjected.P3.Z > 0)
                         continue;
-                    
+
                     var color = triProjected.Color;
                     //var color = meshColor;
                     //calculate light
@@ -383,7 +399,7 @@
                         color = CalculateLight(color, normal);
 
                     //add triangle to the renderlist
-                    m_RenderTriangles!.Add(
+                    m_RenderTriangles!.Enqueue(
                         new Triangle(triProjected.P1, triProjected.P2, triProjected.P3, color));
                 }
             }
@@ -395,17 +411,17 @@
             if (gameObject.RenderDistance >= 0 && distance > gameObject.RenderDistance)
                 return;
 
-            var transformed = Mat4X4.MultiplyVector(gameObject.Matrix, gameObject.GetPosition());
-            var viewSpacePosition = Mat4X4.MultiplyVector(m_Camera!.Matrix, transformed);
+            var transformed = gameObject.Matrix.MultiplyVector(gameObject.GetPosition());
+            var viewSpacePosition = m_Camera.Matrix.MultiplyVector(transformed);
 
             float z = 1.0f - (1.0f / gameObject.RenderDistance * distance);
 
             if (viewSpacePosition.Z > 0.0f)
             {
                 //project triangles from 3d to 2d
-                var viewed = Mat4X4.MultiplyVector(m_Camera.Matrix, transformed);
-                var projected = Mat4X4.MultiplyVector(m_Camera.GetProjectionMatrix(), viewed);
-                float w1 = projected.W;
+                var viewed = m_Camera.Matrix.MultiplyVector(transformed);
+                var projected = m_Camera.GetProjectionMatrix().MultiplyVector(viewed);
+                var w1 = projected.W;
 
                 //Scale
                 projected /= projected.W;
@@ -426,7 +442,7 @@
                 color.b = (byte)((b * z) * 255.0f);
 
                 //add particle to the renderlist
-                m_RenderParticles!.Add(new Particle(projected, color));
+                m_RenderParticles!.Enqueue(new Particle(projected, color));
             }
         }
 
@@ -455,16 +471,9 @@
                 }
             }
 
-            //render all triangles
-            foreach (var triangle in m_RenderTriangles!)
-            {
-                ProcessTriangle(triangle);
-            }
-
-            foreach (var particle in m_RenderParticles!)
-            {
-                DrawParticle(particle);
-            }
+            //render all triangles and particles
+            ProcessTriangles();
+            DrawParticles();
         }
 
         public static Camera? GetCamera()

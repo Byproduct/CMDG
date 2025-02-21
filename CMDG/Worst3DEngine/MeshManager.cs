@@ -9,7 +9,7 @@
             Meshes = [];
         }
 
-        private static int FindMeshID(string meshName)
+        private static int FindMeshId(string meshName)
         {
             for (var i = 0; i < Meshes.Count; i++)
             {
@@ -25,7 +25,7 @@
         {
             //check if its already loaded
             //dict would be better than list with for loops
-            var id = FindMeshID(filename);
+            var id = FindMeshId(filename);
             if (id != -1)
                 return id;
             
@@ -51,7 +51,7 @@
         public static int CreateCube(Vec3 size, bool flipFace, Color32 objectColor)
         {
             var filename = $"size:({size.X}, {size.Y}, {size.Z})";
-            var id = FindMeshID(filename);
+            var id = FindMeshId(filename);
             if (id != -1)
                 return id;
             

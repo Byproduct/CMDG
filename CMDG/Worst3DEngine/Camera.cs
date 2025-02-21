@@ -5,7 +5,7 @@
         private float Fov { get; set; }
         private float AspectRatio { get; set; }
         private float Near { get; set; }
-        private float Far { get; set; }
+        public float Far { get; private set; }
 
         public int Width { get; }
         public int Height { get; }

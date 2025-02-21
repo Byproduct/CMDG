@@ -40,10 +40,14 @@ public class Transform
     public void PointAt(Vec3 position, Vec3 targetPosition, Vec3 up)
     {
         SetPosition(position);
-        m_LookDir = Mat4X4.MultiplyVector(Matrix, targetPosition); 
+        //m_LookDir =  Mat4X4.MultiplyVector(Matrix, targetPosition); 
+        m_LookDir = Matrix.MultiplyVector(targetPosition);
+        
         m_LookDir = Vec3.Normalize(m_LookDir);
 
-        m_Up = Mat4X4.MultiplyVector(Matrix, up); // original up vector
+        //m_Up = Mat4X4.MultiplyVector(Matrix, up); // original up vector
+        m_Up = Matrix.MultiplyVector(up); // original up vector
+        
         m_Up = Vec3.Normalize(m_Up);
 
         //update: where 'camera' is pointing
