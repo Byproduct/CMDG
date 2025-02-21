@@ -1,12 +1,10 @@
-﻿// An attempt at a fancier color converter. Results weren't great so it's currently not in use.
-
-using System.IO.Compression;
+﻿using System.IO.Compression;
 
 namespace CMDG
 {
     // Loads an array of ANSI color codes for every possible Color32 (255*255*255) element. If the array doesn't already exist as a file, it gets generated.
     // Uses CIE76 (Lab Color Space), which supposedly aligns better with human vision than e.g. Manhattan or Euclidean distance.
-    internal static class ColorConverterFancy
+    internal static class ColorConverter
     {
         public static byte[] ansiMap = new byte[256 * 256 * 256];
 

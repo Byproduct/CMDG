@@ -1,10 +1,11 @@
 ﻿using System.IO.Compression;
 
+
 namespace CMDG
 {
     // Loads an array of ANSI color codes for every possible Color32 (255*255*255) element. If the array doesn't already exist as a file, it gets generated.
-    // Now uses Euclidean distance in RGB space for color comparison
-    internal static class ColorConverter
+    // A simpler Euclidean version saved as a backup in case the fancier version doesn't work. Currently not in use.
+    internal static class ColorConverterEuclidean
     {
         public static byte[] ansiMap = new byte[256 * 256 * 256];
 
