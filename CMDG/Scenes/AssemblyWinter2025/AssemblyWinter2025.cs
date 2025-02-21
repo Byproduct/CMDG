@@ -56,7 +56,6 @@ public partial class AssemblyWinter2025
     private static List<GameObject> m_RoadComponentsL = null!;
     private static List<GameObject> m_RoadComponentsR = null!;
 
-
     /*
       demo main Z-position. It's about the same as camera z-position,
       but has this helper variable because of frequent access.
@@ -98,11 +97,11 @@ public partial class AssemblyWinter2025
             float deltaTime = (float)SceneControl.DeltaTime;
             float elapsedTime = (float)(SceneControl.ElapsedTime);
 
-            CarLogic(deltaTime);        
+            CarLogic(deltaTime);
             SnowFlakeLogic(deltaTime);
             CharSwapLogic();
             RoadOptimizer();
-            CameraLogic(elapsedTime, deltaTime, cameraPath);  
+            CameraLogic(elapsedTime, deltaTime, cameraPath);
             RenderLogic();
 
             // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
@@ -222,7 +221,7 @@ public partial class AssemblyWinter2025
         }
 
 
-        for (int i = 0; i < NUMBER_OF_LIGHTPOSTS ; i++)
+        for (int i = 0; i < NUMBER_OF_LIGHTPOSTS; i++)
         {
             if (i % 5 != 0) continue;
 
