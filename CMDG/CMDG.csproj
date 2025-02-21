@@ -58,6 +58,12 @@
     <None Update="Scenes\AssemblyWinter2025\random_objects\road.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Scenes\AssemblyWinter2025\random_objects\roadL.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Scenes\AssemblyWinter2025\random_objects\roadL.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Scenes\AssemblyWinter2025\random_objects\salainen_kylttitiedosto_01.mtl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

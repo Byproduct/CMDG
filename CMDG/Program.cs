@@ -15,9 +15,9 @@ Util.DrawBorder();
 
 // The selected scene runs in an independent thread
 Type sceneType = Type.GetType($"CMDG.{sceneName}");
-MethodInfo runMethod = sceneType?.GetMethod("Run");
-MethodInfo checkForExitMethod = sceneType?.GetMethod("CheckForExit");
-MethodInfo exitMethod = sceneType?.GetMethod("Exit");
+MethodInfo? runMethod = sceneType?.GetMethod("Run");
+MethodInfo? checkForExitMethod = sceneType?.GetMethod("CheckForExit");
+MethodInfo? exitMethod = sceneType?.GetMethod("Exit");
 if (sceneType == null || runMethod == null)
 {
     LogError($"Error: Scene {sceneName} not found or missing Run() method.");
