@@ -166,7 +166,7 @@ public class AssemblyWinter2025
 
         var mainRoadPath = Path.Combine(randomObjectsFolderPath, "road.obj");
         var mainRoadLightPost = Path.Combine(randomObjectsFolderPath, "pekka_ja_paetkae.obj");
-        var mainRoadLightPostLight = Path.Combine(randomObjectsFolderPath, "pekka_ja_paetkae_light.obj");
+        //var mainRoadLightPostLight = Path.Combine(randomObjectsFolderPath, "pekka_ja_paetkae_light.obj");
         var tree01 = Path.Combine(randomObjectsFolderPath, "tree_01.obj");
         var tree02 = Path.Combine(randomObjectsFolderPath, "tree_02.obj");
         var bearPath = Path.Combine(randomObjectsFolderPath, "bear.obj");
@@ -180,8 +180,7 @@ public class AssemblyWinter2025
         GameObjects.backgroundObject.LoadMesh(backgroundPath);
         GameObjects.backgroundObject.SetPosition(new Vec3(0, 0, 0));
         GameObjects.backgroundObject.Update();
-
-
+        
         for (int i = 0; i < 100; i++)
         {
             if (!(random.NextDouble() < 0.5)) continue;
@@ -196,13 +195,14 @@ public class AssemblyWinter2025
 
         for (var i = 0; i < 75; i++)
         {
+            /*
             var roadObject = GameObjects.Add(new GameObject());
             roadObject.LoadMesh(mainRoadPath);
             roadObject.SetPosition(new Vec3(0, 0, i * 10));
             roadObject.Update();
             roadObject.SetMaxRenderingDistance(40);
-
-
+            */
+            
             if (i % 5 != 0) continue;
 
             var lampPost = GameObjects.Add(new GameObject());
@@ -210,12 +210,7 @@ public class AssemblyWinter2025
             lampPost.SetPosition(new Vec3(0, 0, i * 10));
             lampPost.Update();
             lampPost.SetMaxRenderingDistance(40);
-
-            var lampPostLight = GameObjects.Add(new GameObject());
-            lampPostLight.LoadMesh(mainRoadLightPostLight);
-            lampPostLight.SetPosition(new Vec3(0, 0, i * 10));
-            lampPostLight.Update();
-            lampPostLight.SetMaxRenderingDistance(80);
+            
         }
 
         // Forward-going cars
