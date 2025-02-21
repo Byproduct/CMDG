@@ -73,9 +73,11 @@ public class AssemblyWinter2025
             snowflakes.Add(gob);
         }
 
+        
         float laneWidth = 2.5f;
         // Road edges (long continuous lines)
         float medianWidth = 4f;
+        
         float roadEdgeWidth = 0.3f;
         float roadEdgeLength = 100f;
         List<float> roadEdgeXCoords = new();
@@ -83,6 +85,7 @@ public class AssemblyWinter2025
         roadEdgeXCoords.Add(laneWidth * 2);
         roadEdgeXCoords.Add(laneWidth * 2 + medianWidth);
         roadEdgeXCoords.Add(laneWidth * 4 + medianWidth);
+        /*
         List<GameObject> roadEdges = new();
         for (int i = 0; i < 4; i++)
         {
@@ -96,6 +99,11 @@ public class AssemblyWinter2025
         // Road banks
         List<GameObject> roadbanks = new List<GameObject>();
         GameObject median = GameObjects.Add(new GameObject());
+        //median.CreateCube(new Vec3(medianWidth, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
+        //median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth/2, -0.1f, roadEdgeLength / 2f));
+        //roadEdges.Add(median);
+        //median.Update();
+
         median.CreateCube(new Vec3(medianWidth, 0.1f, roadEdgeLength), new Color32(204, 204, 204));
         median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth / 2, -0.1f, 0));
         roadEdges.Add(median);
@@ -126,7 +134,7 @@ public class AssemblyWinter2025
         //roadrev.SetPosition(new Vec3(roadEdgeXCoords[2] + laneWidth, -0.1f, roadEdgeLength / 2f));
         //roadEdges.Add(roadrev);
         //roadrev.Update();
-
+        */
 
         // Dashed lines between lanes
         float dashWidth = 0.15f;
@@ -135,6 +143,7 @@ public class AssemblyWinter2025
         List<float> dashXCoords = new();
         dashXCoords.Add(laneWidth);
         dashXCoords.Add(laneWidth * 3 + medianWidth);
+        /*
         List<GameObject> dashes = new();
         List<GameObject> oppositeDashes = new();
         int numberOfDashes = 30;
@@ -152,6 +161,7 @@ public class AssemblyWinter2025
             oppositeDashes.Add(oppositeDash);
             oppositeDash.Update();
         }
+        */
 
         // Main car
         var mainCar = GameObjects.Add(new GameObject());
@@ -163,20 +173,64 @@ public class AssemblyWinter2025
         Vec3 mainCarCameraOffset = new Vec3(-4, 4f, -2f);
         camera.SetPosition(mainCar.GetPosition() - mainCarCameraOffset);
         camera.SetRotation(new Vec3(0.6f, -0.6f, 0));
-
-
+        
         //shhh
-        string signsFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "signs");
-        string mainSignPath = Path.Combine(signsFolderPath, "salainen_kylttitiedosto_01.obj");
+        var randomObjectsFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "random_objects");
+        var mainSignPath = Path.Combine(randomObjectsFolderPath, "salainen_kylttitiedosto_01.obj");
+        
         var mainSign = GameObjects.Add(new GameObject());
         mainSign.LoadMesh(mainSignPath);
-        mainSign.SetPosition(new Vec3(-1, 0, 400));
+        mainSign.SetPosition(new Vec3(0, 0, 698.7f));
         mainSign.Update();
         
+        var mainSignPath2 = Path.Combine(randomObjectsFolderPath, "salainen_kylttitiedosto_02.obj");
         var mainSign2 = GameObjects.Add(new GameObject());
-        mainSign2.LoadMesh(mainSignPath);
-        mainSign2.SetPosition(new Vec3(-0.9f, 0, 698.7f));
+        mainSign2.LoadMesh(mainSignPath2);
+        mainSign2.SetPosition(new Vec3(0, 0, 400));
         mainSign2.Update();
+        
+        string mainRoadPath = Path.Combine(randomObjectsFolderPath, "road.obj");
+        string mainRoadLightPost = Path.Combine(randomObjectsFolderPath, "pekka_ja_paetkae.obj");
+        string mainRoadLightPostLight = Path.Combine(randomObjectsFolderPath, "pekka_ja_paetkae_light.obj");
+        string tree01 = Path.Combine(randomObjectsFolderPath, "tree_01.obj");
+        string tree02 = Path.Combine(randomObjectsFolderPath, "tree_02.obj");
+        
+        for (int i = 0; i < 100; i++)
+        {
+            if (!(random.NextDouble() < 0.5)) continue;
+            
+            var treeObject = GameObjects.Add(new GameObject());
+            treeObject.LoadMesh(random.NextDouble() < 0.5 ? tree01 : tree02);
+
+            treeObject.SetPosition(new Vec3(((float)random.NextDouble()*1.0f), 0, i * 7.5f));
+            treeObject.Update();
+            treeObject.SetMaxRenderingDistance(70);
+        }
+
+        for (var i = 0; i < 75; i++)
+        {
+            
+            var roadObject = GameObjects.Add(new GameObject());
+            roadObject.LoadMesh(mainRoadPath);
+            roadObject.SetPosition(new Vec3(0, 0, i * 10));
+            roadObject.Update();
+            roadObject.SetMaxRenderingDistance(40);
+            
+
+            if (i % 5 != 0) continue;
+            
+            var lampPost = GameObjects.Add(new GameObject());
+            lampPost.LoadMesh(mainRoadLightPost);
+            lampPost.SetPosition(new Vec3(0, 0, i * 10));
+            lampPost.Update();
+            lampPost.SetMaxRenderingDistance(40);
+                
+            var lampPostLight = GameObjects.Add(new GameObject());
+            lampPostLight.LoadMesh(mainRoadLightPostLight);
+            lampPostLight.SetPosition(new Vec3(0, 0, i * 10));
+            lampPostLight.Update();
+            lampPostLight.SetMaxRenderingDistance(80);
+        }
         
         // Forward-going cars
         int number_of_forward_cars = 6;
@@ -391,6 +445,7 @@ public class AssemblyWinter2025
 
                     if (SceneControl.ElapsedTime < thirdPhaseTime)
                     {
+                        /*
                         // Move road edges forward to main car position
                         foreach (GameObject roadEdge in roadEdges)
                         {
@@ -413,6 +468,7 @@ public class AssemblyWinter2025
                             dash.Update();
                             dashOffset += dashSpacing;
                         }
+                        */
                     }
                     if (SceneControl.ElapsedTime > sceneEndTime)
                     {
