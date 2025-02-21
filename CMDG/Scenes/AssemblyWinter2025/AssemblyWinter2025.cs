@@ -18,12 +18,13 @@ public partial class AssemblyWinter2025
     private const float SCENE_END_TIME = 55.0f;           // scene ends
 
     // Scene configuration
-    private const int NUMBER_OF_FORWARD_CARS = 6;
+    private const int NUMBER_OF_FORWARD_CARS = 5;
+    private const int NUMBER_OF_OPPOSITE_CARS = 6;
     private const int NUMBER_OF_ROAD_COMPONENTS = 4;
     private const int NUMBER_OF_TREES = 100;
     private const int NUMBER_OF_LIGHTPOSTS = 75;
     private const int NUMBER_OF_SNOWFLAKES = 1000;
-    private static float m_SloMoMultiplier = 0.05f; // initial slow-motion speed
+    private static float m_SloMoMultiplier = 0.05f;       // initial slow-motion speed
 
     // Road configuration
     private const float LANE_WIDTH = 2.5f;

@@ -191,7 +191,7 @@ namespace CMDG
             // Opposite cars
             m_OppositeCars = [];
             m_CarPosZ = 0f;
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < NUMBER_OF_OPPOSITE_CARS; i++)
             {
                 m_CarPosZ += 3 + (float)(m_Random.NextDouble() * 5.0);
                 float carPosX = m_RoadEdgeXCoords[1] + MEDIAN_WIDTH + LANE_WIDTH / 2f;
