@@ -20,7 +20,7 @@ MethodInfo checkForExitMethod = sceneType?.GetMethod("CheckForExit");
 MethodInfo exitMethod = sceneType?.GetMethod("Exit");
 if (sceneType == null || runMethod == null)
 {
-    Console.WriteLine($"Error: Scene {sceneName} not found or missing Run() method.");
+    LogError($"Error: Scene {sceneName} not found or missing Run() method.");
     Environment.Exit(1);
 }
 bool sceneIsRunning = true;
@@ -34,7 +34,7 @@ Thread sceneThread = new Thread(() =>
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error running scene {sceneName}: {ex.InnerException?.Message ?? ex.Message}");
+            LogError($"Error running scene {sceneName}: {ex.InnerException?.Message ?? ex.Message}");
             sceneIsRunning = false;
         }
     }
@@ -94,7 +94,7 @@ while (true)
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in Exit method of scene {sceneName}: {ex.Message}");
+                LogError($"Error in Exit method of scene {sceneName}: {ex.Message}");
             }
         }
         // end threads
@@ -108,7 +108,7 @@ while (true)
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Unable to end all threads: {ex.Message}");
+            LogError($"Unable to end all threads: {ex.Message}");
         }
         Util.DrawBorder();
         if (Config.EndScreen)
@@ -118,4 +118,13 @@ while (true)
         Environment.Exit(0);
     }
     Thread.Sleep(20);
+}
+
+static void LogError(string message)
+{
+    string logFilePath = "error.log"; // Change this path if needed
+    using (StreamWriter writer = new StreamWriter(logFilePath, true))
+    {
+        writer.WriteLine($"{DateTime.Now}: {message}");
+    }
 }
