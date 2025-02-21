@@ -577,7 +577,7 @@ public class AssemblyWinter2025
             roadObject.SetPosition(new Vec3(0, 0, i * 10));
             roadObject.SetRotation(new Vec3(0, 0, 0));
             roadObject.Update();
-            roadObject.SetMaxRenderingDistance(60);
+            roadObject.SetMaxRenderingDistance(40);
             m_RoadComponentsR.Add(roadObject);
         }
 
