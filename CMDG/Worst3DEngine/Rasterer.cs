@@ -519,7 +519,7 @@
         public void SetLightDirection(Vec3 direction)
         {
             m_LightDirection = direction;
-            //m_LightDirection = Vec3.Normalize(m_LightDirection);
+            m_LightDirection = Vec3.Normalize(m_LightDirection);
         }
 
         public void SetAmbientColor(Vec3 color)
@@ -551,7 +551,7 @@
             color.Y = Util.Clamp(color.Y, 0, 1);
             color.Z = Util.Clamp(color.Z, 0, 1);
             
-            var finalColor = Vec3.Lerp(original, color, dp*dp);
+            var finalColor = Vec3.Lerp(original, color, dp);
             //var finalColor = Vec3.Lerp(original, color, 1.0f);
 
             var result = new Color32
