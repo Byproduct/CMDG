@@ -1,52 +1,51 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Threading;
 
-// A quick hack for a demo. Can be made to support image scaling and colors later.
 namespace CMDG
 {
     internal static class SplashScreen
     {
         public static void ShowSplashScreen()
         {
-            if (Config.ScreenWidth == 500 && Config.ScreenHeight == 125)
-            {
                 string imagePath = "Media/cmdg-splash.png";
 
                 try
                 {
-                    using (Bitmap bitmap = new Bitmap(imagePath))
+                    using (Bitmap originalBitmap = new Bitmap(imagePath))
+                    using (Bitmap resizedBitmap = ResizeBitmap(originalBitmap, Config.ScreenWidth, Config.ScreenHeight))
                     {
                         Console.Clear();
                         int splashFrameRate = 100;
 
-                        DrawBitmap(bitmap, '·', splashFrameRate);
-                        DrawBitmap(bitmap, '•', splashFrameRate);
-                        DrawBitmap(bitmap, '#', splashFrameRate);
-                        DrawBitmap(bitmap, '▓', splashFrameRate);
-                        DrawBitmap(bitmap, '█', splashFrameRate);
+                        DrawBitmap(resizedBitmap, '·', splashFrameRate);
+                        DrawBitmap(resizedBitmap, '•', splashFrameRate);
+                        DrawBitmap(resizedBitmap, '#', splashFrameRate);
+                        DrawBitmap(resizedBitmap, '▓', splashFrameRate);
+                        DrawBitmap(resizedBitmap, '█', splashFrameRate);
                         Thread.Sleep(3000);
-                        DrawBitmap(bitmap, '▓', splashFrameRate);
-                        DrawBitmap(bitmap, '#', splashFrameRate);
-                        DrawBitmap(bitmap, '•', splashFrameRate);
-                        DrawBitmap(bitmap, '·', splashFrameRate);
+                        DrawBitmap(resizedBitmap, '▓', splashFrameRate);
+                        DrawBitmap(resizedBitmap, '#', splashFrameRate);
+                        DrawBitmap(resizedBitmap, '•', splashFrameRate);
+                        DrawBitmap(resizedBitmap, '·', splashFrameRate);
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error: " + ex.Message);
                 }
-            }
         }
 
         public static void ShowEndScreen()
         {
-            if (Config.ScreenWidth == 500 && Config.ScreenHeight == 125)
-            {
                 string imagePath = "Media/fin.png";
                 try
                 {
-                    using (Bitmap bitmap = new Bitmap(imagePath))
+                    using (Bitmap originalBitmap = new Bitmap(imagePath))
+                    using (Bitmap resizedBitmap = ResizeBitmap(originalBitmap, Config.ScreenWidth, Config.ScreenHeight))
                     {
-                        DrawBitmap(bitmap, 'F', 0);
+                        DrawBitmap(resizedBitmap, 'F', 0);
                     }
                 }
                 catch (Exception ex)
@@ -56,9 +55,19 @@ namespace CMDG
                 Console.SetCursorPosition(0, Config.ScreenHeight + 2);
                 Console.WriteLine("Enter to close.");
                 Console.ReadLine();
-            }
         }
 
+        public static Bitmap ResizeBitmap(Bitmap original, int width, int height)
+        {
+            Bitmap resized = new Bitmap(width, height);
+            using (Graphics g = Graphics.FromImage(resized))
+            {
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.PixelOffsetMode = PixelOffsetMode.Half;
+                g.DrawImage(original, 0, 0, width, height);
+            }
+            return resized;
+        }
 
         public static void DrawBitmap(Bitmap bitmap, char character, int splashFrameRate)
         {
