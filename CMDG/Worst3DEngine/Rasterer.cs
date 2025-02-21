@@ -11,7 +11,7 @@
         private readonly int m_Height;
 
         private readonly Tile[,] m_Buffer;
-        
+
         private readonly Queue<Triangle>? m_RenderTriangles;
         private readonly Queue<Particle>? m_RenderParticles;
 
@@ -486,7 +486,7 @@
             m_UseLight = v;
         }
 
-        public static void SetLightDirection(Vec3 direction)
+        public void SetLightDirection(Vec3 direction)
         {
             m_LightDirection = direction;
             m_LightDirection = Vec3.Normalize(m_LightDirection);
@@ -505,25 +505,32 @@
         private static Color32 CalculateLight(Color32 inColor, Vec3 normal)
         {
             var dp = Vec3.Dot(m_LightDirection, normal);
-
-            if (dp < 0) dp = 0;
-            if (dp > 1) dp = 1;
-
+            dp = Util.Clamp(dp, 0, 1);
+            
             var color = new Vec3(inColor.R / 255.0f, inColor.G / 255.0f, inColor.B / 255.0f);
+            var original = new Vec3(inColor.R / 255.0f, inColor.G / 255.0f, inColor.B / 255.0f);
+
             color.X *= m_LightColor.X * dp;
             color.Y *= m_LightColor.Y * dp;
             color.Z *= m_LightColor.Z * dp;
-            color = m_AmbientColor + color; // Vec3.Add(m_AmbientColor, color);
 
+            color = m_AmbientColor + color;
+            
+            //mix between calculated and original color
             color.X = Util.Clamp(color.X, 0, 1);
             color.Y = Util.Clamp(color.Y, 0, 1);
             color.Z = Util.Clamp(color.Z, 0, 1);
 
-            var result = inColor;
 
-            result.r = (byte)(color.X * 255);
-            result.g = (byte)(color.Y * 255);
-            result.b = (byte)(color.Z * 255);
+            var finalColor = Vec3.Lerp(original, color, dp);
+
+            var result = new Color32
+            {
+                r = (byte)(finalColor.X * 255),
+                g = (byte)(finalColor.Y * 255),
+                b = (byte)(finalColor.Z * 255),
+            };
+
 
             return result;
         }

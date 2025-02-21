@@ -53,9 +53,10 @@ public class AssemblyWinter2025
 
         Random random = new();
 
-        m_Raster.UseLight(false);
-        m_Raster.SetAmbientColor(new Vec3(0f, 0f, 0f));
-        m_Raster.SetLightColor(new Vec3(1f, 1f, 1f));
+        m_Raster.UseLight(true);
+        m_Raster.SetAmbientColor(new Vec3(0f, 0f, 0.25f));
+        m_Raster.SetLightColor(new Vec3(1.5f, 1.5f, 1.0f));
+        m_Raster.SetLightDirection(new Vec3(1, 1, -1));
 
         // Snow flakes (just regular objects instead of particles for now)
         List<GameObject> snowflakes = [];
@@ -162,6 +163,12 @@ public class AssemblyWinter2025
         var mainRoadLightPostLight = Path.Combine(randomObjectsFolderPath, "pekka_ja_paetkae_light.obj");
         var tree01 = Path.Combine(randomObjectsFolderPath, "tree_01.obj");
         var tree02 = Path.Combine(randomObjectsFolderPath, "tree_02.obj");
+        var bearPath = Path.Combine(randomObjectsFolderPath, "bear.obj");
+        var bear = GameObjects.Add(new GameObject());
+        bear.LoadMesh(bearPath);
+        bear.SetPosition(new Vec3(0, 0, 600f));
+        bear.Update();
+        
 
         for (int i = 0; i < 100; i++)
         {
