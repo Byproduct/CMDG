@@ -19,6 +19,9 @@ public partial class AssemblyWinter2025
 
     // Scene configuration
     private const int NUMBER_OF_FORWARD_CARS = 6;
+    private const int NUMBER_OF_ROAD_COMPONENTS = 4;
+    private const int NUMBER_OF_TREES = 100;
+    private const int NUMBER_OF_LIGHTPOSTS = 75;
     private const int NUMBER_OF_SNOWFLAKES = 1000;
     private static float m_SloMoMultiplier = 0.05f; // initial slow-motion speed
 
@@ -186,7 +189,7 @@ public partial class AssemblyWinter2025
         GameObjects.backgroundObject.SetPosition(new Vec3(0, 0, 0));
         GameObjects.backgroundObject.Update();
 
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < NUMBER_OF_TREES; i++)
         {
             if (!(m_Random.NextDouble() < 0.5)) continue;
             var treeObject = GameObjects.Add(new GameObject());
@@ -198,7 +201,7 @@ public partial class AssemblyWinter2025
 
         m_RoadComponentsL = [];
         m_RoadComponentsR = [];
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < NUMBER_OF_ROAD_COMPONENTS; i++)
         {
             var roadObject = GameObjects.Add(new GameObject());
             roadObject.LoadMesh(mainRoadPathL);
@@ -218,7 +221,7 @@ public partial class AssemblyWinter2025
         }
 
 
-        for (int i = 0; i < 75; i++)
+        for (int i = 0; i < NUMBER_OF_LIGHTPOSTS ; i++)
         {
             if (i % 5 != 0) continue;
 
