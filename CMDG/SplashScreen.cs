@@ -1,10 +1,11 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Threading;
+using System.Runtime.Versioning;
 
 namespace CMDG
 {
+    [SupportedOSPlatform("windows")]
+
     internal static class SplashScreen
     {
         public static void ShowSplashScreen()
