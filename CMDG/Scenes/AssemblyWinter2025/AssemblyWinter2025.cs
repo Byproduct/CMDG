@@ -180,7 +180,7 @@ public class AssemblyWinter2025
         GameObjects.backgroundObject.LoadMesh(backgroundPath);
         GameObjects.backgroundObject.SetPosition(new Vec3(0, 0, 0));
         GameObjects.backgroundObject.Update();
-        
+
         for (int i = 0; i < 100; i++)
         {
             if (!(random.NextDouble() < 0.5)) continue;
@@ -193,16 +193,22 @@ public class AssemblyWinter2025
             treeObject.SetMaxRenderingDistance(70);
         }
 
+        var roadComponents = new List<GameObject>();
+        
         for (var i = 0; i < 75; i++)
         {
-            /*
-            var roadObject = GameObjects.Add(new GameObject());
-            roadObject.LoadMesh(mainRoadPath);
-            roadObject.SetPosition(new Vec3(0, 0, i * 10));
-            roadObject.Update();
-            roadObject.SetMaxRenderingDistance(40);
-            */
-            
+            if (i < 8)
+            {
+                var roadObject = GameObjects.Add(new GameObject());
+                roadObject.LoadMesh(mainRoadPath);
+                roadObject.SetPosition(new Vec3(0, 0, i * 10));
+                roadObject.SetRotation(new Vec3(0, 0, 0));
+                roadObject.Update();
+                roadObject.SetMaxRenderingDistance(40);
+                roadComponents.Add(roadObject);
+            }
+
+
             if (i % 5 != 0) continue;
 
             var lampPost = GameObjects.Add(new GameObject());
@@ -210,7 +216,6 @@ public class AssemblyWinter2025
             lampPost.SetPosition(new Vec3(0, 0, i * 10));
             lampPost.Update();
             lampPost.SetMaxRenderingDistance(40);
-            
         }
 
         // Forward-going cars
@@ -483,6 +488,16 @@ public class AssemblyWinter2025
                 charSwapped = true;
             }
 
+            for (int i = 0; i < roadComponents.Count; i++)
+            {
+                var newZ = ((float)(Math.Floor(mainZ / 10.0f))*10) + (i * 10);
+                var newPos = new Vec3(0, 0, newZ);
+
+                roadComponents[i].SetPosition(newPos);
+                roadComponents[i].Update();
+            }
+
+
             slowUpdateFrame++;
             // Things to do less frequently
             if (SceneControl.ElapsedTime > firstPhaseTime)
@@ -490,11 +505,11 @@ public class AssemblyWinter2025
                 if (slowUpdateFrame > slowUpdateInterval)
                 {
                     slowUpdateFrame = 0;
-                    /*
+
 
                     if (SceneControl.ElapsedTime < thirdPhaseTime)
                     {
-
+                        /*
                         // Move road edges forward to main car position
                         foreach (GameObject roadEdge in roadEdges)
                         {
@@ -517,9 +532,9 @@ public class AssemblyWinter2025
                             dash.Update();
                             dashOffset += dashSpacing;
                         }
-
+                        */
                     }
-                    */
+
                     if (SceneControl.ElapsedTime > sceneEndTime)
                     {
                         exitScene = true;
