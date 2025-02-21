@@ -12,7 +12,7 @@ public class AssemblyWinter2025
     private const float FIRST_PHASE_TIME = 7.1f; // beat kicks in and camera zooms out at this point
     private const float CAMERA_PAN_END_TIME = FIRST_PHASE_TIME + 1f;
     private const float THIRD_PHASE_TIME = 45.6f; // beat stops and camera stops (scene ends soon after)
-    private const float SCENE_END_TIME = 51.0f;
+    private const float SCENE_END_TIME = 53.0f;
     private const float CHAR_SWAP_TIME = 26.2f;
 
     private const int NUMBER_OF_FORWARD_CARS = 6;
@@ -38,7 +38,7 @@ public class AssemblyWinter2025
 
 
     private static bool m_SlowCameraPan = true; // slow pan (camera interpolation) from first to second phase
-    private static bool m_CharSwapped = false; // swap drawing character halfway into the demo
+    private static bool m_CharSwapped = false;  // swap drawing character halfway into the demo
     private static float m_SloMoMultiplier = 0.05f;
 
     private static bool m_ExitScene = false; // set to true to exit
@@ -366,11 +366,11 @@ public class AssemblyWinter2025
     {
         var fadeoutThresholds = new[] // Fadeout characters at the end
         {
-            (offset: 5.5f, character: 'ˈ'),
-            (offset: 5f, character: '·'),
-            (offset: 4.5f, character: '•'),
-            (offset: 4f, character: '#'),
-            (offset: 3.5f, character: '▓'),
+            (offset: 7.5f, character: 'ˈ'),
+            (offset: 7f, character: '·'),
+            (offset: 6.5f, character: '•'),
+            (offset: 6f, character: '#'),
+            (offset: 5.5f, character: '▓'),
         };
 
         foreach ((float offset, char ch) in fadeoutThresholds)
@@ -524,7 +524,7 @@ public class AssemblyWinter2025
 
         m_MainSign = GameObjects.Add(new GameObject());
         m_MainSign.LoadMesh(mainSignPath);
-        m_MainSign.SetPosition(new Vec3(0, 0, 698.7f));
+        m_MainSign.SetPosition(new Vec3(0, 0, 698.5f));
         m_MainSign.Update();
 
         string mainSignPath2 = Path.Combine(randomObjectsFolderPath, "salainen_kylttitiedosto_02.obj");
