@@ -15,6 +15,8 @@ public class AssemblyWinter2025
     private const float SCENE_END_TIME = 51.0f;
     private const float CHAR_SWAP_TIME = 26.2f;
 
+    private const int NUMBER_OF_FORWARD_CARS = 6;
+
     private const float LANE_WIDTH = 2.5f;
 
     // Road edges (long continuous lines)
@@ -38,7 +40,7 @@ public class AssemblyWinter2025
     private static bool m_SlowCameraPan = true; // slow pan (camera interpolation) from first to second phase
     private static bool m_CharSwapped = false; // swap drawing character halfway into the demo
     private static float m_SloMoMultiplier = 0.05f;
-    
+
     private static bool m_ExitScene = false; // set to true to exit
     private static Rasterer? m_Raster;
     private static string? m_VehicleFolderPath;
@@ -475,11 +477,10 @@ public class AssemblyWinter2025
 
 
         // Forward-going cars
-        const int numberOfForwardCars = 6;
         m_ForwardCars = [];
 
         m_CarPosZ = 0f;
-        for (int i = 0; i < numberOfForwardCars; i++)
+        for (int i = 0; i < NUMBER_OF_FORWARD_CARS; i++)
         {
             m_CarPosZ += 3 + (float)(m_Random.NextDouble() * 10f);
             var car = GameObjects.Add(new GameObject());
