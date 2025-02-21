@@ -5,7 +5,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>Media\Nelostie.ico</ApplicationIcon>
+    <AssemblyName>Nelostie</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Media\Nelostie.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
@@ -21,6 +27,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Scenes\AssemblyWinter2025\Byproduct-Nelostie.ogg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Scenes\AssemblyWinter2025\FILE_ID.DIZ">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Scenes\AssemblyWinter2025\random_objects\background.mtl">

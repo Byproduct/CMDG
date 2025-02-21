@@ -51,13 +51,17 @@ namespace CMDG
             }
             string resizeInstructions = """
                
-                About to watch a demo! ^_^
+                About to watch a demo! ^_^                           
                 
-                After you press enter, a white border will be drawn on the screen. 
+                Instructions:
                 
-                Please adjust zoom so that you can see all of the border both horizontally and vertically. It may look like a mess until zoomed out enough.
+                1. Use alt+enter to make this window fullscreen, if it isn't already.
+                
+                2. The next screen will be for adjusting font size. Zoom out until you can see a solid white border.
+                
+                3. Zoom with ctrl + mouse wheel or trackpad gesture.
 
-                Zoom with ctrl + mouse wheel. 
+                4. The screen may look like a mess until the font is small enough. Keep zooming! :) 
 
                 Enter to proceed.               
                 """;
@@ -86,9 +90,11 @@ namespace CMDG
                 Util.DrawBorder();
 
                 Console.SetCursorPosition(3, 3);
-                Console.Write("Seeing all of the border?");
+                Console.Write("Seeing all four sides of the border?");
                 Console.SetCursorPosition(3, 5);
-                Console.Write("Press enter when ready. R to refresh window.");
+                Console.Write("Zoom with ctrl + mouse wheel or trackpad gesture.");
+                Console.SetCursorPosition(3, 7);
+                Console.Write("Press enter when ready.");
 
                 if (Console.KeyAvailable)
                 {

@@ -1,6 +1,7 @@
 ﻿using CMDG.Worst3DEngine;
 using NAudio.Wave;
 using NVorbis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CMDG;
 
@@ -21,7 +22,7 @@ public partial class AssemblyWinter2025
     // Scene configuration
     private const int NUMBER_OF_FORWARD_CARS = 5;
     private const int NUMBER_OF_OPPOSITE_CARS = 6;
-    private const int NUMBER_OF_ROAD_COMPONENTS = 8;
+    private const int NUMBER_OF_ROAD_COMPONENTS = 6;
     private const int NUMBER_OF_TREES = 100;
     private const int NUMBER_OF_LIGHTPOSTS = 75;
     private const int NUMBER_OF_SNOWFLAKES = 1000;
@@ -209,7 +210,7 @@ public partial class AssemblyWinter2025
             roadObject.SetPosition(new Vec3(14, 0, i * 10));
             roadObject.SetRotation(new Vec3(0, 0, 0));
             roadObject.Update();
-            roadObject.SetMaxRenderingDistance(80);
+            roadObject.SetMaxRenderingDistance(60);
             m_RoadComponentsL.Add(roadObject);
 
             roadObject = GameObjects.Add(new GameObject());
@@ -217,7 +218,7 @@ public partial class AssemblyWinter2025
             roadObject.SetPosition(new Vec3(0, 0, i * 10));
             roadObject.SetRotation(new Vec3(0, 0, 0));
             roadObject.Update();
-            roadObject.SetMaxRenderingDistance(80);
+            roadObject.SetMaxRenderingDistance(60);
             m_RoadComponentsR.Add(roadObject);
         }
 
