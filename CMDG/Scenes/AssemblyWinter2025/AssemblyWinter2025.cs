@@ -15,10 +15,6 @@ public class AssemblyWinter2025
     private const float SCENE_END_TIME = 51.0f;
     private const float CHAR_SWAP_TIME = 26.2f;
 
-    private static bool m_CameraPanning = true; // slow pan (camera interpolation) from first to second phase
-    private static bool m_CharSwapped = false; // swap drawing character halfway into the demo
-    private static float m_SloMoMultiplier = 0.05f;
-
     private const float LANE_WIDTH = 2.5f;
 
     // Road edges (long continuous lines)
@@ -39,6 +35,10 @@ public class AssemblyWinter2025
     ];
 
 
+    private static bool m_SlowCameraPan = true; // slow pan (camera interpolation) from first to second phase
+    private static bool m_CharSwapped = false; // swap drawing character halfway into the demo
+    private static float m_SloMoMultiplier = 0.05f;
+    
     private static bool m_ExitScene = false; // set to true to exit
     private static Rasterer? m_Raster;
     private static string? m_VehicleFolderPath;
@@ -93,218 +93,59 @@ public class AssemblyWinter2025
         InitLights();
         CreateRandomCarCache();
         CreateSnowFlakes();
-
         SetupObjects();
-
-        const int slowUpdateInterval = 30; // Update less frequent stuff every nth frame
-        int slowUpdateFrame = 0;
-
-        var fadeoutThresholds = new[] // Fadeout characters at the end
-        {
-            (offset: 5.5f, character: 'ˈ'),
-            (offset: 5f, character: '·'),
-            (offset: 4.5f, character: '•'),
-            (offset: 4f, character: '#'),
-            (offset: 3.5f, character: '▓'),
-        };
-
 
         // Start audio playback just before entering loop
         PlayMusic();
 
         while (true)
         {
-            SceneControl.StartFrame(); // Clears frame buffer and starts frame timer.
+            // Clears frame buffer and starts frame timer.
+            SceneControl.StartFrame();
             float deltaTime = (float)SceneControl.DeltaTime;
+            float elapsedTime = (float)(SceneControl.ElapsedTime);
 
-            // Update main car position
-            m_MainCar.SetPosition(m_MainCar.GetPosition() + m_MainCarVelocity * deltaTime * m_SloMoMultiplier);
-            m_MainCar.Update();
-
-            if (SceneControl.ElapsedTime < THIRD_PHASE_TIME)
-            {
-                m_MainZ = m_MainCar.GetPosition().Z;
-            }
-
-            // Update foward car positions. Reverse iteration to enable removing cars while iterating.
-            for (int i = m_ForwardCars.Count - 1; i >= 0; i--)
-            {
-                var car = m_ForwardCars[i];
-                car.GameObject.SetPosition(car.GameObject.GetPosition() + car.Velocity * deltaTime * m_SloMoMultiplier);
-                if ((car.GameObject.GetPosition().Z < m_MainZ - 10) && (SceneControl.ElapsedTime < THIRD_PHASE_TIME) &&
-                    (SceneControl.ElapsedTime > FIRST_PHASE_TIME))
-                {
-                    m_ForwardCars.RemoveAt(i);
-                    GameObjects.Remove(car.GameObject);
-                    SpawnNewForwardCar();
-                    continue;
-                }
-
-                car.GameObject.Update();
-            }
-
-            // Avoid collisions among forward cars
-            // Sort by z-coordinate so only the next car needs to be checked
-            m_ForwardCars.Sort((car1, car2) =>
-                car1.GameObject.GetPosition().Z.CompareTo(car2.GameObject.GetPosition().Z));
-            for (int i = 0; i < m_ForwardCars.Count - 1; i++)
-            {
-                var carA = m_ForwardCars[i];
-                var carB = m_ForwardCars[i + 1];
-
-                float xA = carA.GameObject.GetPosition().Z;
-                float xB = carB.GameObject.GetPosition().Z;
-
-                if (xB - xA < carA.TailgateDistance) // Collision detected
-                {
-                    // Move carA back to its tailgating distance
-                    carA.GameObject.SetPosition(carB.GameObject.GetPosition() - new Vec3(0, 0, carA.TailgateDistance));
-                }
-            }
-
-            // Update opposite car positions.
-            for (int i = m_OppositeCars.Count - 1; i >= 0; i--)
-            {
-                var car = m_OppositeCars[i];
-                car.GameObject.SetPosition(car.GameObject.GetPosition() + car.Velocity * deltaTime * m_SloMoMultiplier);
-                if ((car.GameObject.GetPosition().Z < m_MainZ - 10) && (SceneControl.ElapsedTime < THIRD_PHASE_TIME) &&
-                    (SceneControl.ElapsedTime > FIRST_PHASE_TIME))
-                {
-                    m_OppositeCars.RemoveAt(i);
-                    GameObjects.Remove(car.GameObject);
-                    SpawnNewOppositeCar();
-                    continue;
-                }
-
-                car.GameObject.Update();
-            }
-
-            // Avoid collisions among opposite cars. 
-            // Since it only checks the next car, and allows passing if they're on other lanes,
-            // it can fail if there happens to be two cars side by side at the front, and the one on the other lane is nearer
-            // can't be arsed to fix for this demo but a note for future self if this is developed further.
-            m_OppositeCars.Sort(
-                (car1, car2) => car1.GameObject.GetPosition().Z.CompareTo(car2.GameObject.GetPosition().Z));
-            for (int i = 0; i < m_OppositeCars.Count - 1; i++)
-            {
-                var carA = m_OppositeCars[i];
-                var carB = m_OppositeCars[i + 1];
-
-                if (!(Math.Abs(carA.GameObject.GetPosition().X - carB.GameObject.GetPosition().X) < 0.01f))
-                    continue; // allow passing if not on the same lane
-
-                float xA = carA.GameObject.GetPosition().Z;
-                float xB = carB.GameObject.GetPosition().Z;
-
-                if (xB - xA < carB.TailgateDistance)
-                {
-                    // Move carB back (forward in Z-coord) to its tailgating distance
-                    carB.GameObject.SetPosition(carA.GameObject.GetPosition() +
-                                                new Vec3(0, 0, carB.TailgateDistance)); // reverse direction (+)
-                }
-            }
+            CarLogics(deltaTime);
 
             // Update snowflakes  (different behavior for the slo-mo intro)
-            if (SceneControl.ElapsedTime < FIRST_PHASE_TIME)
-            {
-                for (int i = 0; i < m_Snowflakes.Count; i++)
-                {
-                    var gob = m_Snowflakes[i];
-                    var v = new Vec3(0, -5, -2) * deltaTime * m_SloMoMultiplier;
-                    var pos = gob.GetPosition() + v;
+            SnowFlakeLogic(deltaTime);
+            CharSwapLogic();
+            RoadOptimizer();
+            CameraLogic(elapsedTime, deltaTime, cameraPath);
+            RenderLogic();
 
-                    if ((pos.Y < 0) || (pos.Z < m_MainZ - 10))
-                    {
-                        pos.X = (float)(m_Random.NextDouble() * 40f - 20);
-                        pos.Y = 4 + (float)(m_Random.NextDouble() * 10f);
-                        pos.Z = m_MainZ + (float)(m_Random.NextDouble() * 40f);
-                    }
-
-                    gob.SetPosition(pos);
-                    gob.Update();
-                }
-            }
-            else
-            {
-                for (int i = 0; i < m_Snowflakes.Count; i++)
-                {
-                    var gob = m_Snowflakes[i];
-                    var v = new Vec3(0, -5, -2) * deltaTime * m_SloMoMultiplier;
-                    var pos = gob.GetPosition() + v;
-
-                    if ((pos.Y < 0) || (pos.Z < m_MainZ - 3))
-                    {
-                        pos.X = (float)(m_Random.NextDouble() * 40f - 20);
-                        pos.Y = 4 + (float)(m_Random.NextDouble() * 10f);
-                        pos.Z = m_MainZ + (float)(m_Random.NextDouble() * 40f);
-                    }
-
-                    gob.SetPosition(pos);
-                    gob.Update();
-                }
-            }
+            // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
+            SceneControl.EndFrame();
 
             // Fadeout at the end by changing the drawing character into less visible ones
             if (SceneControl.ElapsedTime > THIRD_PHASE_TIME)
+                FadeOutLogic();
+
+            if (SceneControl.ElapsedTime > SCENE_END_TIME)
             {
-                foreach ((float offset, char ch) in fadeoutThresholds)
-                {
-                    if (!(SceneControl.ElapsedTime > THIRD_PHASE_TIME + offset)) continue;
-
-                    if (Framebuffer.GetDrawingCharacter() != ch)
-                    {
-                        Framebuffer.SetDrawingCharacter(ch);
-                        Framebuffer.WipeScreen();
-                    }
-
-                    break;
-                }
+                m_ExitScene = true;
             }
+        }
+    }
 
-            if (!m_CharSwapped && SceneControl.ElapsedTime > CHAR_SWAP_TIME)
-            {
-                Framebuffer.SetDrawingCharacter('█');
-                Framebuffer.WipeScreen();
-                m_CharSwapped = true;
-            }
+    private static void RenderLogic()
+    {
+        m_Raster!.UseLight(false);
+        GameObjects.backgroundObject.SetPosition(m_Camera!.GetPosition());
+        GameObjects.backgroundObject.Update();
 
-            for (int i = 0; i < m_RoadComponentsR.Count; i++)
-            {
-                float newZ = ((float)(Math.Floor(m_MainZ / 10.0f)) * 10) + (i * 10);
-                var newPos = new Vec3(0, 0, newZ);
-                m_RoadComponentsR[i].SetPosition(newPos);
-                m_RoadComponentsR[i].Update();
-            }
+        m_Raster.ProcessBackground3D();
 
-            for (int i = 0; i < m_RoadComponentsL.Count; i++)
-            {
-                float newZ = ((float)(Math.Floor(m_MainZ / 10.0f)) * 10) + (i * 10);
-                var newPos = new Vec3(14, 0, newZ);
-                m_RoadComponentsL[i].SetPosition(newPos);
-                m_RoadComponentsL[i].Update();
-            }
+        m_Raster.UseLight(true);
+        m_Raster.Process3D();
+    }
 
-
-            slowUpdateFrame++;
-            // Things to do less frequently
-            if (SceneControl.ElapsedTime > FIRST_PHASE_TIME)
-            {
-                if (slowUpdateFrame > slowUpdateInterval)
-                {
-                    slowUpdateFrame = 0;
-
-
-                    if (SceneControl.ElapsedTime > SCENE_END_TIME)
-                    {
-                        m_ExitScene = true;
-                    }
-                }
-            }
-
-            float elapsedTime = (float)(SceneControl.ElapsedTime);
-
+    private static void CameraLogic(float elapsedTime, float deltaTime, CameraPath cameraPath)
+    {
+        switch (elapsedTime)
+        {
             // First phase: orbit camera around the car
-            if (elapsedTime < FIRST_PHASE_TIME)
+            case < FIRST_PHASE_TIME:
             {
                 const float orbitDuration = 15.0f;
                 const float orbitRadius = 1.5f;
@@ -315,15 +156,56 @@ public class AssemblyWinter2025
                 float camX = carPosition.X + orbitRadius * MathF.Cos(angle);
                 float camZ = carPosition.Z + orbitRadius * MathF.Sin(angle);
                 float camY = carPosition.Y + 0.5f;
-                //camera.SetPosition(new Vec3(camX, camY + 0.5f, camZ));
 
                 m_Camera!.LookAt(new Vec3(camX, camY + 0.5f, camZ), m_MainCar.GetPosition(), new Vec3(1, 1, 0));
+                break;
             }
-
-            // Third phase: stop moving the camera and stop spawning more cars
-            else if (elapsedTime > THIRD_PHASE_TIME)
+            // Second phase: the camera floats behind main car with some movement
+            case <= THIRD_PHASE_TIME:
             {
-                //camera.LookAt(camera.GetPosition(), mainSign.GetPosition(), new Vec3(0, 1, 0));
+                m_SloMoMultiplier = 1f;
+                // Compute new target position and rotation
+                float x = 0.6f + 0.1f * (float)Math.Sin(elapsedTime * 0.21f); // pan up/down
+                float y = -0.5f + 0.2f * (float)Math.Sin(elapsedTime * 0.28f); // pan left/right
+                float heightVariance = -1.1f + (float)Math.Sin(elapsedTime * 0.23f); // move up/down
+
+                var targetPosition = m_MainCar.GetPosition() + m_MainCarCameraOffset + new Vec3(0, heightVariance, 0);
+                var targetRotation = new Vec3(x, y, 0);
+                var currentPosition = m_Camera!.GetPosition();
+                var currentRotation = m_Camera.GetRotation();
+
+                float panTime = 1 - (CAMERA_PAN_END_TIME - elapsedTime);
+                if (m_SlowCameraPan)
+                {
+                    if (panTime >= 1)
+                    {
+                        panTime = 1;
+                        m_SlowCameraPan = false;
+                    }
+
+                    var newPosition = Lerp(currentPosition, targetPosition, panTime);
+                    var newRotation = Lerp(currentRotation, targetRotation, panTime);
+                    m_Camera.SetPosition(newPosition);
+                    m_Camera.SetRotation(newRotation);
+                    m_Camera.Update();
+
+                    Vec3 Lerp(Vec3 a, Vec3 b, float t)
+                    {
+                        return a * (1 - t) + b * t;
+                    }
+                }
+                else
+                {
+                    m_Camera.SetPosition(targetPosition);
+                    m_Camera.SetRotation(targetRotation);
+                    m_Camera.Update();
+                }
+
+                break;
+            }
+            // Third phase: stop moving the camera and stop spawning more cars
+            default:
+            {
                 if (cameraPath.GetWayPoints().Count == 0)
                 {
                     cameraPath.AddWayPoint(
@@ -345,99 +227,233 @@ public class AssemblyWinter2025
                 {
                     cameraPath.Run(m_Camera, deltaTime);
                 }
+
+                break;
             }
-
-            // Second phase: the camera floats behind main car with some movement
-            else if (elapsedTime >= FIRST_PHASE_TIME && SceneControl.ElapsedTime <= THIRD_PHASE_TIME)
-            {
-                m_SloMoMultiplier = 1f;
-                // Compute new target position and rotation
-                float x = 0.6f + 0.1f * (float)Math.Sin(elapsedTime * 0.21f); // pan up/down
-                float y = -0.5f + 0.2f * (float)Math.Sin(elapsedTime * 0.28f); // pan left/right
-                float heightVariance = -1.1f + (float)Math.Sin(elapsedTime * 0.23f); // move up/down
-
-                var targetPosition = m_MainCar.GetPosition() + m_MainCarCameraOffset + new Vec3(0, heightVariance, 0);
-                var targetRotation = new Vec3(x, y, 0);
-                var currentPosition = m_Camera!.GetPosition();
-                var currentRotation = m_Camera.GetRotation();
-
-                float panTime = 1 - (CAMERA_PAN_END_TIME - elapsedTime);
-                if (m_CameraPanning)
-                {
-                    if (panTime >= 1)
-                    {
-                        panTime = 1;
-                        m_CameraPanning = false;
-                    }
-
-                    var newPosition = Lerp(currentPosition, targetPosition, panTime);
-                    var newRotation = Lerp(currentRotation, targetRotation, panTime);
-                    m_Camera.SetPosition(newPosition);
-                    m_Camera.SetRotation(newRotation);
-                    m_Camera.Update();
-
-                    Vec3 Lerp(Vec3 a, Vec3 b, float t)
-                    {
-                        return a * (1 - t) + b * t;
-                    }
-                }
-                else
-                {
-                    m_Camera.SetPosition(targetPosition);
-                    m_Camera.SetRotation(targetRotation);
-                    m_Camera.Update();
-                }
-            }
-
-            m_Raster.UseLight(false);
-            GameObjects.backgroundObject.SetPosition(m_Camera!.GetPosition());
-            GameObjects.backgroundObject.Update();
-
-            m_Raster.ProcessBackground3D();
-
-            m_Raster.UseLight(true);
-            m_Raster.Process3D();
-            SceneControl
-                .EndFrame(); // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
         }
+    }
 
+    private static void CarLogics(float deltaTime)
+    {
+        // Update main car position
+        m_MainCar.SetPosition(m_MainCar.GetPosition() + m_MainCarVelocity * deltaTime * m_SloMoMultiplier);
+        m_MainCar.Update();
 
-        void SpawnNewForwardCar()
+        if (SceneControl.ElapsedTime < THIRD_PHASE_TIME)
         {
-            if (!(SceneControl.ElapsedTime < THIRD_PHASE_TIME)) return;
-
-            m_CarPosZ = m_MainZ + 50 + (float)(m_Random.NextDouble()) * 25;
-            var car = GameObjects.Add(new GameObject());
-            car.LoadMesh(GetRandomCarPath());
-            car.SetPosition(new Vec3(m_RoadEdgeXCoords[0] + LANE_WIDTH / 2f, 0, m_CarPosZ));
-            car.Update();
-            var velocity = new Vec3(0, 0, 8 + (float)(m_Random.NextDouble() * 5f));
-            float tailgateDistance = 5 + (float)(m_Random.NextDouble() * 5f);
-            m_ForwardCars.Add(new GenericCar(car, velocity, tailgateDistance));
+            m_MainZ = m_MainCar.GetPosition().Z;
         }
 
-        void SpawnNewOppositeCar()
+        // Update foward car positions. Reverse iteration to enable removing cars while iterating.
+        for (int i = m_ForwardCars.Count - 1; i >= 0; i--)
         {
-            if (!(SceneControl.ElapsedTime < THIRD_PHASE_TIME)) return;
-
-            m_CarPosZ = m_MainZ + 50;
-            float carPosX = m_RoadEdgeXCoords[1] + MEDIAN_WIDTH + LANE_WIDTH / 2f;
-            if (m_Random.Next(2) < 1)
+            var car = m_ForwardCars[i];
+            car.GameObject.SetPosition(car.GameObject.GetPosition() + car.Velocity * deltaTime * m_SloMoMultiplier);
+            if ((car.GameObject.GetPosition().Z < m_MainZ - 10) && (SceneControl.ElapsedTime < THIRD_PHASE_TIME) &&
+                (SceneControl.ElapsedTime > FIRST_PHASE_TIME))
             {
-                carPosX += LANE_WIDTH;
+                m_ForwardCars.RemoveAt(i);
+                GameObjects.Remove(car.GameObject);
+                SpawnNewForwardCar();
+                continue;
             }
 
-            var car = GameObjects.Add(new GameObject());
-
-            car.LoadMesh(GetRandomCarPath());
-            car.SetPosition(new Vec3(carPosX, 0, m_CarPosZ));
-            car.SetRotation(new Vec3(0, 3.14f, 0));
-            car.Update();
-
-            var velocity = new Vec3(0, 0, -12 - (float)(m_Random.NextDouble() * 5f));
-            float tailgateDistance = 5 + (float)(m_Random.NextDouble() * 5f);
-            m_OppositeCars.Add(new GenericCar(car, velocity, tailgateDistance));
+            car.GameObject.Update();
         }
+
+        // Avoid collisions among forward cars
+        // Sort by z-coordinate so only the next car needs to be checked
+        m_ForwardCars.Sort((car1, car2) =>
+            car1.GameObject.GetPosition().Z.CompareTo(car2.GameObject.GetPosition().Z));
+        for (int i = 0; i < m_ForwardCars.Count - 1; i++)
+        {
+            var carA = m_ForwardCars[i];
+            var carB = m_ForwardCars[i + 1];
+
+            float xA = carA.GameObject.GetPosition().Z;
+            float xB = carB.GameObject.GetPosition().Z;
+
+            if (xB - xA < carA.TailgateDistance) // Collision detected
+            {
+                // Move carA back to its tailgating distance
+                carA.GameObject.SetPosition(carB.GameObject.GetPosition() - new Vec3(0, 0, carA.TailgateDistance));
+            }
+        }
+
+        // Update opposite car positions.
+        for (int i = m_OppositeCars.Count - 1; i >= 0; i--)
+        {
+            var car = m_OppositeCars[i];
+            car.GameObject.SetPosition(car.GameObject.GetPosition() + car.Velocity * deltaTime * m_SloMoMultiplier);
+            if ((car.GameObject.GetPosition().Z < m_MainZ - 10) && (SceneControl.ElapsedTime < THIRD_PHASE_TIME) &&
+                (SceneControl.ElapsedTime > FIRST_PHASE_TIME))
+            {
+                m_OppositeCars.RemoveAt(i);
+                GameObjects.Remove(car.GameObject);
+                SpawnNewOppositeCar();
+                continue;
+            }
+
+            car.GameObject.Update();
+        }
+
+        // Avoid collisions among opposite cars. 
+        // Since it only checks the next car, and allows passing if they're on other lanes,
+        // it can fail if there happens to be two cars side by side at the front, and the one on the other lane is nearer
+        // can't be arsed to fix for this demo but a note for future self if this is developed further.
+        m_OppositeCars.Sort(
+            (car1, car2) => car1.GameObject.GetPosition().Z.CompareTo(car2.GameObject.GetPosition().Z));
+        for (int i = 0; i < m_OppositeCars.Count - 1; i++)
+        {
+            var carA = m_OppositeCars[i];
+            var carB = m_OppositeCars[i + 1];
+
+            if (!(Math.Abs(carA.GameObject.GetPosition().X - carB.GameObject.GetPosition().X) < 0.01f))
+                continue; // allow passing if not on the same lane
+
+            float xA = carA.GameObject.GetPosition().Z;
+            float xB = carB.GameObject.GetPosition().Z;
+
+            if (xB - xA < carB.TailgateDistance)
+            {
+                // Move carB back (forward in Z-coord) to its tailgating distance
+                carB.GameObject.SetPosition(carA.GameObject.GetPosition() +
+                                            new Vec3(0, 0, carB.TailgateDistance)); // reverse direction (+)
+            }
+        }
+    }
+
+    private static void SpawnNewOppositeCar()
+    {
+        if (!(SceneControl.ElapsedTime < THIRD_PHASE_TIME)) return;
+
+        m_CarPosZ = m_MainZ + 50;
+        float carPosX = m_RoadEdgeXCoords[1] + MEDIAN_WIDTH + LANE_WIDTH / 2f;
+        if (m_Random.Next(2) < 1)
+        {
+            carPosX += LANE_WIDTH;
+        }
+
+        var car = GameObjects.Add(new GameObject());
+
+        car.LoadMesh(GetRandomCarPath());
+        car.SetPosition(new Vec3(carPosX, 0, m_CarPosZ));
+        car.SetRotation(new Vec3(0, 3.14f, 0));
+        car.Update();
+
+        var velocity = new Vec3(0, 0, -12 - (float)(m_Random.NextDouble() * 5f));
+        float tailgateDistance = 5 + (float)(m_Random.NextDouble() * 5f);
+        m_OppositeCars.Add(new GenericCar(car, velocity, tailgateDistance));
+    }
+
+    private static void SpawnNewForwardCar()
+    {
+        if (!(SceneControl.ElapsedTime < THIRD_PHASE_TIME)) return;
+
+        m_CarPosZ = m_MainZ + 50 + (float)(m_Random.NextDouble()) * 25;
+        var car = GameObjects.Add(new GameObject());
+        car.LoadMesh(GetRandomCarPath());
+        car.SetPosition(new Vec3(m_RoadEdgeXCoords[0] + LANE_WIDTH / 2f, 0, m_CarPosZ));
+        car.Update();
+        var velocity = new Vec3(0, 0, 8 + (float)(m_Random.NextDouble() * 5f));
+        float tailgateDistance = 5 + (float)(m_Random.NextDouble() * 5f);
+        m_ForwardCars.Add(new GenericCar(car, velocity, tailgateDistance));
+    }
+
+    private static void FadeOutLogic()
+    {
+        var fadeoutThresholds = new[] // Fadeout characters at the end
+        {
+            (offset: 5.5f, character: 'ˈ'),
+            (offset: 5f, character: '·'),
+            (offset: 4.5f, character: '•'),
+            (offset: 4f, character: '#'),
+            (offset: 3.5f, character: '▓'),
+        };
+
+        foreach ((float offset, char ch) in fadeoutThresholds)
+        {
+            if (!(SceneControl.ElapsedTime > THIRD_PHASE_TIME + offset)) continue;
+
+            if (Framebuffer.GetDrawingCharacter() != ch)
+            {
+                Framebuffer.SetDrawingCharacter(ch);
+                Framebuffer.WipeScreen();
+            }
+
+            break;
+        }
+    }
+
+    private static void SnowFlakeLogic(float deltaTime)
+    {
+        if (SceneControl.ElapsedTime < FIRST_PHASE_TIME)
+        {
+            for (int i = 0; i < m_Snowflakes.Count; i++)
+            {
+                var gob = m_Snowflakes[i];
+                var v = new Vec3(0, -5, -2) * deltaTime * m_SloMoMultiplier;
+                var pos = gob.GetPosition() + v;
+
+                if ((pos.Y < 0) || (pos.Z < m_MainZ - 10))
+                {
+                    pos.X = (float)(m_Random.NextDouble() * 40f - 20);
+                    pos.Y = 4 + (float)(m_Random.NextDouble() * 10f);
+                    pos.Z = m_MainZ + (float)(m_Random.NextDouble() * 40f);
+                }
+
+                gob.SetPosition(pos);
+                gob.Update();
+            }
+        }
+        else
+        {
+            for (int i = 0; i < m_Snowflakes.Count; i++)
+            {
+                var gob = m_Snowflakes[i];
+                var v = new Vec3(0, -5, -2) * deltaTime * m_SloMoMultiplier;
+                var pos = gob.GetPosition() + v;
+
+                if ((pos.Y < 0) || (pos.Z < m_MainZ - 3))
+                {
+                    pos.X = (float)(m_Random.NextDouble() * 40f - 20);
+                    pos.Y = 4 + (float)(m_Random.NextDouble() * 10f);
+                    pos.Z = m_MainZ + (float)(m_Random.NextDouble() * 40f);
+                }
+
+                gob.SetPosition(pos);
+                gob.Update();
+            }
+        }
+    }
+
+
+    private static void RoadOptimizer()
+    {
+        for (int i = 0; i < m_RoadComponentsR.Count; i++)
+        {
+            float newZ = ((float)(Math.Floor(m_MainZ / 10.0f)) * 10) + (i * 10);
+            var newPos = new Vec3(0, 0, newZ);
+            m_RoadComponentsR[i].SetPosition(newPos);
+            m_RoadComponentsR[i].Update();
+        }
+
+        for (int i = 0; i < m_RoadComponentsL.Count; i++)
+        {
+            float newZ = ((float)(Math.Floor(m_MainZ / 10.0f)) * 10) + (i * 10);
+            var newPos = new Vec3(14, 0, newZ);
+            m_RoadComponentsL[i].SetPosition(newPos);
+            m_RoadComponentsL[i].Update();
+        }
+    }
+
+    private static void CharSwapLogic()
+    {
+        if (m_CharSwapped || !(SceneControl.ElapsedTime > CHAR_SWAP_TIME)) return;
+
+        Framebuffer.SetDrawingCharacter('█');
+        Framebuffer.WipeScreen();
+        m_CharSwapped = true;
     }
 
 
