@@ -352,7 +352,7 @@
                 int nClippedTriangles = Triangle.ClipAgainstPlane(new Vec3(0, 0, 0.1f), new Vec3(0, 0, 1),
                     triViewed,
                     out clipped[0], out clipped[1]);
-
+                
                 for (int n = 0; n < nClippedTriangles; n++)
                 {
                     triProjected.P1 = m_Camera.GetProjectionMatrix().MultiplyVector(clipped[n].P1);
