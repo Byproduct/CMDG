@@ -32,7 +32,7 @@ public class CameraPath
         return m_CameraWayPoints;
     }
 
-    public bool Run(Camera camera, float deltaTime)
+    public bool Run(Camera? camera, float deltaTime)
     {
         if (m_CurrentIndex >= m_CameraWayPoints.Count)
         {
