@@ -20,7 +20,7 @@ namespace CMDG
         // The settings below are all optional
         public const int MaxFrameRate = 60;
         public const int ScreenWidth = 630;
-        public const int ScreenHeight = 170;
+        public const int ScreenHeight = 160;
         public const bool ShowTime = true;                    // Display draw/calc/wait milliseconds below screen
         public const bool DoubleWidth = false;                // Use two character blocks to display one "pixel". (Looks more square, but requires more space and processing time.)
         public static Color32 BackgroundColor = new Color32(0, 0, 0);   // Wipe the framebuffer with this color before drawing

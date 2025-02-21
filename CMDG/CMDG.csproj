@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="NVorbis" Version="0.10.5" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.2" />
   </ItemGroup>
 
@@ -16,11 +17,11 @@
     <None Update="Media\fin.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Scenes\AssemblyWinter2025\Byproduct-Nelostie.wav">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Media\cmdg-splash.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Scenes\AssemblyWinter2025\Byproduct-Nelostie.ogg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Scenes\AssemblyWinter2025\random_objects\background.mtl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

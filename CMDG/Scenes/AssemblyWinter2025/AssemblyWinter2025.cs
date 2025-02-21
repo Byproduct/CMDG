@@ -1,5 +1,6 @@
 ﻿using CMDG.Worst3DEngine;
 using NAudio.Wave;
+using NVorbis;
 
 namespace CMDG;
 
@@ -7,7 +8,7 @@ namespace CMDG;
 
 public partial class AssemblyWinter2025
 {
-    private const string MUSIC_PATH = "Scenes/AssemblyWinter2025/Byproduct-Nelostie.wav";
+    private const string MUSIC_PATH = "Scenes/AssemblyWinter2025/Byproduct-Nelostie.ogg";
 
     // Scene timing
     private const float SECOND_PHASE_TIME = 7.1f;          // second phase of the demo: beat kicks in and camera zooms out
@@ -48,8 +49,8 @@ public partial class AssemblyWinter2025
     private static Rasterer? m_Raster;
     private static Random m_Random = null!;
 
-    private static WaveOutEvent m_WaveOut = null!;
-    private static WaveStream m_WaveStream = null!;
+    private static IWavePlayer m_WaveOut = null!;
+    private static IWaveProvider m_WaveStream = null!;
 
     private static readonly List<GameObject> m_Snowflakes = [];
 
@@ -236,8 +237,9 @@ public partial class AssemblyWinter2025
 
     private static void InitMusic()
     {
-        // Preload wav file first, but don't play yet
-        m_WaveStream = new WaveFileReader(MUSIC_PATH);
+        var vorbisStream = new FileStream(MUSIC_PATH, FileMode.Open);
+        var vorbisReader = new VorbisReader(vorbisStream, false);
+        m_WaveStream = new VorbisWaveProvider(vorbisReader);
         m_WaveOut = new WaveOutEvent();
         m_WaveOut.Init(m_WaveStream);
     }
@@ -263,6 +265,6 @@ public partial class AssemblyWinter2025
     public static void Exit()
     {
         m_WaveOut.Dispose();
-        m_WaveStream.Dispose();
+        //m_WaveStream.Dispose();
     }
 }
