@@ -27,6 +27,11 @@ public class CameraPath
         m_CameraWayPoints.Add(wayPoint);
     }
 
+    public List<CameraWayPoint> GetWayPoints()
+    {
+        return m_CameraWayPoints;
+    }
+
     public bool Run(Camera camera, float deltaTime)
     {
         if (m_CurrentIndex >= m_CameraWayPoints.Count)

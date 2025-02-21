@@ -6,10 +6,9 @@ namespace CMDG;
 
 // Vehicle models (CC0 license) by eracoon: https://opengameart.org/content/vehicles-assets-pt1
 
-
 public class AssemblyWinter2025
 {
-    private static bool exitScene = false;  // set to true to exit
+    private static bool exitScene = false; // set to true to exit
 
     [DllImport("user32.dll")]
     static extern short GetAsyncKeyState(int vKey);
@@ -31,30 +30,32 @@ public class AssemblyWinter2025
         waveOut = new WaveOutEvent();
         waveOut.Init(waveStream);
 
-        float mainZ = 0;                 // demo main Z-position. It's about the same as camera z-position, but has this helper variable because of frequent access.
-        float firstPhaseTime = 7.1f;     // beat kicks in and camera zooms out at this point
+        float
+            mainZ = 0; // demo main Z-position. It's about the same as camera z-position, but has this helper variable because of frequent access.
+        float firstPhaseTime = 7.1f; // beat kicks in and camera zooms out at this point
         float cameraPanEndTime = firstPhaseTime + 1f;
-        bool cameraPanning = true;       // slow pan (camera interpolation) from first to second phase
-        float thirdPhaseTime = 45.6f;    // beat stops and camera stops (scene ends soon after)
+        bool cameraPanning = true; // slow pan (camera interpolation) from first to second phase
+        float thirdPhaseTime = 45.6f; // beat stops and camera stops (scene ends soon after)
         float sceneEndTime = 51.0f;
-        bool charSwapped = false;        // swap drawing character halfway into the demo
+        bool charSwapped = false; // swap drawing character halfway into the demo
         float charSwapTime = 26.2f;
         bool fadeoutComplete = false;
-        bool updateCameraAtEndOfFrame = false;
+
         float sloMoMultiplier = 0.05f;
 
-        vehicleFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "vehicles");
+        vehicleFolderPath =
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "vehicles");
 
         m_Raster = new Rasterer(Config.ScreenWidth, Config.ScreenHeight);
 
         var camera = Rasterer.GetCamera();
+        var cameraPath = new CameraPath();
 
         Random random = new();
 
         m_Raster.UseLight(false);
         m_Raster.SetAmbientColor(new Vec3(0f, 0f, 0f));
         m_Raster.SetLightColor(new Vec3(1f, 1f, 1f));
-
 
         // Snow flakes (just regular objects instead of particles for now)
         List<GameObject> snowflakes = [];
@@ -67,20 +68,22 @@ public class AssemblyWinter2025
             GameObject gob = GameObjects.Add(new GameObject());
             //float flakeSize = 0.05f + i / 5000f;      // could vary size like this but small + near and large + far easily appears off
             float flakeSize = 0.08f;
-            gob.CreateCube(new Vec3(flakeSize, flakeSize, flakeSize), new Color32(255,255,255));
+            gob.CreateCube(new Vec3(flakeSize, flakeSize, flakeSize), new Color32(255, 255, 255));
             gob.SetPosition(pos);
             gob.Update();
             snowflakes.Add(gob);
         }
 
-        
-        float laneWidth = 2.5f;
+
+        var laneWidth = 2.5f;
         // Road edges (long continuous lines)
-        float medianWidth = 4f;
-        
-        float roadEdgeWidth = 0.3f;
-        float roadEdgeLength = 100f;
+        var medianWidth = 4f;
+
+        var roadEdgeWidth = 0.3f;
+        var roadEdgeLength = 100f;
+
         List<float> roadEdgeXCoords = new();
+
         roadEdgeXCoords.Add(0);
         roadEdgeXCoords.Add(laneWidth * 2);
         roadEdgeXCoords.Add(laneWidth * 2 + medianWidth);
@@ -95,51 +98,14 @@ public class AssemblyWinter2025
             roadEdges.Add(roadEdge);
             roadEdge.Update();
         }
-
-        // Road banks
-        List<GameObject> roadbanks = new List<GameObject>();
-        GameObject median = GameObjects.Add(new GameObject());
-        //median.CreateCube(new Vec3(medianWidth, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
-        //median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth/2, -0.1f, roadEdgeLength / 2f));
-        //roadEdges.Add(median);
-        //median.Update();
-
-        median.CreateCube(new Vec3(medianWidth, 0.1f, roadEdgeLength), new Color32(204, 204, 204));
-        median.SetPosition(new Vec3(roadEdgeXCoords[1] + medianWidth / 2, -0.1f, 0));
-        roadEdges.Add(median);
-        median.Update();
-
-        //// Road sides disabled for performance reasons for now
-        //GameObject rightBank = GameObjects.Add(new GameObject());
-        //rightBank.CreateCube(new Vec3(10f, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
-        //rightBank.SetPosition(new Vec3(roadEdgeXCoords[0] - 5f, -0.1f, roadEdgeLength / 2f));
-        //roadEdges.Add(rightBank);
-        //rightBank.Update();
-
-        //GameObject leftBank = GameObjects.Add(new GameObject());
-        //leftBank.CreateCube(new Vec3(40f, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
-        //leftBank.SetPosition(new Vec3(roadEdgeXCoords[3] + 20f, -0.1f, roadEdgeLength / 2f));
-        //roadEdges.Add(leftBank);
-        //leftBank.Update();
-
-        ////Road base color
-        //GameObject roadfwd = GameObjects.Add(new GameObject());
-        //roadfwd.CreateCube(new Vec3(laneWidth * 2, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
-        //roadfwd.SetPosition(new Vec3(roadEdgeXCoords[0] + laneWidth, -0.1f, roadEdgeLength / 2f));
-        //roadEdges.Add(roadfwd);
-        //roadfwd.Update();
-
-        //GameObject roadrev = GameObjects.Add(new GameObject());
-        //roadrev.CreateCube(new Vec3(laneWidth * 2, 0.1f, roadEdgeLength), new Color32(118, 118, 118));
-        //roadrev.SetPosition(new Vec3(roadEdgeXCoords[2] + laneWidth, -0.1f, roadEdgeLength / 2f));
-        //roadEdges.Add(roadrev);
-        //roadrev.Update();
         */
+
 
         // Dashed lines between lanes
         float dashWidth = 0.15f;
         float dashLength = 0.75f;
         float dashSpacing = 4.5f;
+
         List<float> dashXCoords = new();
         dashXCoords.Add(laneWidth);
         dashXCoords.Add(laneWidth * 3 + medianWidth);
@@ -163,6 +129,7 @@ public class AssemblyWinter2025
         }
         */
 
+
         // Main car
         var mainCar = GameObjects.Add(new GameObject());
         string mainCarPath = Path.Combine(vehicleFolderPath, "car-coupe-red.obj");
@@ -173,65 +140,65 @@ public class AssemblyWinter2025
         Vec3 mainCarCameraOffset = new Vec3(-4, 4f, -2f);
         camera.SetPosition(mainCar.GetPosition() - mainCarCameraOffset);
         camera.SetRotation(new Vec3(0.6f, -0.6f, 0));
-        
+
         //shhh
-        var randomObjectsFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "AssemblyWinter2025", "random_objects");
+        var randomObjectsFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes",
+            "AssemblyWinter2025", "random_objects");
         var mainSignPath = Path.Combine(randomObjectsFolderPath, "salainen_kylttitiedosto_01.obj");
-        
+
         var mainSign = GameObjects.Add(new GameObject());
         mainSign.LoadMesh(mainSignPath);
         mainSign.SetPosition(new Vec3(0, 0, 698.7f));
         mainSign.Update();
-        
+
         var mainSignPath2 = Path.Combine(randomObjectsFolderPath, "salainen_kylttitiedosto_02.obj");
         var mainSign2 = GameObjects.Add(new GameObject());
         mainSign2.LoadMesh(mainSignPath2);
         mainSign2.SetPosition(new Vec3(0, 0, 400));
         mainSign2.Update();
-        
-        string mainRoadPath = Path.Combine(randomObjectsFolderPath, "road.obj");
-        string mainRoadLightPost = Path.Combine(randomObjectsFolderPath, "pekka_ja_paetkae.obj");
-        string mainRoadLightPostLight = Path.Combine(randomObjectsFolderPath, "pekka_ja_paetkae_light.obj");
-        string tree01 = Path.Combine(randomObjectsFolderPath, "tree_01.obj");
-        string tree02 = Path.Combine(randomObjectsFolderPath, "tree_02.obj");
-        
+
+        var mainRoadPath = Path.Combine(randomObjectsFolderPath, "road.obj");
+        var mainRoadLightPost = Path.Combine(randomObjectsFolderPath, "pekka_ja_paetkae.obj");
+        var mainRoadLightPostLight = Path.Combine(randomObjectsFolderPath, "pekka_ja_paetkae_light.obj");
+        var tree01 = Path.Combine(randomObjectsFolderPath, "tree_01.obj");
+        var tree02 = Path.Combine(randomObjectsFolderPath, "tree_02.obj");
+
         for (int i = 0; i < 100; i++)
         {
             if (!(random.NextDouble() < 0.5)) continue;
-            
+
             var treeObject = GameObjects.Add(new GameObject());
             treeObject.LoadMesh(random.NextDouble() < 0.5 ? tree01 : tree02);
 
-            treeObject.SetPosition(new Vec3(((float)random.NextDouble()*1.0f), 0, i * 7.5f));
+            treeObject.SetPosition(new Vec3(((float)random.NextDouble() * 1.0f), 0, i * 7.5f));
             treeObject.Update();
             treeObject.SetMaxRenderingDistance(70);
         }
 
         for (var i = 0; i < 75; i++)
         {
-            
             var roadObject = GameObjects.Add(new GameObject());
             roadObject.LoadMesh(mainRoadPath);
             roadObject.SetPosition(new Vec3(0, 0, i * 10));
             roadObject.Update();
             roadObject.SetMaxRenderingDistance(40);
-            
+
 
             if (i % 5 != 0) continue;
-            
+
             var lampPost = GameObjects.Add(new GameObject());
             lampPost.LoadMesh(mainRoadLightPost);
             lampPost.SetPosition(new Vec3(0, 0, i * 10));
             lampPost.Update();
             lampPost.SetMaxRenderingDistance(40);
-                
+
             var lampPostLight = GameObjects.Add(new GameObject());
             lampPostLight.LoadMesh(mainRoadLightPostLight);
             lampPostLight.SetPosition(new Vec3(0, 0, i * 10));
             lampPostLight.Update();
             lampPostLight.SetMaxRenderingDistance(80);
         }
-        
+
         // Forward-going cars
         int number_of_forward_cars = 6;
         List<ForwardCar> forwardCars = new();
@@ -259,6 +226,7 @@ public class AssemblyWinter2025
             {
                 carPosX += laneWidth;
             }
+
             GameObject car = GameObjects.Add(new GameObject());
             car.LoadMesh(getRandomCarPath());
             car.SetPosition(new Vec3(carPosX, 0, carPosZ));
@@ -269,7 +237,7 @@ public class AssemblyWinter2025
             oppositeCars.Add(new OppositeCar(car, velocity, tailgateDistance));
         }
 
-        int slowUpdateInterval = 30;  // Update less frequent stuff every nth frame
+        int slowUpdateInterval = 30; // Update less frequent stuff every nth frame
         int slowUpdateFrame = 0;
 
         var fadeoutThresholds = new[] // Fadeout characters at the end
@@ -307,19 +275,22 @@ public class AssemblyWinter2025
             {
                 ForwardCar car = forwardCars[i];
                 car.gameObject.SetPosition(car.gameObject.GetPosition() + car.velocity * deltaTime * sloMoMultiplier);
-                if ((car.gameObject.GetPosition().Z < mainZ - 10) && (SceneControl.ElapsedTime < thirdPhaseTime) && (SceneControl.ElapsedTime > firstPhaseTime))
+                if ((car.gameObject.GetPosition().Z < mainZ - 10) && (SceneControl.ElapsedTime < thirdPhaseTime) &&
+                    (SceneControl.ElapsedTime > firstPhaseTime))
                 {
                     forwardCars.RemoveAt(i);
                     GameObjects.Remove(car.gameObject);
                     SpawnNewForwardCar();
                     continue;
                 }
+
                 car.gameObject.Update();
             }
 
             // Avoid collisions among forward cars
             // Sort by z-coordinate so only the next car needs to be checked
-            forwardCars.Sort((car1, car2) => car1.gameObject.GetPosition().Z.CompareTo(car2.gameObject.GetPosition().Z));
+            forwardCars.Sort((car1, car2) =>
+                car1.gameObject.GetPosition().Z.CompareTo(car2.gameObject.GetPosition().Z));
             for (int i = 0; i < forwardCars.Count - 1; i++)
             {
                 var carA = forwardCars[i];
@@ -340,13 +311,15 @@ public class AssemblyWinter2025
             {
                 OppositeCar car = oppositeCars[i];
                 car.gameObject.SetPosition(car.gameObject.GetPosition() + car.velocity * deltaTime * sloMoMultiplier);
-                if ((car.gameObject.GetPosition().Z < mainZ - 10) && (SceneControl.ElapsedTime < thirdPhaseTime) && (SceneControl.ElapsedTime > firstPhaseTime))
+                if ((car.gameObject.GetPosition().Z < mainZ - 10) && (SceneControl.ElapsedTime < thirdPhaseTime) &&
+                    (SceneControl.ElapsedTime > firstPhaseTime))
                 {
                     oppositeCars.RemoveAt(i);
                     GameObjects.Remove(car.gameObject);
                     SpawnNewOppositeCar();
                     continue;
                 }
+
                 car.gameObject.Update();
             }
 
@@ -354,13 +327,15 @@ public class AssemblyWinter2025
             // Since it only checks the next car, and allows passing if they're on other lanes,
             // it can fail if there happens to be two cars side by side at the front, and the one on the other lane is nearer
             // can't be arsed to fix for this demo but a note for future self if this is developed further.
-            oppositeCars.Sort((car1, car2) => car1.gameObject.GetPosition().Z.CompareTo(car2.gameObject.GetPosition().Z));
+            oppositeCars.Sort(
+                (car1, car2) => car1.gameObject.GetPosition().Z.CompareTo(car2.gameObject.GetPosition().Z));
             for (int i = 0; i < oppositeCars.Count - 1; i++)
             {
                 var carA = oppositeCars[i];
                 var carB = oppositeCars[i + 1];
 
-                if (carA.gameObject.GetPosition().X == carB.gameObject.GetPosition().X)   // allow passing if not on the same lane
+                if (carA.gameObject.GetPosition().X ==
+                    carB.gameObject.GetPosition().X) // allow passing if not on the same lane
                 {
                     float xA = carA.gameObject.GetPosition().Z;
                     float xB = carB.gameObject.GetPosition().Z;
@@ -368,7 +343,8 @@ public class AssemblyWinter2025
                     if (xB - xA < carB.tailgateDistance)
                     {
                         // Move carB back (forward in Z-coord) to its tailgating distance
-                        carB.gameObject.SetPosition(carA.gameObject.GetPosition() + new Vec3(0, 0, carB.tailgateDistance));  // reverse direction (+)
+                        carB.gameObject.SetPosition(carA.gameObject.GetPosition() +
+                                                    new Vec3(0, 0, carB.tailgateDistance)); // reverse direction (+)
                     }
                 }
             }
@@ -388,6 +364,7 @@ public class AssemblyWinter2025
                         pos.Y = 4 + (float)(random.NextDouble() * 10f);
                         pos.Z = mainZ + (float)(random.NextDouble() * 40f);
                     }
+
                     gob.SetPosition(pos);
                     gob.Update();
                 }
@@ -406,6 +383,7 @@ public class AssemblyWinter2025
                         pos.Y = 4 + (float)(random.NextDouble() * 10f);
                         pos.Z = mainZ + (float)(random.NextDouble() * 40f);
                     }
+
                     gob.SetPosition(pos);
                     gob.Update();
                 }
@@ -423,6 +401,7 @@ public class AssemblyWinter2025
                             Framebuffer.SetDrawingCharacter(ch);
                             Framebuffer.WipeScreen();
                         }
+
                         break;
                     }
                 }
@@ -442,10 +421,11 @@ public class AssemblyWinter2025
                 if (slowUpdateFrame > slowUpdateInterval)
                 {
                     slowUpdateFrame = 0;
+                    /*
 
                     if (SceneControl.ElapsedTime < thirdPhaseTime)
                     {
-                        /*
+
                         // Move road edges forward to main car position
                         foreach (GameObject roadEdge in roadEdges)
                         {
@@ -468,8 +448,9 @@ public class AssemblyWinter2025
                             dash.Update();
                             dashOffset += dashSpacing;
                         }
-                        */
+
                     }
+                    */
                     if (SceneControl.ElapsedTime > sceneEndTime)
                     {
                         exitScene = true;
@@ -491,44 +472,66 @@ public class AssemblyWinter2025
                 float camX = carPosition.X + orbitRadius * MathF.Cos(angle);
                 float camZ = carPosition.Z + orbitRadius * MathF.Sin(angle);
                 float camY = carPosition.Y + 0.5f;
-                camera.SetPosition(new Vec3(camX, camY + 0.5f, camZ));
-                camera.Update();
-                camera.LookAt(camera.GetPosition(), mainCar.GetPosition(), new Vec3(1, 1, 0));
+                //camera.SetPosition(new Vec3(camX, camY + 0.5f, camZ));
+                
+                camera.LookAt(new Vec3(camX, camY + 0.5f, camZ), mainCar.GetPosition(), new Vec3(1, 1, 0));
             }
 
             // Third phase: stop moving the camera and stop spawning more cars
             else if (elapsedTime > thirdPhaseTime)
             {
+                //camera.LookAt(camera.GetPosition(), mainSign.GetPosition(), new Vec3(0, 1, 0));
+                if (cameraPath.GetWayPoints().Count == 0)
+                {
+                    cameraPath.AddWayPoint(
+                        new CameraWayPoint(
+                            camera.GetPosition(),
+                            camera.GetRotation(),
+                            camera.GetPosition(),
+                            camera.GetRotation(), 1));
+
+                    cameraPath.AddWayPoint(
+                        new CameraWayPoint(
+                            camera.GetPosition(),
+                            camera.GetRotation(),
+                            mainSign.GetPosition() + new Vec3(-0.25f, 1, -3),
+                            camera.GetRotation(), 3, 
+                            EasingTypes.EaseInSine));
+                }
+                else
+                {
+                    cameraPath.Run(camera, deltaTime);
+                }
             }
 
             // Second phase: the camera floats behind main car with some movement
             else if (elapsedTime >= firstPhaseTime && SceneControl.ElapsedTime <= thirdPhaseTime)
             {
-                updateCameraAtEndOfFrame = true;
                 sloMoMultiplier = 1f;
                 // Compute new target position and rotation
-                float x = 0.6f + 0.1f * (float)Math.Sin(elapsedTime * 0.21f);  // pan up/down
-                float y = -0.5f + 0.2f * (float)Math.Sin(elapsedTime * 0.28f); // pan left/right
-                float heightVariance = -1.1f + (float)Math.Sin(elapsedTime * 0.23f); // move up/down
+                var x = 0.6f + 0.1f * (float)Math.Sin(elapsedTime * 0.21f); // pan up/down
+                var y = -0.5f + 0.2f * (float)Math.Sin(elapsedTime * 0.28f); // pan left/right
+                var heightVariance = -1.1f + (float)Math.Sin(elapsedTime * 0.23f); // move up/down
 
-                Vec3 targetPosition = mainCar.GetPosition() + mainCarCameraOffset + new Vec3(0, heightVariance, 0);
-                Vec3 targetRotation = new Vec3(x, y, 0);
-                Vec3 currentPosition = camera.GetPosition();
-                Vec3 currentRotation = camera.GetRotation();
+                var targetPosition = mainCar.GetPosition() + mainCarCameraOffset + new Vec3(0, heightVariance, 0);
+                var targetRotation = new Vec3(x, y, 0);
+                var currentPosition = camera.GetPosition();
+                var currentRotation = camera.GetRotation();
 
+                var panTime = 1 - (cameraPanEndTime - elapsedTime);
                 if (cameraPanning)
                 {
-                    float panTime = 1 - (cameraPanEndTime - elapsedTime);
                     if (panTime >= 1)
                     {
                         panTime = 1;
                         cameraPanning = false;
                     }
-                    Vec3 newPosition = Lerp(currentPosition, targetPosition, panTime);
-                    Vec3 newRotation = Lerp(currentRotation, targetRotation, panTime);
+
+                    var newPosition = Lerp(currentPosition, targetPosition, panTime);
+                    var newRotation = Lerp(currentRotation, targetRotation, panTime);
                     camera.SetPosition(newPosition);
                     camera.SetRotation(newRotation);
-
+                    camera.Update();
                     Vec3 Lerp(Vec3 a, Vec3 b, float t)
                     {
                         return a * (1 - t) + b * t;
@@ -538,16 +541,14 @@ public class AssemblyWinter2025
                 {
                     camera.SetPosition(targetPosition);
                     camera.SetRotation(targetRotation);
+                    camera.Update();
                 }
             }
 
-            if (updateCameraAtEndOfFrame)
-            {
-                camera.Update();
-            }
 
             m_Raster.Process3D();
-            SceneControl.EndFrame();             // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
+            SceneControl
+                .EndFrame(); // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
         }
 
 
@@ -576,6 +577,7 @@ public class AssemblyWinter2025
                 {
                     carPosX += laneWidth;
                 }
+
                 GameObject car = GameObjects.Add(new GameObject());
                 car.LoadMesh(getRandomCarPath());
                 car.SetPosition(new Vec3(carPosX, 0, carPosZ));
@@ -620,6 +622,7 @@ public class AssemblyWinter2025
         {
             Console.WriteLine("The 'vehicles' folder does not exist.");
         }
+
         return randomCarPath;
     }
 }
@@ -629,6 +632,7 @@ public class ForwardCar
     public GameObject gameObject;
     public Vec3 velocity;
     public float tailgateDistance;
+
     public ForwardCar(GameObject gameObject, Vec3 velocity, float tailgateDistance)
     {
         this.gameObject = gameObject;
@@ -643,6 +647,7 @@ public class OppositeCar
     public GameObject gameObject;
     public Vec3 velocity;
     public float tailgateDistance;
+
     public OppositeCar(GameObject gameObject, Vec3 velocity, float tailgateDistance)
     {
         this.gameObject = gameObject;
