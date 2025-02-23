@@ -18,7 +18,9 @@ You have the [glorious ANSI palette of 16 colors](https://github.com/Byproduct/C
 
 By default the █ character is used for drawing. You can change it to any Unicode character, also while the scene is running, but the entire screen will always be drawn with the same character. (So think of it as pixels rather than ASCII art.)
 
-More details are available in the template and example scenes, and 3D tutorial is also in the works.
+A homemade 3D engine is also available, featuring .obj/mtl support, object/camera positions and rotations, lighting etc.  
+
+More details are available in the template and example scenes.
 
 If you've done something with this, I'd love to see it!
 
