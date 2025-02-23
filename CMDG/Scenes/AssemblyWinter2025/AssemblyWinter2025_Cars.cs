@@ -1,6 +1,4 @@
-﻿
-using CMDG.Worst3DEngine;
-using System;
+﻿using CMDG.Worst3DEngine;
 
 namespace CMDG
 {

@@ -31,7 +31,7 @@
 
             while (true)
             {
-                SceneControl.StartFrame();   // Clears frame buffer and starts frame timer.
+                SceneControl.StartFrame();
 
                 // Move each "pixel" around randomly
                 for (int i = 0; i < movingPixels.Count; i++)
@@ -45,7 +45,7 @@
                     Framebuffer.SetPixel(movingPixels[i].x, movingPixels[i].y, movingPixels[i].col);
                 }
 
-                SceneControl.EndFrame();          // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
+                SceneControl.EndFrame();
             }
         }
     }

@@ -82,7 +82,7 @@ public class RotateTutorial
         float cameraRotY = camera.GetRotation().Y;
         float cameraRotX = camera.GetRotation().X;
 
-        //rotate the camera based in input
+        //rotate the camera based on input
         if (m_Input.Left2) cameraRotY -= 1.0f * deltaTime;
         if (m_Input.Right2) cameraRotY += 1.0f * deltaTime;
         if (m_Input.Up2) cameraRotX -= 1.0f * deltaTime;

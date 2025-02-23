@@ -1,7 +1,6 @@
 ﻿using CMDG.Worst3DEngine;
 using NAudio.Wave;
 using NVorbis;
-using System.Diagnostics.CodeAnalysis;
 
 namespace CMDG;
 
@@ -152,7 +151,6 @@ public partial class AssemblyWinter2025
         if (m_CharSwapped || !(SceneControl.ElapsedTime > CHAR_SWAP_TIME)) return;
 
         Framebuffer.SetDrawingCharacter('█');
-        Framebuffer.WipeScreen();
         m_CharSwapped = true;
     }
 

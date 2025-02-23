@@ -1,6 +1,5 @@
 ﻿namespace CMDG
 {
-
     public struct Color32
     {
         public byte r;

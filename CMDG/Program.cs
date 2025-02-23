@@ -1,9 +1,10 @@
-﻿using System.Reflection;
+﻿// If you're creating a scene, there should be no need to edit this file.
+// Check Config.cs, Scenes/SceneTemplate.cs, and Scenes/Example2D.cs to get started!
+
+using System.Reflection;
 using CMDG;
 
 string sceneName = Config.SceneName;
-
-
 
 // Bootup sequence in single thread
 Util.Initialize();
@@ -20,7 +21,8 @@ MethodInfo? checkForExitMethod = sceneType?.GetMethod("CheckForExit");
 MethodInfo? exitMethod = sceneType?.GetMethod("Exit");
 if (sceneType == null || runMethod == null)
 {
-    LogError($"Error: Scene {sceneName} not found or missing Run() method.");
+    Console.Clear();
+    Console.WriteLine($"Error: Scene {sceneName} not found or missing Run() method.");
     Environment.Exit(1);
 }
 bool sceneIsRunning = true;

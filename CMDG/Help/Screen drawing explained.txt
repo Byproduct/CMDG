@@ -1,0 +1,9 @@
+﻿If Config.ShowTime is set to true, you will see "Calc frame" and "Draw frame" times under the scene.
+These run in separate threads, so only the higher number affects your frame rate.
+
+"Draw frame" means the time it takes to write the Framebuffer as color codes and characters into the console. 
+"Calc frame" is everything else: your code, SetPixels, the 3D-engine etc.
+
+The drawing routine checks against the previous frame line by line, and skips unchanged lines, as well as unchanged left and right ends of each line.
+Drawing time can therefore vary a lot depending on what the scene looks like.
+For example the plasma scene is faster to calculate than draw, while most 3D-scenes are the opposite.

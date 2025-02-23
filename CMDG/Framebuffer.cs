@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Drawing.Imaging;
 using System.Text;
 using CMDG.Worst3DEngine;
 
@@ -18,7 +17,7 @@ namespace CMDG
         private static Color32[] previousFrame = new Color32[Config.ScreenWidth * Config.ScreenHeight]; // Previous frame is saved for optimization purposes (avoid writing characters that already exist on screen)
         private static Color32[] line = new Color32[Config.ScreenWidth];                                // One line of screen contents
         private static Color32[] previousLine = new Color32[Config.ScreenWidth];                        // The same line of previous frame
-        private static char pixelCharacter = Config.PixelCharacter;                                   // Currenty, a "pixel" is drawn using an empty character and background color. (Faster than full block character and foreground color.)   
+        private static char pixelCharacter = Config.PixelCharacter;                                     // Currenty, a "pixel" is drawn using an empty character and background color. (Faster than full block character and foreground color.)   
 
         // Variables for measuring the time of the calculation and drawing threads
         private static Stopwatch stopwatch = new();
@@ -39,6 +38,12 @@ namespace CMDG
             y = Math.Clamp(y, 0, Config.ScreenHeight - 1);
             Backbuffer[y * Config.ScreenWidth + x] = color;
         }
+
+        public static void SetPixelUnsafe(int x, int y, Color32 color)
+        {
+            Backbuffer[y * Config.ScreenWidth + x] = color;
+        }
+
 
         public static void StartDrawThread()
         {
@@ -95,7 +100,7 @@ namespace CMDG
 
             if (forceWipe)
             {
-                Frontbuffer.AsSpan().Fill(new Color32(0, 0, 0));
+                Frontbuffer.AsSpan().Fill(new Color32(0, 0, 1));
                 forceWipe = false;
             }
 

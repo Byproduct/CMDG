@@ -1,6 +1,5 @@
 ﻿using System.IO.Compression;
 
-
 namespace CMDG
 {
     // Loads an array of ANSI color codes for every possible Color32 (255*255*255) element. If the array doesn't already exist as a file, it gets generated.

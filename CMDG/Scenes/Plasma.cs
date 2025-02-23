@@ -7,8 +7,6 @@
 
         public static void Run()
         {
-            _time = 0.0;
-
             while (true)
             {
                 SceneControl.StartFrame();
@@ -17,11 +15,10 @@
                 {
                     for (int y = 0; y < Config.ScreenHeight; y++)
                     {
-                        // Calculate multiple plasma values using different patterns
-                        double v1 = Math.Sin(x * 0.04);
-                        double v2 = Math.Sin(y * 0.06);
-                        double v3 = Math.Sin((x + y) * 0.03 + SceneControl.ElapsedTime * 3);
-                        double v4 = Math.Sin(Math.Sqrt(x * x + y * y) * 0.04 + _time * 1.5);
+                        double v1 = Math.Sin(x * 0.04);   // value changing over x-coordinate
+                        double v2 = Math.Sin(y * 0.06);   // value changing over y-coordinate
+                        double v3 = Math.Sin(Math.Sqrt(x * x + y * y) * 0.04 + SceneControl.ElapsedTime * 1.5); // value changing over coordinates and time
+                        double v4 = Math.Sin((x + y) * 0.03 + SceneControl.ElapsedTime * 3);                    // another value changing over coordinates and time
 
                         // Combine values to create complex pattern
                         double plasmaValue = v1 + v2 + v3 + v4;

@@ -5,12 +5,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ApplicationIcon>Media\Nelostie.ico</ApplicationIcon>
-    <AssemblyName>Nelostie</AssemblyName>
+    <ApplicationIcon>Media\cmdg_icon.ico</ApplicationIcon>
+    <AssemblyName>CMDG</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Media\Nelostie.ico" />
+    <Content Include="Media\cmdg_icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
