@@ -24,4 +24,4 @@ More details are available in the template and example scenes.
 
 If you've done something with this, I'd love to see it!
 
-If you have any questions, [http://discordapp.com/users/244907716231954442](drop me a message on Discord).
+If you have any questions, [(drop us a message on Discord)](http://discordapp.com/users/244907716231954442).
