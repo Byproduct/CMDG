@@ -12,7 +12,7 @@
         Plasma:             Simple 2D plasma demo effect
         Example3D:          Simple example of a 3D scene
         CarRotateTest:      View a car 3D model and rotate the camera with arrow keys / WASD
-        AssemblyWinter2025: "Nelostie" demo for Assembly Winter 2025]}
+        AssemblyWinter2025: "Nelostie" demo for Assembly Winter 2025
         */
 
 
