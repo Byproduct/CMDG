@@ -7,12 +7,12 @@
         /*
         Available scenes:
 
-        SceneTemplate:      Copy this to create a new scene from scratch
+        SceneTemplate:      Copy this to create a new scene
         Example2D:          Simple example of a 2D scene (randomly moving pixels)
         Plasma:             Simple 2D plasma demo effect
         Example3D:          Simple example of a 3D scene
         CarRotateTest:      View a car 3D model and rotate the camera with arrow keys / WASD
-        AssemblyWinter2025: work in progress
+        AssemblyWinter2025: "Nelostie" demo for Assembly Winter 2025]}
         */
 
 
