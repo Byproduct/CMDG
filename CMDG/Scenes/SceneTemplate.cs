@@ -26,7 +26,7 @@
                 color = Color32 struct containing red, green and blue values of 0-255 (byte), e.g. New Color32(255,255,255). Alpha channel is not used.
                 the color will be converted to the nearest ANSI color. There are 16 colors, see palette.png for reference.
                 
-                SceneControl.DeltaTime and SceneControl.TotalTime can be used for timing. These are full seconds (double type). 
+                SceneControl.DeltaTime and SceneControl.ElapsedTime can be used for timing. These are full seconds (double type). 
                 */
 
                 SceneControl.EndFrame();          // Calculates spent time, limits to max framerate, and sends the frame buffer for drawing.
