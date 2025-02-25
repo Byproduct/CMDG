@@ -24,4 +24,4 @@ More details are available in the template and example scenes.
 
 If you've done something with this, I'd love to see it!
 
-If you have any questions, [drop me a message on Discord](http://discordapp.com/users/244907716231954442).
+If you have any questions, drop [me](http://discordapp.com/users/244907716231954442) a message on Discord. [https://discord.gg/8j8auPha](CMDG also has its own Discord server), which I strongly recommend joining if you're making something with it. :)
