@@ -22,6 +22,4 @@ A homemade 3D engine is also available, featuring .obj/mtl support, object/camer
 
 More details are available in the template and example scenes.
 
-If you've done something with this, we'd love to see it! [CMDG has its own Discord server](https://discord.gg/8j8auPha), which I strongly recommend joining if you're making something with it. :)
-
-If you have any questions, feel free to drop [me](http://discordapp.com/users/244907716231954442) a Discord message. 
+If you've done something with this, we'd love to see it! [CMDG has its own Discord server](https://discord.gg/8j8auPha) which is also a good place for any questions you might have. :)
