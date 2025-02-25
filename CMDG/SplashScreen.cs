@@ -54,8 +54,6 @@ namespace CMDG
                     Console.WriteLine("Error: " + ex.Message);
                 }
                 Console.SetCursorPosition(0, Config.ScreenHeight + 2);
-                Console.WriteLine("Enter to close.");
-                Console.ReadLine();
         }
 
         public static Bitmap ResizeBitmap(Bitmap original, int width, int height)

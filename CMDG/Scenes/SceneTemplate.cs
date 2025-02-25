@@ -29,7 +29,7 @@
                 SceneControl.DeltaTime and SceneControl.TotalTime can be used for timing. These are full seconds (double type). 
                 */
 
-                SceneControl.EndFrame();          // Calculates spent time, limits to max framerate, sends the frame buffer for drawing, and allows quitting by pressing ESC.
+                SceneControl.EndFrame();          // Calculates spent time, limits to max framerate, and sends the frame buffer for drawing.
             }
         }
 

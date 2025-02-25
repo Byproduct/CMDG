@@ -12,20 +12,15 @@ namespace CMDG
         public static void StartFrame()
         {
             deltaTimeStopwatch.Restart();
-            Framebuffer.Backbuffer.AsSpan().Fill(Config.BackgroundColor);
+            Framebuffer.BackColorBuffer.AsSpan().Fill(Config.BackgroundColor);
+            if (Config.MultipleCharacters)
+            {
+                Framebuffer.BackCharacterBuffer.AsSpan().Fill(Config.DefaultCharacter);
+            }
         }
         public static void EndFrame()
         {
-            Framebuffer.BackbufferToSwapbuffer();
-
-            if (Console.KeyAvailable)
-            {
-                var key = Console.ReadKey(intercept: true);
-                if (key.Key == ConsoleKey.Escape)
-                {
-                    Environment.Exit(0);
-                }
-            }
+            Framebuffer.BackbuffersToSwapbuffers();
 
             int calcFrameTime = (int)(deltaTimeStopwatch.ElapsedMilliseconds);
             Framebuffer.CalcFrameTime = calcFrameTime;

@@ -119,7 +119,7 @@ while (true)
         }
         Environment.Exit(0);
     }
-    Thread.Sleep(20);
+    Thread.Sleep(10);
 }
 
 static void LogError(string message)

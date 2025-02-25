@@ -105,7 +105,7 @@ public partial class AssemblyWinter2025
             CameraLogic(elapsedTime, deltaTime, cameraPath);
             RenderLogic();
 
-            // Calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
+            // Calculates spent time and limits to max framerate.
             SceneControl.EndFrame();
 
             if (SceneControl.ElapsedTime > SCENE_END_TIME)

@@ -72,7 +72,7 @@ public class Example3D
             // You can use the 2D engine as usual. In most cases it probably makes sense to call it after Process3D, so it draws over the 3D image.  
             Framebuffer.SetPixel(2, 2, new Color32(255, 0, 0));
 
-            SceneControl.EndFrame(); // EndFrame calculates spent time, limits to max framerate, and allows quitting by pressing ESC.
+            SceneControl.EndFrame(); // EndFrame calculates spent time and limits to max framerate.
         }
     }
 }

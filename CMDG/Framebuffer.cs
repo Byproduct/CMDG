@@ -4,20 +4,28 @@ using CMDG.Worst3DEngine;
 
 namespace CMDG
 {
-    public static class Framebuffer
+    public static partial class Framebuffer
     {
         // Variables for running DrawScreen() in a separate thread 
         private static readonly object swapBufferLock = new object();
         private static volatile bool isRunning = true;
         private static Thread? drawThread;
 
-        public static Color32[] Backbuffer = new Color32[Config.ScreenWidth * Config.ScreenHeight];     // Scene is drawn in Backbuffer using SetPixel()
-        public static Color32[] Swapbuffer = new Color32[Config.ScreenHeight * Config.ScreenWidth];     // After drawing, Backbuffer is swapped into Swapbuffer once per frame
-        public static Color32[] Frontbuffer = new Color32[Config.ScreenWidth * Config.ScreenHeight];    // Swapbuffer is swapped into Frontbuffer once per frame. Frontbuffer is used to write the scene contents into the console.
-        private static Color32[] previousFrame = new Color32[Config.ScreenWidth * Config.ScreenHeight]; // Previous frame is saved for optimization purposes (avoid writing characters that already exist on screen)
-        private static Color32[] line = new Color32[Config.ScreenWidth];                                // One line of screen contents
-        private static Color32[] previousLine = new Color32[Config.ScreenWidth];                        // The same line of previous frame
-        private static char pixelCharacter = Config.PixelCharacter;                                     // Currenty, a "pixel" is drawn using an empty character and background color. (Faster than full block character and foreground color.)   
+        public static Color32[] BackColorBuffer = new Color32[Config.ScreenWidth * Config.ScreenHeight];     // Scene is drawn in Backbuffer using SetPixel()
+        public static Color32[] SwapColorBuffer = new Color32[Config.ScreenHeight * Config.ScreenWidth];     // After drawing, Backbuffer is swapped into Swapbuffer once per frame
+        public static Color32[] FrontColorBuffer = new Color32[Config.ScreenWidth * Config.ScreenHeight];    // Swapbuffer is swapped into Frontbuffer once per frame. Frontbuffer is used to write the scene contents into the console.
+        private static Color32[] previousFrameColor = new Color32[Config.ScreenWidth * Config.ScreenHeight]; // Previous frame is saved for optimization purposes (avoid writing characters that already exist on screen)
+        private static Color32[] lineColor = new Color32[Config.ScreenWidth];                                // One line of screen contents
+        private static Color32[] previousLineColor = new Color32[Config.ScreenWidth];                        // The same line of previous frame
+
+
+        public static char[] BackCharacterBuffer = new char[Config.ScreenWidth * Config.ScreenHeight];       // Character buffers, which function similarly to color buffers. Applicable only if Config.MultipleCharacters = true, otherwise all characters are default.
+        public static char[] SwapCharacterBuffer = new char[Config.ScreenHeight * Config.ScreenWidth];
+        public static char[] FrontCharacterBuffer = new char[Config.ScreenWidth * Config.ScreenHeight];
+        private static char[] previousFrameCharacter = new char[Config.ScreenWidth * Config.ScreenHeight];
+        private static char[] lineCharacter = new char[Config.ScreenWidth];
+        private static char[] previousLineCharacter = new char[Config.ScreenWidth];
+
 
         // Variables for measuring the time of the calculation and drawing threads
         private static Stopwatch stopwatch = new();
@@ -36,12 +44,20 @@ namespace CMDG
         {
             x = Math.Clamp(x, 0, Config.ScreenWidth - 1);
             y = Math.Clamp(y, 0, Config.ScreenHeight - 1);
-            Backbuffer[y * Config.ScreenWidth + x] = color;
+            BackColorBuffer[y * Config.ScreenWidth + x] = color;
+        }
+
+        public static void SetPixel(int x, int y, Color32 color, char character)
+        {
+            x = Math.Clamp(x, 0, Config.ScreenWidth - 1);
+            y = Math.Clamp(y, 0, Config.ScreenHeight - 1);
+            BackColorBuffer[y * Config.ScreenWidth + x] = color;
+            BackCharacterBuffer[y * Config.ScreenWidth + x] = character;
         }
 
         public static void SetPixelUnsafe(int x, int y, Color32 color)
         {
-            Backbuffer[y * Config.ScreenWidth + x] = color;
+            BackColorBuffer[y * Config.ScreenWidth + x] = color;
         }
 
 
@@ -62,7 +78,7 @@ namespace CMDG
         {
             if (Config.FullBlockCharacter)
             {
-                pixelCharacter = ' ';
+                Config.DefaultCharacter = ' ';
                 Util.ansi_colour_codes = Util.ansi_background_colour_codes;
             }
             else
@@ -75,52 +91,86 @@ namespace CMDG
             }
         }
 
-        public static void BackbufferToSwapbuffer()
+        public static void BackbuffersToSwapbuffers()
         {
             lock (swapBufferLock)
             {
-                Backbuffer.AsSpan().CopyTo(Swapbuffer);
+                BackColorBuffer.AsSpan().CopyTo(SwapColorBuffer);
+                if (Config.MultipleCharacters)
+                {
+                    BackCharacterBuffer.AsSpan().CopyTo(SwapCharacterBuffer);
+                }
             }
         }
 
-        public static void SwapbufferToFrontbuffer()
+        public static void SwapbuffersToFrontBuffers()
         {
             lock (swapBufferLock)
             {
-                Swapbuffer.AsSpan().CopyTo(Frontbuffer);
+                SwapColorBuffer.AsSpan().CopyTo(FrontColorBuffer);
+                if (Config.MultipleCharacters)
+                {
+                    SwapCharacterBuffer.AsSpan().CopyTo(FrontCharacterBuffer);
+                }
             }
         }
 
         private static void DrawScreen()
         {
             stopwatch.Restart();
-            SwapbufferToFrontbuffer();      // Get the contents of Backbuffer (Swapbuffer) as written by the scene function.
+            SwapbuffersToFrontBuffers();      // Get the contents of Backbuffers (Swapbuffers) as written by the scene function.
 
             var outputBuffer = new StringBuilder(Config.ScreenWidth * Config.ScreenHeight * 5);     // Buffer to store the commands for characters, colors and cursor placements, collected and executed in one go.
 
             if (forceWipe)
             {
-                Frontbuffer.AsSpan().Fill(new Color32(0, 0, 1));
+                FrontColorBuffer.AsSpan().Fill(new Color32(0, 0, 1));
+                FrontCharacterBuffer.AsSpan().Fill(Config.DefaultCharacter);
                 forceWipe = false;
             }
 
             for (int y = 0; y < Config.ScreenHeight; y++)
             {
                 // Examine one line of the buffer at a time
-                Array.Copy(Frontbuffer, y * Config.ScreenWidth, line, 0, Config.ScreenWidth);
-                Array.Copy(previousFrame, y * Config.ScreenWidth, previousLine, 0, Config.ScreenWidth);
+                Array.Copy(FrontColorBuffer, y * Config.ScreenWidth, lineColor, 0, Config.ScreenWidth);
+                Array.Copy(previousFrameColor, y * Config.ScreenWidth, previousLineColor, 0, Config.ScreenWidth);
+
+                if (Config.MultipleCharacters)
+                {
+                    Array.Copy(FrontCharacterBuffer, y * Config.ScreenWidth, lineCharacter, 0, Config.ScreenWidth);
+                    Array.Copy(previousFrameCharacter, y * Config.ScreenWidth, previousLineCharacter, 0, Config.ScreenWidth);
+                }
 
                 // Draw the line only if it has changed
-                if (!line.AsSpan().SequenceEqual(previousLine.AsSpan()))
+                bool colorLineChanged = !lineColor.AsSpan().SequenceEqual(previousLineColor.AsSpan());
+                bool characterLineChanged = true;
+                if (Config.MultipleCharacters)
                 {
-                    // Find the first changed position within the line, scanning from left to right
+                    characterLineChanged = !lineColor.AsSpan().SequenceEqual(previousLineColor.AsSpan());
+                }
+
+                if (colorLineChanged && characterLineChanged)
+                {
+                    // Find the first changed color position within the line, scanning from left to right
                     int firstChangedX = 0;
                     for (int x = 0; x < Config.ScreenWidth; x++)
                     {
-                        if (!line[x].Equals(previousLine[x]))
+                        if (!lineColor[x].Equals(previousLineColor[x]))
                         {
                             firstChangedX = x;
                             break;
+                        }
+                    }
+                    // Check if a first changed character position occurs before the first changed color position
+                    if (Config.MultipleCharacters)
+                    {
+                        for (int x = 0; x < firstChangedX; x++)
+                        {
+                            if (!lineCharacter[x].Equals(previousLineCharacter[x]))
+                            {
+                                firstChangedX = x;
+                                break;
+                            }
                         }
                     }
 
@@ -135,35 +185,60 @@ namespace CMDG
                     outputBuffer.Append($"\x1b[{y + 2};{xCursorPosition}H");
 
 
-                    // Find the last changed position within the line, scanning from right to left
+                    // Find the last changed color position within the line, scanning from right to left
                     int lastChangedX = -1;
                     for (int x = Config.ScreenWidth - 1; x >= 0; x--)
                     {
-                        if (!line[x].Equals(previousLine[x]))
+                        if (!lineColor[x].Equals(previousLineColor[x]))
                         {
                             lastChangedX = x + 1;
                             break;
                         }
                     }
 
+                    // Check if a first changed character position occurs before the first changed color position
+                    if (Config.MultipleCharacters)
+                    {
+                        if (Config.MultipleCharacters)
+                        {
+                            for (int x = Config.ScreenWidth - 1; x >= lastChangedX; x--)
+                            {
+                                if (!lineCharacter[x].Equals(previousLineCharacter[x]))
+                                {
+                                    lastChangedX = x + 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
                     int previousColorCode = -1;
                     // Iterate character by character, but only from and up to the last changed positions
+
                     for (int x = firstChangedX; x < lastChangedX; x++)
                     {
-                        int colorCode = ColorConverter.GetClosestAnsiColorIndexFromMap(line[x]);
+                        int colorCode = ColorConverter.GetClosestAnsiColorIndexFromMap(lineColor[x]);
                         // Add ANSI color command only if the color changed from the previous character.
                         if (colorCode != previousColorCode)
                         {
                             outputBuffer.Append(Util.ansi_colour_codes[colorCode]);
                             previousColorCode = colorCode;
                         }
-                        outputBuffer.Append(pixelCharacter);
-                        if (Config.DoubleWidth) outputBuffer.Append(pixelCharacter);  // Add another character if double width is used.
+                        if (Config.MultipleCharacters)
+                        {
+                            outputBuffer.Append(FrontCharacterBuffer[y * Config.ScreenWidth + x]);
+                            if (Config.DoubleWidth) outputBuffer.Append(FrontCharacterBuffer[y * Config.ScreenWidth + x]);  // Add another character if double width is used.
+                        }
+                        else
+                        {
+                            outputBuffer.Append(Config.DefaultCharacter);
+                            if (Config.DoubleWidth) outputBuffer.Append(Config.DefaultCharacter);  // Add another character if double width is used.
+                        }
                     }
                 }
             }
 
-            Frontbuffer.AsSpan().CopyTo(previousFrame);
+            FrontColorBuffer.AsSpan().CopyTo(previousFrameColor);
 
             // Display calculating and drawing times below the picture border
             if (Config.ShowTime)
@@ -216,12 +291,12 @@ namespace CMDG
 
         public static char GetDrawingCharacter()
         {
-            return pixelCharacter;
+            return Config.DefaultCharacter;
         }
 
         public static void SetDrawingCharacter(char character)
         {
-            pixelCharacter = character;
+            Config.DefaultCharacter = character;
         }
 
         // Draw the entire new buffer onto the screen without optimising anything out (e.g. when swapping the used character).
