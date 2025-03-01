@@ -67,8 +67,12 @@
                 color.g = (byte)(color.g * zz);
                 color.b = (byte)(color.b * zz);
 
+
                 //float luminance = Util.LinearLuminance(color.r, color.g, color.b);
-                float luminance = Util.GammaCorrectedLuminance(color.r, color.g, color.b)*255;
+                //float luminance = Util.GammaCorrectedLuminance(color.r, color.g, color.b)*255;
+                float luminance = Util.SaturationCorrectedLuminance(color.r, color.g, color.b, 2f) * 255;
+                luminance = Util.Clamp(luminance, 0, 255);
+
                 char ch = Util.GetAsciiChar(luminance);
 
                 Framebuffer.SetPixel(x, y, color, ch);
@@ -187,7 +191,7 @@
                                 m_Buffer[j, i].Z = w;
 
 
-                                float normalizedW = w / 10;
+                                float normalizedW = w / 25;
                                 normalizedW = Util.Clamp(normalizedW, 0, 1);
 
                                 byte cW = (byte)(255 - (normalizedW * 255));
@@ -241,7 +245,7 @@
                             {
                                 m_Buffer[j, i].Z = w;
 
-                                float normalizedW = w / 10;
+                                float normalizedW = w / 25;
                                 normalizedW = Util.Clamp(normalizedW, 0, 1);
 
                                 byte cW = (byte)(255 - (normalizedW * 255));
@@ -474,7 +478,7 @@
                 color.b = (byte)((b * z) * 255.0f);
 
                 //add particle to the renderlist
-                m_RenderParticles!.Enqueue(new Particle(projected, color));
+                m_RenderParticles!.Enqueue(new Particle(projected, new Vec3(0, 0, 0), color, '*', 0.1f));
             }
         }
 
@@ -584,7 +588,6 @@
             color.Z = Util.Clamp(color.Z, 0, 1);
 
             var finalColor = Vec3.Lerp(original, color, dp);
-            //var finalColor = Vec3.Lerp(original, color, 1.0f);
 
             var result = new Color32
             {

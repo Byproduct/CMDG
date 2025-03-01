@@ -34,7 +34,7 @@ namespace CMDG
         static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
 
         private static float[] m_GammaLut;
-        
+
 
         public static void Initialize()
         {
@@ -128,9 +128,10 @@ namespace CMDG
                 float x = i / 255.0f;
                 lut[i] = x * x * MathF.Sqrt(x);
             }
+
             return lut;
         }
-        
+
         public static float GammaCorrectedLuminance(byte r, byte g, byte b)
         {
             //unoptimized, just testing!
@@ -141,25 +142,75 @@ namespace CMDG
 
             return MathF.Sqrt(0.2126f * rf + 0.7152f * gf + 0.0722f * bf);
             */
-            
+
             float rf = m_GammaLut[r];
             float gf = m_GammaLut[g];
             float bf = m_GammaLut[b];
 
             return MathF.Sqrt(0.2126f * rf + 0.7152f * gf + 0.0722f * bf);
-            
         }
-        
+
         //fast, but without the gamma correction
         public static float LinearLuminance(byte r, byte g, byte b)
         {
             return 0.2126f * r + 0.7152f * g + 0.0722f * b;
         }
 
+        public static (float hue, float saturation, float value) RGBtoHSV(byte r, byte g, byte b)
+        {
+            float rNorm = r / 255.0f;
+            float gNorm = g / 255.0f;
+            float bNorm = b / 255.0f;
+
+            float max = MathF.Max(rNorm, MathF.Max(gNorm, bNorm));
+            float min = MathF.Min(rNorm, MathF.Min(gNorm, bNorm));
+            float delta = max - min;
+
+            // Hue
+            float hue = 0.0f;
+            if (delta != 0.0f)
+            {
+                if (max == rNorm) hue = (gNorm - bNorm) / delta; // Red is max
+                else if (max == gNorm) hue = (bNorm - rNorm) / delta + 2; // Green is max
+                else hue = (rNorm - gNorm) / delta + 4; // Blue is max
+                hue /= 6.0f;
+                if (hue < 0.0f) hue += 1.0f;
+            }
+
+            // Saturation
+            float saturation = max == 0.0f ? 0.0f : delta / max;
+
+            // Value
+            float value = max;
+
+            return (hue, saturation, value);
+        }
+
+
+        //Saturation Power range: 0.5f - 5.0f
+        public static float SaturationCorrectedLuminance(byte r, byte g, byte b,float saturationPower)
+        {
+            var (hue, saturation, value) = RGBtoHSV(r, g, b);
+
+            float rf = r / 255.0f;
+            float gf = g / 255.0f;
+            float bf = b / 255.0f;
+
+            rf = rf * rf * MathF.Sqrt(rf);
+            gf = gf * gf * MathF.Sqrt(gf);
+            bf = bf * bf * MathF.Sqrt(bf);
+
+            float luminance = MathF.Sqrt(0.2126f * rf + 0.7152f * gf + 0.0722f * bf);
+
+            luminance *= 1.0f + saturationPower * saturation;
+
+            return luminance;
+        }
+
         public static char GetAsciiChar(float luminance)
         {
-            const string asciiChars = " .:-=+*#%@"; 
-            //const string asciiChars = " .'`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+            //const string asciiChars = " .:-=+*#%@"; 
+            const string asciiChars = " .'`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
             //const string asciiChars = "\u2591\u2592\u2593\u2588";
             int index = (int)((luminance / 255.0f) * (asciiChars.Length - 1));
             return asciiChars[index];
