@@ -8,15 +8,22 @@ namespace CMDG
     {
         public static string ANSI_escape_character = "\u001b";
         public static string ANSI_reset_code = ANSI_escape_character + "[0m";
-        public static string ANSI_bold_code = ANSI_escape_character + "[1m";   // note: makes all colors the "brighter" version, that is, reducing your available palette to half
+
+        public static string
+            ANSI_bold_code =
+                ANSI_escape_character +
+                "[1m"; // note: makes all colors the "brighter" version, that is, reducing your available palette to half
 
         public static Dictionary<int, string> ansi_foreground_colour_codes = new();
         public static Dictionary<int, string> ansi_background_colour_codes = new();
-        public static Dictionary<int, string> ansi_colour_codes = new();      // will be filled with foreground or background codes depending on config
+
+        public static Dictionary<int, string>
+            ansi_colour_codes = new(); // will be filled with foreground or background codes depending on config
 
         // Set up the terminal for ANSI codes, character encoding etc.
         const int STD_OUTPUT_HANDLE = -11;
         const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 4;
+
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern IntPtr GetStdHandle(int nStdHandle);
 
@@ -26,6 +33,8 @@ namespace CMDG
         [DllImport("kernel32.dll")]
         static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
 
+        private static float[] m_GammaLut;
+        
 
         public static void Initialize()
         {
@@ -73,6 +82,8 @@ namespace CMDG
             Console.OutputEncoding = Encoding.UTF8;
 
             ColorConverter.LoadAnsiMap();
+
+            m_GammaLut = CreateGammaLut();
         }
 
         public static void DrawBorder()
@@ -83,6 +94,7 @@ namespace CMDG
             {
                 width *= 2;
             }
+
             string topLine = new string('_', width);
             string topBorder = " " + topLine + " ";
             string screenSpace = new string(' ', width);
@@ -94,9 +106,10 @@ namespace CMDG
             {
                 Console.WriteLine(verticalBorder);
             }
+
             Console.WriteLine(bottomBorder);
         }
-        
+
         public static float Clamp(float v, float min, float max)
         {
             if (v < min)
@@ -107,6 +120,49 @@ namespace CMDG
             return v;
         }
 
+        private static float[] CreateGammaLut()
+        {
+            float[] lut = new float[256];
+            for (int i = 0; i < 256; i++)
+            {
+                float x = i / 255.0f;
+                lut[i] = x * x * MathF.Sqrt(x);
+            }
+            return lut;
+        }
         
+        public static float GammaCorrectedLuminance(byte r, byte g, byte b)
+        {
+            //unoptimized, just testing!
+            /*
+            float rf = MathF.Pow(r / 255.0f, 2.2f);
+            float gf = MathF.Pow(g / 255.0f, 2.2f);
+            float bf = MathF.Pow(b / 255.0f, 2.2f);
+
+            return MathF.Sqrt(0.2126f * rf + 0.7152f * gf + 0.0722f * bf);
+            */
+            
+            float rf = m_GammaLut[r];
+            float gf = m_GammaLut[g];
+            float bf = m_GammaLut[b];
+
+            return MathF.Sqrt(0.2126f * rf + 0.7152f * gf + 0.0722f * bf);
+            
+        }
+        
+        //fast, but without the gamma correction
+        public static float LinearLuminance(byte r, byte g, byte b)
+        {
+            return 0.2126f * r + 0.7152f * g + 0.0722f * b;
+        }
+
+        public static char GetAsciiChar(float luminance)
+        {
+            const string asciiChars = " .:-=+*#%@"; 
+            //const string asciiChars = " .'`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+            //const string asciiChars = "\u2591\u2592\u2593\u2588";
+            int index = (int)((luminance / 255.0f) * (asciiChars.Length - 1));
+            return asciiChars[index];
+        }
     }
 }
