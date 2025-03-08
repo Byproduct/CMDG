@@ -73,7 +73,7 @@
                 float luminance = Util.SaturationCorrectedLuminance(color.r, color.g, color.b, 2f) * 255;
                 luminance = Util.Clamp(luminance, 0, 255);
 
-                char ch = Util.GetAsciiChar(luminance);
+                char ch = Util.GetAsciiChar(luminance, 0);
 
                 Framebuffer.SetPixel(x, y, color, ch);
             }

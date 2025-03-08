@@ -188,7 +188,7 @@ namespace CMDG
 
 
         //Saturation Power range: 0.5f - 5.0f
-        public static float SaturationCorrectedLuminance(byte r, byte g, byte b,float saturationPower)
+        public static float SaturationCorrectedLuminance(byte r, byte g, byte b, float saturationPower)
         {
             var (hue, saturation, value) = RGBtoHSV(r, g, b);
 
@@ -207,13 +207,29 @@ namespace CMDG
             return luminance;
         }
 
-        public static char GetAsciiChar(float luminance)
+        public static char GetAsciiChar(float luminance, int asciiSet)
         {
-            //const string asciiChars = " .:-=+*#%@"; 
-            const string asciiChars = " .'`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
-            //const string asciiChars = "\u2591\u2592\u2593\u2588";
-            int index = (int)((luminance / 255.0f) * (asciiChars.Length - 1));
-            return asciiChars[index];
+            switch (asciiSet)
+            {
+                case 0:
+                {
+                    const string asciiChars = " .:-=+*#%@";
+                    int index = (int)((luminance / 255.0f) * (asciiChars.Length - 1));
+                    return asciiChars[index];
+                }
+                case 1:
+                {
+                    const string asciiChars = " .'`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+                    int index = (int)((luminance / 255.0f) * (asciiChars.Length - 1));
+                    return asciiChars[index];
+                }
+                default:
+                {
+                    const string asciiChars = "\u2591\u2592\u2593\u2588";
+                    int index = (int)((luminance / 255.0f) * (asciiChars.Length - 1));
+                    return asciiChars[index];
+                }
+            }
         }
     }
 }

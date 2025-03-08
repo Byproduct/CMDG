@@ -3,7 +3,9 @@
     // Constant configuration values
     public static class Config
     {
-        public const string SceneName = "Example2D_characters"; // Select the scene to play by entering its name. Must be a class that contains a Run() method.
+        //public const string SceneName = "Character3Dtest"; // Select the scene to play by entering its name. Must be a class that contains a Run() method.
+        public const string SceneName = "JuliaSetTest";
+        
         /*
         Available scenes:
 
@@ -28,6 +30,6 @@
         public static bool FullBlockCharacter = false;        // Use a full block character █ and background color instead of above character 
         public static bool AdjustScreen = false;              // Instructions to adjust screen at startup
         public static bool SplashScreen = false;              // CMDG splash screen after screen adjustment and before demo.
-        public static bool EndScreen = true;                  // End screen after quitting
+        public static bool EndScreen = false;                  // End screen after quitting
     }
 }

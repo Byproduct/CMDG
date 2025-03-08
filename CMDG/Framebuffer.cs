@@ -11,15 +11,34 @@ namespace CMDG
         private static volatile bool isRunning = true;
         private static Thread? drawThread;
 
-        public static Color32[] BackColorBuffer = new Color32[Config.ScreenWidth * Config.ScreenHeight];     // Scene is drawn in Backbuffer using SetPixel()
-        public static Color32[] SwapColorBuffer = new Color32[Config.ScreenHeight * Config.ScreenWidth];     // After drawing, Backbuffer is swapped into Swapbuffer once per frame
-        public static Color32[] FrontColorBuffer = new Color32[Config.ScreenWidth * Config.ScreenHeight];    // Swapbuffer is swapped into Frontbuffer once per frame. Frontbuffer is used to write the scene contents into the console.
-        private static Color32[] previousFrameColor = new Color32[Config.ScreenWidth * Config.ScreenHeight]; // Previous frame is saved for optimization purposes (avoid writing characters that already exist on screen)
-        private static Color32[] lineColor = new Color32[Config.ScreenWidth];                                // One line of screen contents
-        private static Color32[] previousLineColor = new Color32[Config.ScreenWidth];                        // The same line of previous frame
+        public static Color32[]
+            BackColorBuffer =
+                new Color32[Config.ScreenWidth * Config.ScreenHeight]; // Scene is drawn in Backbuffer using SetPixel()
+
+        public static Color32[]
+            SwapColorBuffer =
+                new Color32[Config.ScreenHeight *
+                            Config.ScreenWidth]; // After drawing, Backbuffer is swapped into Swapbuffer once per frame
+
+        public static Color32[]
+            FrontColorBuffer =
+                new Color32[Config.ScreenWidth *
+                            Config.ScreenHeight]; // Swapbuffer is swapped into Frontbuffer once per frame. Frontbuffer is used to write the scene contents into the console.
+
+        private static Color32[]
+            previousFrameColor =
+                new Color32[Config.ScreenWidth *
+                            Config.ScreenHeight]; // Previous frame is saved for optimization purposes (avoid writing characters that already exist on screen)
+
+        private static Color32[] lineColor = new Color32[Config.ScreenWidth]; // One line of screen contents
+        private static Color32[] previousLineColor = new Color32[Config.ScreenWidth]; // The same line of previous frame
 
 
-        public static char[] BackCharacterBuffer = new char[Config.ScreenWidth * Config.ScreenHeight];       // Character buffers, which function similarly to color buffers. Applicable only if Config.MultipleCharacters = true, otherwise all characters are default.
+        public static char[]
+            BackCharacterBuffer =
+                new char[Config.ScreenWidth *
+                         Config.ScreenHeight]; // Character buffers, which function similarly to color buffers. Applicable only if Config.MultipleCharacters = true, otherwise all characters are default.
+
         public static char[] SwapCharacterBuffer = new char[Config.ScreenHeight * Config.ScreenWidth];
         public static char[] FrontCharacterBuffer = new char[Config.ScreenWidth * Config.ScreenHeight];
         private static char[] previousFrameCharacter = new char[Config.ScreenWidth * Config.ScreenHeight];
@@ -42,17 +61,29 @@ namespace CMDG
         // The function to set pixels in backbuffer. The scene is built entirely using this.
         public static void SetPixel(int x, int y, Color32 color)
         {
-            x = Math.Clamp(x, 0, Config.ScreenWidth - 1);
-            y = Math.Clamp(y, 0, Config.ScreenHeight - 1);
+            if (x < 0 || x >= Config.ScreenWidth || y < 0 || y >= Config.ScreenHeight) return;
+
             BackColorBuffer[y * Config.ScreenWidth + x] = color;
         }
 
         public static void SetPixel(int x, int y, Color32 color, char character)
         {
-            x = Math.Clamp(x, 0, Config.ScreenWidth - 1);
-            y = Math.Clamp(y, 0, Config.ScreenHeight - 1);
+            if (x < 0 || x >= Config.ScreenWidth || y < 0 || y >= Config.ScreenHeight) return;
+
             BackColorBuffer[y * Config.ScreenWidth + x] = color;
             BackCharacterBuffer[y * Config.ScreenWidth + x] = character;
+        }
+
+        public static void GetPixel(int x, int y, out char? ch, out Color32? color)
+        {
+            if (x < 0 || x >= Config.ScreenWidth || y < 0 || y >= Config.ScreenHeight)
+            {
+                color = null;
+                ch = null;
+            }
+
+            color = BackColorBuffer[y * Config.ScreenWidth + x];
+            ch = BackCharacterBuffer[y * Config.ScreenWidth + x];
         }
 
         public static void SetPixelUnsafe(int x, int y, Color32 color)
@@ -85,6 +116,7 @@ namespace CMDG
             {
                 Util.ansi_colour_codes = Util.ansi_foreground_colour_codes;
             }
+
             while (isRunning)
             {
                 DrawScreen();
@@ -118,9 +150,11 @@ namespace CMDG
         private static void DrawScreen()
         {
             stopwatch.Restart();
-            SwapbuffersToFrontBuffers();      // Get the contents of Backbuffers (Swapbuffers) as written by the scene function.
+            SwapbuffersToFrontBuffers(); // Get the contents of Backbuffers (Swapbuffers) as written by the scene function.
 
-            var outputBuffer = new StringBuilder(Config.ScreenWidth * Config.ScreenHeight * 5);     // Buffer to store the commands for characters, colors and cursor placements, collected and executed in one go.
+            var outputBuffer =
+                new StringBuilder(Config.ScreenWidth * Config.ScreenHeight *
+                                  5); // Buffer to store the commands for characters, colors and cursor placements, collected and executed in one go.
 
             if (forceWipe)
             {
@@ -138,7 +172,8 @@ namespace CMDG
                 if (Config.MultipleCharacters)
                 {
                     Array.Copy(FrontCharacterBuffer, y * Config.ScreenWidth, lineCharacter, 0, Config.ScreenWidth);
-                    Array.Copy(previousFrameCharacter, y * Config.ScreenWidth, previousLineCharacter, 0, Config.ScreenWidth);
+                    Array.Copy(previousFrameCharacter, y * Config.ScreenWidth, previousLineCharacter, 0,
+                        Config.ScreenWidth);
                 }
 
                 // Draw the line only if it has changed
@@ -161,6 +196,7 @@ namespace CMDG
                             break;
                         }
                     }
+
                     // Check if a first changed character position occurs before the first changed color position
                     if (Config.MultipleCharacters)
                     {
@@ -182,6 +218,7 @@ namespace CMDG
                     {
                         xCursorPosition += firstChangedX;
                     }
+
                     outputBuffer.Append($"\x1b[{y + 2};{xCursorPosition}H");
 
 
@@ -224,15 +261,21 @@ namespace CMDG
                             outputBuffer.Append(Util.ansi_colour_codes[colorCode]);
                             previousColorCode = colorCode;
                         }
+
                         if (Config.MultipleCharacters)
                         {
                             outputBuffer.Append(FrontCharacterBuffer[y * Config.ScreenWidth + x]);
-                            if (Config.DoubleWidth) outputBuffer.Append(FrontCharacterBuffer[y * Config.ScreenWidth + x]);  // Add another character if double width is used.
+                            if (Config.DoubleWidth)
+                                outputBuffer.Append(
+                                    FrontCharacterBuffer
+                                        [y * Config.ScreenWidth + x]); // Add another character if double width is used.
                         }
                         else
                         {
                             outputBuffer.Append(Config.DefaultCharacter);
-                            if (Config.DoubleWidth) outputBuffer.Append(Config.DefaultCharacter);  // Add another character if double width is used.
+                            if (Config.DoubleWidth)
+                                outputBuffer.Append(Config
+                                    .DefaultCharacter); // Add another character if double width is used.
                         }
                     }
                 }
@@ -254,9 +297,11 @@ namespace CMDG
                 outputBuffer.Append($"\x1b[{Config.ScreenHeight + 3};1H");
                 outputBuffer.Append(Util.ansi_background_colour_codes[0]);
                 outputBuffer.Append(Util.ansi_foreground_colour_codes[7]);
-                outputBuffer.Append($"Calc frame: {CalcFrameTime.ToString("D").PadLeft(4, ' ')} ms, wait {CalcFrameWaitTime.ToString("D").PadLeft(4, ' ')} ms, avg {avgCalcTime.ToString("D").PadLeft(4, ' ')} ms    ");
+                outputBuffer.Append(
+                    $"Calc frame: {CalcFrameTime.ToString("D").PadLeft(4, ' ')} ms, wait {CalcFrameWaitTime.ToString("D").PadLeft(4, ' ')} ms, avg {avgCalcTime.ToString("D").PadLeft(4, ' ')} ms    ");
                 outputBuffer.Append($"\x1b[{Config.ScreenHeight + 4};1H");
-                outputBuffer.Append($"Draw frame: {drawFrameTime.ToString("D").PadLeft(4, ' ')} ms, wait {drawFrameWaitTime.ToString("D").PadLeft(4, ' ')} ms, avg {avgDrawTime.ToString("D").PadLeft(4, ' ')} ms    ");
+                outputBuffer.Append(
+                    $"Draw frame: {drawFrameTime.ToString("D").PadLeft(4, ' ')} ms, wait {drawFrameWaitTime.ToString("D").PadLeft(4, ' ')} ms, avg {avgDrawTime.ToString("D").PadLeft(4, ' ')} ms    ");
             }
 
             DebugConsole.PrintMessages(1, 2);
@@ -268,8 +313,9 @@ namespace CMDG
             outputStream.Flush();
 
             stopwatch.Stop();
-            drawFrameTime = (int)(stopwatch.ElapsedMilliseconds);  // Frame time display lags one frame behind calculation, but who cares.
-
+            drawFrameTime =
+                (int)(stopwatch
+                    .ElapsedMilliseconds); // Frame time display lags one frame behind calculation, but who cares.
 
 
             // If drawing this frame needed less time than specified max framerate, wait to steady the framerate to max.
@@ -306,4 +352,3 @@ namespace CMDG
         }
     }
 }
-

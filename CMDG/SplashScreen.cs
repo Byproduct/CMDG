@@ -53,7 +53,8 @@ namespace CMDG
                 {
                     Console.WriteLine("Error: " + ex.Message);
                 }
-                Console.SetCursorPosition(0, Config.ScreenHeight + 2);
+                //caused some crash issues
+                //Console.SetCursorPosition(0, Config.ScreenHeight + 2);
         }
 
         public static Bitmap ResizeBitmap(Bitmap original, int width, int height)
