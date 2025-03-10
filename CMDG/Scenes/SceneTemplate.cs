@@ -1,4 +1,4 @@
-﻿namespace CMDG.Scenes
+﻿namespace CMDG
 {
     // Minimal scene template and tutorial - copy this to get started on a new scene!
     internal class SceneTemplate
