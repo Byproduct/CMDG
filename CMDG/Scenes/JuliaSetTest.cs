@@ -124,7 +124,54 @@ namespace CMDG
                     for (int x = 0; x < width; x++)
                     {
                         double colorValue = 0.0;
+                        
+                      
+                                // Normalized coordinates (from -1 to 1)
+                                double uvX = (double)x / width;
+                                double uvY = (double)y / height;
+                                uvX = uvX * 2.0 - 1.0;
+                                uvY = uvY * 2.0 - 1.0;
 
+                                // Aspect ratio correction
+                                uvX *= (double)width / height;
+
+                                // Julia set parameters
+                                double cX = -0.70176;
+                                double cY = -0.3842;
+                                double zX = uvX * 1.5;
+                                double zY = uvY * 1.5;
+
+                                // Iteration parameters
+                                
+                                double iter = 0.0;
+
+                                for (int i = 0; i < max_iter; i++)
+                                {
+                                    // Parabolic cycle: Alter the iteration rule slightly
+                                    double tempX = zX;
+                                    double tempY = zY;
+                                    zX = tempX * tempX - tempY * tempY + cX + 0.2 * Math.Sin(time * 0.5); // Adding slight oscillation
+                                    zY = 2.0 * tempX * tempY + cY;
+
+                                    // Escape condition (if point escapes the set)
+                                    if (Math.Sqrt(zX * zX + zY * zY) > 2.0) break;
+
+                                    iter += 1.0;
+                                }
+
+                                // Smooth color mapping based on iteration count
+                                double normIter = iter / (double)max_iter;
+                                int rr = (int)(normIter * 0.9 * 255);
+                                int gg = (int)(normIter * 0.5 * 255);
+                                int bb = (int)(normIter * 1.2 * 255);
+                                var color = new Color32((byte)rr, (byte)gg, (byte)bb);
+                                
+
+                                // Output final color
+                                //bitmap.SetPixel(x, y, color);
+                                //Framebuffer.SetPixel(x, y, color, '*');
+               
+                        /*
                         for (int i = 0; i < SET_AMOUNT; i++)
                         {
                             double frequencyOffset = (LOOP_LEN / SET_AMOUNT) * i;
@@ -141,6 +188,7 @@ namespace CMDG
                             double fade = double.Clamp((normalizedZoom + 1.0) / 2.0, 0.0, 1.0);
                             colorValue += JuliaSet(transformedX, transformedY, zoom) * fade * 3;
                         }
+                        
 
                         var color = new Color32(0, 0, 0);
                         
@@ -152,6 +200,7 @@ namespace CMDG
                             byte b = (byte)(colorValue * 255);
                             color = new Color32(b, b, b);
                         }
+                        */
 
                         float luminance = 0;
 
@@ -173,6 +222,7 @@ namespace CMDG
 
                         char ch = Util.GetAsciiChar(luminance, asciiSet);
                         Framebuffer.SetPixel(x, y, color, ch);
+                        
                     }
                 }
 
