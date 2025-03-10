@@ -4,7 +4,7 @@
     public static class Config
     {
         //public const string SceneName = "Character3Dtest"; // Select the scene to play by entering its name. Must be a class that contains a Run() method.
-        public const string SceneName = "JuliaSetTest";
+        public const string SceneName = "NoiseTest";
         
         /*
         Available scenes:
