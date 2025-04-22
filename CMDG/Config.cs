@@ -3,7 +3,8 @@
     // Constant configuration values
     public static class Config
     {
-        public const string SceneName = "Example2D_characters"; // Select the scene to play by entering its name. Must be a class that contains a Run() method.
+        public const string SceneName = "ContentWiggler"; // Select the scene to play by entering its name. Must be a class that contains a Run() method.
+    
         /*
         Available scenes:
 
@@ -29,5 +30,6 @@
         public static bool AdjustScreen = false;              // Instructions to adjust screen at startup
         public static bool SplashScreen = false;              // CMDG splash screen after screen adjustment and before demo.
         public static bool EndScreen = true;                  // End screen after quitting
+        public static bool ReadConsoleFirst = true;           // Save existing console contents into Util.ReadCharacters (x, y, char) when starting up the program.
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 namespace CMDG
 {
     // Bootup things and miscellaneous utilities
-    public partial class Util
+    public static partial class Util
     {
         public static string ANSI_escape_character = "\u001b";
         public static string ANSI_reset_code = ANSI_escape_character + "[0m";
@@ -72,6 +72,10 @@ namespace CMDG
             Console.InputEncoding = Encoding.Unicode;
             Console.OutputEncoding = Encoding.UTF8;
 
+            if (Config.ReadConsoleFirst)
+            {
+                Util.ReadConsoleContents();
+            }
             ColorConverter.LoadAnsiMap();
         }
 
