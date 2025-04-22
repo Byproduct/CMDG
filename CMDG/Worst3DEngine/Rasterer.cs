@@ -55,11 +55,32 @@
         }
 
 
-        private void PutPixel(int x, int y, Color32 color)
+        private void PutPixel(int x, int y, int z, Color32 color)
         {
             if (x < 0 || x >= m_Width || y < 0 || y >= m_Height)
                 return;
-            Framebuffer.SetPixel(x, y, color);
+
+            if (Config.MultipleCharacters)
+            {
+                float zz = (z / 255.0f);
+                color.r = (byte)(color.r * zz);
+                color.g = (byte)(color.g * zz);
+                color.b = (byte)(color.b * zz);
+
+
+                //float luminance = Util.LinearLuminance(color.r, color.g, color.b);
+                //float luminance = Util.GammaCorrectedLuminance(color.r, color.g, color.b)*255;
+                float luminance = Util.SaturationCorrectedLuminance(color.r, color.g, color.b, 2f) * 255;
+                luminance = Util.Clamp(luminance, 0, 255);
+
+                char ch = Util.GetAsciiChar(luminance, 0);
+
+                Framebuffer.SetPixel(x, y, color, ch);
+            }
+            else
+            {
+                Framebuffer.SetPixel(x, y, color);
+            }
         }
 
 
@@ -87,7 +108,7 @@
                 if (!(w >= GetDepth(x, y))) return;
 
                 m_Buffer[x, y].Z = w;
-                PutPixel(x, y, particle.Color);
+                PutPixel(x, y, 0, particle.Color);
             }
         }
 
@@ -168,7 +189,15 @@
                             if (w < GetDepth(j, i))
                             {
                                 m_Buffer[j, i].Z = w;
-                                PutPixel(j, i, color);
+
+
+                                float normalizedW = w / 25;
+                                normalizedW = Util.Clamp(normalizedW, 0, 1);
+
+                                byte cW = (byte)(255 - (normalizedW * 255));
+                                //PutPixel(j, i, new Color32(cW, cW, cW));
+
+                                PutPixel(j, i, cW, color);
                             }
                         }
 
@@ -215,7 +244,14 @@
                             if (w < GetDepth(j, i))
                             {
                                 m_Buffer[j, i].Z = w;
-                                PutPixel(j, i, color);
+
+                                float normalizedW = w / 25;
+                                normalizedW = Util.Clamp(normalizedW, 0, 1);
+
+                                byte cW = (byte)(255 - (normalizedW * 255));
+                                //PutPixel(j, i, new Color32(cW, cW, cW));
+
+                                PutPixel(j, i, cW, color);
                             }
                         }
 
@@ -352,7 +388,7 @@
                 int nClippedTriangles = Triangle.ClipAgainstPlane(new Vec3(0, 0, 0.15f), new Vec3(0, 0, 1),
                     triViewed,
                     out clipped[0], out clipped[1]);
-                
+
                 for (int n = 0; n < nClippedTriangles; n++)
                 {
                     triProjected.P1 = m_Camera.GetProjectionMatrix().MultiplyVector(clipped[n].P1);
@@ -442,7 +478,7 @@
                 color.b = (byte)((b * z) * 255.0f);
 
                 //add particle to the renderlist
-                m_RenderParticles!.Enqueue(new Particle(projected, color));
+                m_RenderParticles!.Enqueue(new Particle(projected, new Vec3(0, 0, 0), color, '*', 0.1f));
             }
         }
 
@@ -451,7 +487,7 @@
             Clear();
             m_RenderTriangles?.Clear();
             m_RenderParticles?.Clear();
-           
+
 
             var gameObject = GameObjects.backgroundObject;
             var objectType = gameObject.Type;
@@ -550,9 +586,8 @@
             color.X = Util.Clamp(color.X, 0, 1);
             color.Y = Util.Clamp(color.Y, 0, 1);
             color.Z = Util.Clamp(color.Z, 0, 1);
-            
+
             var finalColor = Vec3.Lerp(original, color, dp);
-            //var finalColor = Vec3.Lerp(original, color, 1.0f);
 
             var result = new Color32
             {

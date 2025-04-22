@@ -97,10 +97,22 @@ namespace CMDG.Worst3DEngine
         }
     };
 
-    public struct Particle(Vec3 position, Color32 color)
+    public struct Particle()
     {
-        public Vec3 Position = position;
-        public Color32 Color = color;
+        public Vec3 Position;
+        public Vec3 Velocity;
+        public Color32 Color;
+        public char Character;
+        public float Mass;
+
+        public Particle(Vec3 position, Vec3 velocity, Color32 color, char character, float mass) : this()
+        {
+            Position = position;
+            Velocity = velocity;
+            Color = color;
+            Character = character;
+            Mass = mass;
+        }
     }
 
     public struct Triangle()
@@ -193,7 +205,7 @@ namespace CMDG.Worst3DEngine
         }
     }
 
-    
+
     public struct Mat4X4()
     {
         private float[,] _m = new float[4, 4];
@@ -391,5 +403,4 @@ namespace CMDG.Worst3DEngine
             return matrix;
         }
     }
-    
 }

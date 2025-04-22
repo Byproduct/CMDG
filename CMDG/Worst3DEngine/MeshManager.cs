@@ -50,7 +50,7 @@
 
         public static int CreateCube(Vec3 size, bool flipFace, Color32 objectColor)
         {
-            var filename = $"size:({size.X}, {size.Y}, {size.Z})";
+            var filename = $"size:({size.X}, {size.Y}, {size.Z}, {objectColor.r}, {objectColor.g}, {objectColor.b})";
             var id = FindMeshId(filename);
             if (id != -1)
                 return id;
