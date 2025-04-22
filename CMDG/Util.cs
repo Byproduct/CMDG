@@ -99,11 +99,22 @@ namespace CMDG
                 width *= 2;
             }
 
-            string topLine = new string('_', width);
+            char underscore = '_';
+            char verticalbar = '|';
+            char overscore = '‾';
+
+            if (!Config.VisibleBorder)
+            {
+                underscore = ' ';
+                verticalbar = ' ';
+                overscore = ' ';
+            }
+
+            string topLine = new string(underscore, width);
             string topBorder = " " + topLine + " ";
             string screenSpace = new string(' ', width);
-            string verticalBorder = "|" + screenSpace + "|";
-            string bottomLine = new string('‾', width);
+            string verticalBorder = verticalbar + screenSpace + verticalbar;
+            string bottomLine = new string(overscore, width);
             string bottomBorder = " " + bottomLine + " ";
             Console.WriteLine(topBorder);
             for (int i = 0; i < Config.ScreenHeight; i++)

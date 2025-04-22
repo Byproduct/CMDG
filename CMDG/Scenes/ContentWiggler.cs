@@ -39,8 +39,8 @@
             while (true)
             {
                 SceneControl.StartFrame();
-
-                // Move each character around randomly
+                
+                // Move the characters around
                 for (int i = 0; i < movingCharacters.Count; i++)
                 {
                     if (SceneControl.ElapsedTime > 1 && SceneControl.ElapsedTime < 3)
