@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace CMDG
@@ -8,22 +8,15 @@ namespace CMDG
     {
         public static string ANSI_escape_character = "\u001b";
         public static string ANSI_reset_code = ANSI_escape_character + "[0m";
-
-        public static string
-            ANSI_bold_code =
-                ANSI_escape_character +
-                "[1m"; // note: makes all colors the "brighter" version, that is, reducing your available palette to half
+        public static string ANSI_bold_code = ANSI_escape_character + "[1m";   // note: makes all colors the "brighter" version, that is, reducing your available palette to half
 
         public static Dictionary<int, string> ansi_foreground_colour_codes = new();
         public static Dictionary<int, string> ansi_background_colour_codes = new();
-
-        public static Dictionary<int, string>
-            ansi_colour_codes = new(); // will be filled with foreground or background codes depending on config
+        public static Dictionary<int, string> ansi_colour_codes = new();      // will be filled with foreground or background codes depending on config
 
         // Set up the terminal for ANSI codes, character encoding etc.
         const int STD_OUTPUT_HANDLE = -11;
         const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 4;
-
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern IntPtr GetStdHandle(int nStdHandle);
 
@@ -32,8 +25,6 @@ namespace CMDG
 
         [DllImport("kernel32.dll")]
         static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
-
-        private static float[] m_GammaLut;
 
 
         public static void Initialize()
@@ -86,45 +77,44 @@ namespace CMDG
                 Util.ReadConsoleContents();
             }
             ColorConverter.LoadAnsiMap();
+        }
 
-            m_GammaLut = CreateGammaLut();
+        /// <summary>
+        /// Resets terminal to default colors (white text on black background) by sending ANSI codes
+        /// and setting Console colors. Call after Initialize() so ANSI/VT mode is enabled.
+        /// </summary>
+        public static void ResetConsoleColors()
+        {
+            Console.Write(ANSI_reset_code);
+            Console.Write(ansi_foreground_colour_codes[7]);   // white (37m)
+            Console.Write(ansi_background_colour_codes[0]);   // black (40m)
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = ConsoleColor.Black;
         }
 
         public static void DrawBorder()
         {
+            ResetConsoleColors();
             Console.Clear();
             int width = Config.ScreenWidth;
             if (Config.DoubleWidth)
             {
                 width *= 2;
             }
-
-            char underscore = '_';
-            char verticalbar = '|';
-            char overscore = '‾';
-
-            if (!Config.VisibleBorder)
-            {
-                underscore = ' ';
-                verticalbar = ' ';
-                overscore = ' ';
-            }
-
-            string topLine = new string(underscore, width);
+            string topLine = new string('_', width);
             string topBorder = " " + topLine + " ";
             string screenSpace = new string(' ', width);
-            string verticalBorder = verticalbar + screenSpace + verticalbar;
-            string bottomLine = new string(overscore, width);
+            string verticalBorder = "|" + screenSpace + "|";
+            string bottomLine = new string('‾', width);
             string bottomBorder = " " + bottomLine + " ";
             Console.WriteLine(topBorder);
             for (int i = 0; i < Config.ScreenHeight; i++)
             {
                 Console.WriteLine(verticalBorder);
             }
-
             Console.WriteLine(bottomBorder);
         }
-
+        
         public static float Clamp(float v, float min, float max)
         {
             if (v < min)
@@ -135,120 +125,6 @@ namespace CMDG
             return v;
         }
 
-        private static float[] CreateGammaLut()
-        {
-            float[] lut = new float[256];
-            for (int i = 0; i < 256; i++)
-            {
-                float x = i / 255.0f;
-                lut[i] = x * x * MathF.Sqrt(x);
-            }
-
-            return lut;
-        }
-
-        public static float GammaCorrectedLuminance(byte r, byte g, byte b)
-        {
-            //unoptimized, just testing!
-            /*
-            float rf = MathF.Pow(r / 255.0f, 2.2f);
-            float gf = MathF.Pow(g / 255.0f, 2.2f);
-            float bf = MathF.Pow(b / 255.0f, 2.2f);
-
-            return MathF.Sqrt(0.2126f * rf + 0.7152f * gf + 0.0722f * bf);
-            */
-
-            float rf = m_GammaLut[r];
-            float gf = m_GammaLut[g];
-            float bf = m_GammaLut[b];
-
-            return MathF.Sqrt(0.2126f * rf + 0.7152f * gf + 0.0722f * bf);
-        }
-
-        //fast, but without the gamma correction
-        public static float LinearLuminance(byte r, byte g, byte b)
-        {
-            return 0.2126f * r + 0.7152f * g + 0.0722f * b;
-        }
-
-        public static (float hue, float saturation, float value) RGBtoHSV(byte r, byte g, byte b)
-        {
-            float rNorm = r / 255.0f;
-            float gNorm = g / 255.0f;
-            float bNorm = b / 255.0f;
-
-            float max = MathF.Max(rNorm, MathF.Max(gNorm, bNorm));
-            float min = MathF.Min(rNorm, MathF.Min(gNorm, bNorm));
-            float delta = max - min;
-
-            // Hue
-            float hue = 0.0f;
-            if (delta != 0.0f)
-            {
-                if (max == rNorm) hue = (gNorm - bNorm) / delta; // Red is max
-                else if (max == gNorm) hue = (bNorm - rNorm) / delta + 2; // Green is max
-                else hue = (rNorm - gNorm) / delta + 4; // Blue is max
-                hue /= 6.0f;
-                if (hue < 0.0f) hue += 1.0f;
-            }
-
-            // Saturation
-            float saturation = max == 0.0f ? 0.0f : delta / max;
-
-            // Value
-            float value = max;
-
-            return (hue, saturation, value);
-        }
-
-
-        //Saturation Power range: 0.5f - 5.0f
-        public static float SaturationCorrectedLuminance(byte r, byte g, byte b, float saturationPower)
-        {
-            var (hue, saturation, value) = RGBtoHSV(r, g, b);
-
-            float rf = r / 255.0f;
-            float gf = g / 255.0f;
-            float bf = b / 255.0f;
-
-            rf = rf * rf * MathF.Sqrt(rf);
-            gf = gf * gf * MathF.Sqrt(gf);
-            bf = bf * bf * MathF.Sqrt(bf);
-
-            float luminance = MathF.Sqrt(0.2126f * rf + 0.7152f * gf + 0.0722f * bf);
-
-            luminance *= 1.0f + saturationPower * saturation;
-
-            return luminance;
-        }
-
-        public static char GetAsciiChar(float luminance, int asciiSet)
-        {
-            switch (asciiSet)
-            {
-                case 0:
-                {
-                    const string asciiChars = " .:-=+*#%@";
-                    int index = (int)((luminance / 255.0f) * (asciiChars.Length - 1));
-                    return asciiChars[index];
-                }
-                case 1:
-                {
-                    const string asciiChars = " .'`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
-                    int index = (int)((luminance / 255.0f) * (asciiChars.Length - 1));
-                    return asciiChars[index];
-                }
-                default:
-                {
-                    const string asciiChars = "\u2591\u2592\u2593\u2588";
-                    int index = (int)((luminance / 255.0f) * (asciiChars.Length - 1));
-                    return asciiChars[index];
-                }
-            }
-        }
-        
-        
-        
         
     }
 }

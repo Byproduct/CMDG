@@ -1,4 +1,4 @@
-﻿// If you're creating a scene, there should be no need to edit this file.
+// If you're creating a scene, there should be no need to edit this file.
 // Check Config.cs, Scenes/SceneTemplate.cs, and Scenes/Example2D.cs to get started!
 
 using System.Reflection;
@@ -8,6 +8,8 @@ string sceneName = Config.SceneName;
 
 // Bootup sequence in single thread
 Util.Initialize();
+// Reset terminal colors to default (white on black) in case a previous run left them changed
+Util.ResetConsoleColors();
 if (Config.AdjustScreen) AdjustScreen.Run();
 Util.DrawBorder();
 if (Config.SplashScreen) SplashScreen.ShowSplashScreen();
@@ -117,6 +119,7 @@ while (true)
         {
             SplashScreen.ShowEndScreen();
         }
+        Util.ResetConsoleColors();
         Environment.Exit(0);
     }
     Thread.Sleep(10);

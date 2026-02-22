@@ -77,7 +77,7 @@ namespace CMDG.Worst3DEngine
             var bd = Vec3.Dot(lineEnd, planeN);
 
             var denominator = bd - ad;
-            if (MathF.Abs(denominator) < 1e-6f)
+            if (MathF.Abs(denominator) < 0.000001-6f)
             {
                 t = float.NaN;
                 return new Vec3(float.NaN, float.NaN, float.NaN);
@@ -97,22 +97,10 @@ namespace CMDG.Worst3DEngine
         }
     };
 
-    public struct Particle()
+    public struct Particle(Vec3 position, Color32 color)
     {
-        public Vec3 Position;
-        public Vec3 Velocity;
-        public Color32 Color;
-        public char Character;
-        public float Mass;
-
-        public Particle(Vec3 position, Vec3 velocity, Color32 color, char character, float mass) : this()
-        {
-            Position = position;
-            Velocity = velocity;
-            Color = color;
-            Character = character;
-            Mass = mass;
-        }
+        public Vec3 Position = position;
+        public Color32 Color = color;
     }
 
     public struct Triangle()
@@ -205,7 +193,7 @@ namespace CMDG.Worst3DEngine
         }
     }
 
-
+    
     public struct Mat4X4()
     {
         private float[,] _m = new float[4, 4];
@@ -403,4 +391,5 @@ namespace CMDG.Worst3DEngine
             return matrix;
         }
     }
+    
 }

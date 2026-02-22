@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.Versioning;
 
@@ -14,6 +14,7 @@ namespace CMDG
 
                 try
                 {
+                    Util.ResetConsoleColors();
                     using (Bitmap originalBitmap = new Bitmap(imagePath))
                     using (Bitmap resizedBitmap = ResizeBitmap(originalBitmap, Config.ScreenWidth, Config.ScreenHeight))
                     {
@@ -43,6 +44,7 @@ namespace CMDG
                 string imagePath = "Media/fin.png";
                 try
                 {
+                    Util.ResetConsoleColors();
                     using (Bitmap originalBitmap = new Bitmap(imagePath))
                     using (Bitmap resizedBitmap = ResizeBitmap(originalBitmap, Config.ScreenWidth, Config.ScreenHeight))
                     {
@@ -53,8 +55,7 @@ namespace CMDG
                 {
                     Console.WriteLine("Error: " + ex.Message);
                 }
-                //caused some crash issues
-                //Console.SetCursorPosition(0, Config.ScreenHeight + 2);
+                Console.SetCursorPosition(0, Config.ScreenHeight + 2);
         }
 
         public static Bitmap ResizeBitmap(Bitmap original, int width, int height)
